@@ -201,7 +201,7 @@ int main()
 		float seedNo = 0.0f;
 		int lossFunct = LOSSFUNCTSIMPLE;
 
-		int testTimes = 50;
+		int testTimes = 5000;
 		int viewsEach = 1;
 		float alpha = 0.11f;
 		bool print = 1;
@@ -283,7 +283,7 @@ int main()
 		int ranDistr = 0;
 		int range1 = 1000;
 		int range2 = 1000;
-		int range3 = 500;
+		int range3 = 25000;
 		int checkPoint1 = 100;
 		int checkPoint2 = 100;
 		int checkPoint3 = 100;

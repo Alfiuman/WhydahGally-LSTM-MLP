@@ -4,11 +4,6 @@ namespace WhydahGally
 {
 	namespace Maths
 	{
-		float lossFunctSimple(const float& x, const float& y)
-		{
-			return x - y;
-		}
-
 		std::vector<float> lossFunctSimple(const std::vector<float>& x, const std::vector<float>& y)
 		{
 			return vectorsDifference(x, y);
@@ -17,11 +12,6 @@ namespace WhydahGally
 		std::vector<float> lossFunctSimple(const std::vector<std::vector<float>>& x, const std::vector<float>& y)
 		{
 			return matrixVectorDifference(x, y);
-		}
-
-		float lossFunctLog(const float& x, const float& y)
-		{
-			return (-((y * log(x)) + ((1 - y) * log(1 - x)))) * sign(x - y);
 		}
 
 		std::vector<float> lossFunctLog(const std::vector<float>& x, const std::vector<float>& y)
@@ -50,11 +40,6 @@ namespace WhydahGally
 			return results;
 		}
 
-		float lossFunctLogPow3(const float& x, const float& y)
-		{
-			return pow((-((y * log(x)) + ((1 - y) * log(1 - x)))) * sign(x - y), 3);
-		}
-
 		std::vector<float> lossFunctLogPow3(const std::vector<float>& x, const std::vector<float>& y)
 		{
 			std::vector<float> results;
@@ -81,11 +66,6 @@ namespace WhydahGally
 			return results;
 		}
 
-		float lossFunctPow3(const float& x, const float& y)
-		{
-			return pow(x - y, 3);
-		}
-
 		std::vector<float> lossFunctPow3(const std::vector<float>& x, const std::vector<float>& y)
 		{
 			std::vector<float> results;
@@ -110,11 +90,6 @@ namespace WhydahGally
 			}
 
 			return results;
-		}
-
-		float lossFunctPow3PLogPow3(const float& x, const float& y)
-		{
-			return pow(x - y, 3) + pow((-((y * log(x)) + ((1 - y) * log(1 - x)))) * sign(x - y), 3);
 		}
 
 		std::vector<float> lossFunctPow3PLogPow3(const std::vector<float>& x, const std::vector<float>& y)

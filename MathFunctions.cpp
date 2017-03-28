@@ -4,28 +4,6 @@ namespace WhydahGally
 {
 	namespace Maths
 	{
-		float sigmoid(const float& x)
-		{
-			return 1 / (1 + exp(-x));
-		}
-
-		float derivativeSigmoid(const float& x)
-		{
-			return x * (1 - x);
-		}
-
-		float sign(const float& x)
-		{
-			if (x >= 0)
-			{
-				return 1.0f;
-			}
-			else
-			{
-				return -1.0f;
-			}
-		}
-
 		float mean(const std::vector<float>& x)
 		{
 			float sum = 0.0f;
@@ -89,18 +67,6 @@ namespace WhydahGally
 			return sum;
 		}
 
-		float abs(const float& x)
-		{
-			if (x >= 0)
-			{
-				return x;
-			}
-			else
-			{
-				return -x;
-			}
-		}
-
 		std::vector<float> abs(const std::vector<float>& x)
 		{
 			std::vector<float> results;
@@ -133,44 +99,6 @@ namespace WhydahGally
 			}
 
 			return results;
-		}
-
-		float randNormalDistrib(const float& mean, const float& stdDev) //Using the Box-Muller method.
-		{
-			static bool nBool = 0;
-			static float n = 0.0f;
-
-			if (!nBool)
-			{
-				float x;
-				float y;
-				float z;
-
-				do
-				{
-					x = 2.0f * rand() / RAND_MAX - 1.0f;
-					y = 2.0f * rand() / RAND_MAX - 1.0f;
-					z = pow(x, 2) + pow(y, 2);
-				} 
-				while (z > 1.0f || z == 0.0f);
-				{
-					float w = sqrt(-2.0f * log(z) / z);
-					float m = x * w;
-
-					n = y * w;
-
-					float result = m * stdDev + mean;
-					nBool = 1;
-
-					return result;
-				}
-			}
-			else
-			{
-				nBool = 0;
-
-				return n * stdDev + mean;
-			}
 		}
 	}
 }
