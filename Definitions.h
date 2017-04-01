@@ -3,15 +3,11 @@
 //MACROS
 #define PRINT(x) std::cout << x
 
-//OPTIONS
-#define DEBUG	1
-#define CUDA	1
-
 //DEFINITIONS
 //Algorithm
 #define LSTM	1
 #define MLP		2
-#define MLPFst	3
+#define MLPFAST	3
 
 //Task
 #define TRAIN		1
@@ -39,4 +35,11 @@
 #define CPU		0
 #define GLOBAL	1
 #define SHARED	2
+
+//Default Numbers
+#define MAX_NUM_THREADS	8
+#define DEFAULT_BIAS	1.0f
+#define DEFAULT_SEEDNO	0.0f
+
+
 

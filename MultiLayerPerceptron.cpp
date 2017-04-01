@@ -4,73 +4,66 @@ namespace WhydahGally
 {
 	namespace Base
 	{
-		MultiLayerPerceptron::MultiLayerPerceptron(Importer& importer, const float& limMin, const float& limMax, const float& seedNo, const int& numNeur1, const int& numNeur2, const int& numNeur3, const int& numNeur4, const int& numNeur5, const int& numNeur6, const int& numNeur7, const int& numNeur8, const int& numNeur9, const int& numNeur10, const int& numNeur11, const int& numNeur12)
+		MultiLayerPerceptron::MultiLayerPerceptron(Importer& importer, const float& limMin, const float& limMax, const float& seedNo, int numNeurArr[12])
 			: error_(10000000.1f), errorV_(10000000.1f), bestError_(10000000.1f), bestErrorExpl_(10000000.1f), importFileName_(""), start_(0), importer_(&importer), historyLength_(importer.getHistoryLength())
 		{
 			//Building the MLP.
-			if (numNeur1 == 0)
+			if (numNeurArr[0] == 0)
 			{
 				PRINT("A MLP needs at least one layer of neurons.\n");
 			}
-			else if (numNeur2 == 0)
+			else if (numNeurArr[1] == 0)
 			{
-				numNeurArr_ = new  int[1]{ numNeur1 };
 				numNeurLayers_ = 1;
 			}
-			else if (numNeur3 == 0)
+			else if (numNeurArr[2] == 0)
 			{
-				numNeurArr_ = new  int[2]{ numNeur1, numNeur2 };
 				numNeurLayers_ = 2;
 			}
-			else if (numNeur4 == 0)
+			else if (numNeurArr[3] == 0)
 			{
-				numNeurArr_ = new  int[3]{ numNeur1, numNeur2, numNeur3 };
 				numNeurLayers_ = 3;
 			}
-			else if (numNeur5 == 0)
+			else if (numNeurArr[4] == 0)
 			{
-				numNeurArr_ = new  int[4]{ numNeur1, numNeur2, numNeur3, numNeur4 };
 				numNeurLayers_ = 4;
 			}
-			else if (numNeur6 == 0)
+			else if (numNeurArr[5] == 0)
 			{
-				numNeurArr_ = new  int[5]{ numNeur1, numNeur2, numNeur3, numNeur4, numNeur5 };
 				numNeurLayers_ = 5;
 			}
-			else if (numNeur7 == 0)
+			else if (numNeurArr[6] == 0)
 			{
-				numNeurArr_ = new  int[6]{ numNeur1, numNeur2, numNeur3, numNeur4, numNeur5, numNeur6 };
 				numNeurLayers_ = 6;
 			}
-			else if (numNeur8 == 0)
+			else if (numNeurArr[7] == 0)
 			{
-				numNeurArr_ = new  int[7]{ numNeur1, numNeur2, numNeur3, numNeur4, numNeur5, numNeur6, numNeur7 };
 				numNeurLayers_ = 7;
 			}
-			else if (numNeur9 == 0)
+			else if (numNeurArr[8] == 0)
 			{
-				numNeurArr_ = new  int[8]{ numNeur1, numNeur2, numNeur3, numNeur4, numNeur5, numNeur6, numNeur7, numNeur8 };
 				numNeurLayers_ = 8;
 			}
-			else if (numNeur10 == 0)
+			else if (numNeurArr[9] == 0)
 			{
-				numNeurArr_ = new  int[9]{ numNeur1, numNeur2, numNeur3, numNeur4, numNeur5, numNeur6, numNeur7, numNeur8, numNeur9 };
 				numNeurLayers_ = 9;
 			}
-			else if (numNeur11 == 0)
+			else if (numNeurArr[10] == 0)
 			{
-				numNeurArr_ = new  int[10]{ numNeur1, numNeur2, numNeur3, numNeur4, numNeur5, numNeur6, numNeur7, numNeur8, numNeur9, numNeur10 };
 				numNeurLayers_ = 10;
 			}
-			else if (numNeur12 == 0)
+			else if (numNeurArr[11] == 0)
 			{
-				numNeurArr_ = new  int[11]{ numNeur1, numNeur2, numNeur3, numNeur4, numNeur5, numNeur6, numNeur7, numNeur8, numNeur9, numNeur10, numNeur11 };
 				numNeurLayers_ = 11;
 			}
 			else
 			{
-				numNeurArr_ = new  int[12]{ numNeur1, numNeur2, numNeur3, numNeur4, numNeur5, numNeur6, numNeur7, numNeur8, numNeur9, numNeur10, numNeur11, numNeur12 };
 				numNeurLayers_ = 12;
+			}
+
+			for (int i = 0; i < 12; i++)
+			{
+				numNeurArr_[i] = numNeurArr[i];
 			}
 
 			buildWeights(limMin, limMax, seedNo);
@@ -78,7 +71,7 @@ namespace WhydahGally
 
 		MultiLayerPerceptron::~MultiLayerPerceptron()
 		{
-			delete[] numNeurArr_;
+
 		}
 
 		void MultiLayerPerceptron::buildWeights(const float& limMin, const float& limMax, const float& seedNo)
@@ -335,10 +328,21 @@ namespace WhydahGally
 		void MultiLayerPerceptron::train()
 		{
 			//Training the MLP with default arguments.
-			train(-10.0f, 10.0f, 0, 1000, 1000, 25000, 100, 100, 100, 0.05f, 0.4f, 0.1f, LOSSFUNCTSIMPLE, 0, 1, 0);
+			int ranges[3]{ 1000, 1000, 25000 };
+			int checkPoints[3]{ 100, 100, 100 };
+			DistribParamForMLP distrParam;
+			distrParam.mu_ = -10.0f;
+			distrParam.sigma_ = 10.0f;
+			distrParam.ranDistr_ = 0;
+			distrParam.epsilon_ = 0.05f;
+			distrParam.muAlpha_ = 0.4f;
+			distrParam.sigmaAlpha_ = 0.1f;
+			distrParam.seedNo_ = DEFAULT_SEEDNO;
+
+			train(distrParam, ranges, checkPoints, LOSSFUNCTSIMPLE, 0, 1);
 		}
 
-		void MultiLayerPerceptron::train(const float& mu, const float& sigma, const int& ranDistr, const int& range1, const int& range2, const int& range3, const int& checkPoint1, const int& checkPoint2, const int& checkPoint3, const float& epsilon, const float& muAlpha, const float& sigmaAlpha, const int& lossFunction, const bool& plot, const bool& print, const float& seedNo)
+		void MultiLayerPerceptron::train(DistribParamForMLP& distrParam, int ranges[3], int checkPoints[3], const int& lossFunction, const bool& plot, const bool& print)
 		{
 			//Training the MLP with user defined parameters.
 			std::vector<std::vector<std::vector<float>>> results;
@@ -355,7 +359,7 @@ namespace WhydahGally
 				}
 			}
 
-			srand(seedNo);
+			srand(distrParam.seedNo_);
 
 			bool fase1 = 0;
 			bool fase2 = 0;
@@ -363,35 +367,35 @@ namespace WhydahGally
 			bool backpropagation = 0;
 			bool start_ = 0;
 
-			if (range1 > -1)
+			if (ranges[0] > -1)
 			{
 				fase1 = 1;
 			}
 
-			if (range2 > -1)
+			if (ranges[1] > -1)
 			{
 				fase2 = 1;
 			}
 
-			if (range3 > -1)
+			if (ranges[2] > -1)
 			{
 				fase3 = 1;
 			}
 
 			//Populating randomly the weights and evaluating them.
-			for (int r = 0; r <= range1; r++)
+			for (int r = 0; r <= ranges[0]; r++)
 			{
 				backpropagation = 0;
 
 				calculateLayers();
 				computeErrors(r, lossFunction, plot, backpropagation);
 
-				if (r % checkPoint1 == 0 && print == 1)
+				if (r % checkPoints[0] == 0 && print == 1)
 				{
 					PRINT("Error after " + std::to_string(r) + " 1st iterations: " + std::to_string(bestErrorExpl_) + " or FunctErr: " + std::to_string(bestError_) << "\n");
 				}
 
-				if (ranDistr == 0)
+				if (distrParam.ranDistr_ == 0)
 				{
 					for (int i = 0; i < weights_.size(); i++)
 					{
@@ -399,12 +403,12 @@ namespace WhydahGally
 						{
 							for (int k = 0; k < weights_[i][j].size(); k++)
 							{
-								weights_.at(i).at(j).at(k) = ((sigma - mu) * static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) + mu; //sigma = limMax; mu = limMin;
+								weights_.at(i).at(j).at(k) = ((distrParam.sigma_ - distrParam.mu_) * static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) + distrParam.mu_; //sigma = limMax; mu = limMin;
 							}
 						}
 					}
 				}
-				else if (ranDistr == 1)
+				else if (distrParam.ranDistr_ == 1)
 				{
 					for (int i = 0; i < weights_.size(); i++)
 					{
@@ -412,7 +416,7 @@ namespace WhydahGally
 						{
 							for (int k = 0; k < weights_[i][j].size(); k++)
 							{
-								weights_.at(i).at(j).at(k) = Maths::randNormalDistrib(mu, sigma);
+								weights_.at(i).at(j).at(k) = Maths::randNormalDistrib(distrParam.mu_, distrParam.sigma_);
 							}
 						}
 					}
@@ -429,14 +433,14 @@ namespace WhydahGally
 			}
 
 			//Modifying the weights going randomly around them; after it, evaluating them.
-			for (int r = 0; r <= range2; r++)
+			for (int r = 0; r <= ranges[1]; r++)
 			{
 				backpropagation = 0;
 
 				calculateLayers();
 				computeErrors(r, lossFunction, plot, backpropagation);
 
-				if (r % checkPoint2 == 0 && print == 1)
+				if (r % checkPoints[1] == 0 && print == 1)
 				{
 					PRINT("Error after " + std::to_string(r) + " 2nd iterations: " + std::to_string(bestErrorExpl_) + " or FunctErr: " + std::to_string(bestError_) << "\n");
 				}
@@ -447,7 +451,7 @@ namespace WhydahGally
 					{
 						for (int k = 0; k < weights_[i][j].size(); k++)
 						{
-							weights_.at(i).at(j).at(k) = ((epsilon - (1 - (epsilon - 1))) * static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) + (1 - (epsilon - 1)) * topWeights_.at(i).at(j).at(k);
+							weights_.at(i).at(j).at(k) = ((distrParam.epsilon_ - (1 - (distrParam.epsilon_ - 1))) * static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) + (1 - (distrParam.epsilon_ - 1)) * topWeights_.at(i).at(j).at(k);
 						}
 					}
 				}
@@ -461,20 +465,20 @@ namespace WhydahGally
 			float alpha = 0.0;
 
 			//Backpropagation algorithm to train the MLP.
-			for (int r = 0; r <= range3; r++)
+			for (int r = 0; r <= ranges[2]; r++)
 			{
 				backpropagation = 1;
-				alpha = Maths::randNormalDistrib(muAlpha, sigmaAlpha);
+				alpha = Maths::randNormalDistrib(distrParam.muAlpha_, distrParam.sigmaAlpha_);
 
 				calculateLayers();
 				computeErrors(r, lossFunction, plot, backpropagation);
 
-				if (r % checkPoint3 == 0 && print == 1)
+				if (r % checkPoints[2] == 0 && print == 1)
 				{
 					PRINT("Error after " << r << " 3rd iterations: " << error_ << " or General Error: " << errorV_ << "\n");
 				}
 
-				if (r != range3)
+				if (r != ranges[2])
 				{
 					//Computing the deltas using the derivative of the sigmoid function.
 					for (int i = 0; i < layerDeltas_[layerDeltas_.size() - 1].size(); i++)
@@ -622,23 +626,23 @@ namespace WhydahGally
 				start_ = 1;
 
 				//Populating the errors' vector using a selected loss function.
-				if (lossFunction == 0)
+				if (lossFunction == LOSSFUNCTSIMPLE)
 				{
 					lastLayerError_ = Maths::lossFunctSimple(layers_[layers_.size() - 1], importer_->getY());
 				}
-				else if (lossFunction == 1)
+				else if (lossFunction == LOSSFUNCTLOG)
 				{
 					lastLayerError_ = Maths::lossFunctLog(layers_[layers_.size() - 1], importer_->getY());
 				}
-				else if (lossFunction == 2)
+				else if (lossFunction == LOSSFUNCTLOGPOW3)
 				{
 					lastLayerError_ = Maths::lossFunctLogPow3(layers_[layers_.size() - 1], importer_->getY());
 				}
-				else if (lossFunction == 3)
+				else if (lossFunction == LOSSFUNCTPOW3)
 				{
 					lastLayerError_ = Maths::lossFunctPow3(layers_[layers_.size() - 1], importer_->getY());
 				}
-				else if (lossFunction == 4)
+				else if (lossFunction == LOSSFUNCTPOW3PLOGPOW3)
 				{
 					lastLayerError_ = Maths::lossFunctPow3PLogPow3(layers_[layers_.size() - 1], importer_->getY());
 				}
@@ -668,35 +672,35 @@ namespace WhydahGally
 
 				start_ = 1;
 
-				if (lossFunction == 0)
+				if (lossFunction == LOSSFUNCTSIMPLE)
 				{
 					for (int i = 0; i < layerErrors_[layerErrors_.size() - 1].size(); i++)
 					{
 						layerErrors_[layerErrors_.size() - 1][i][0] = Maths::lossFunctSimple(layers_[layers_.size() - 1], importer_->getY())[i];
 					}
 				}
-				else if (lossFunction == 1)
+				else if (lossFunction == LOSSFUNCTLOG)
 				{
 					for (int i = 0; i < layerErrors_[layerErrors_.size() - 1].size(); i++)
 					{
 						layerErrors_[layerErrors_.size() - 1][i][0] = Maths::lossFunctLog(layers_[layers_.size() - 1], importer_->getY())[i];
 					}
 				}
-				else if (lossFunction == 2)
+				else if (lossFunction == LOSSFUNCTLOGPOW3)
 				{
 					for (int i = 0; i < layerErrors_[layerErrors_.size() - 1].size(); i++)
 					{
 						layerErrors_[layerErrors_.size() - 1][i][0] = Maths::lossFunctLogPow3(layers_[layers_.size() - 1], importer_->getY())[i];
 					}
 				}
-				else if (lossFunction == 3)
+				else if (lossFunction == LOSSFUNCTPOW3)
 				{
 					for (int i = 0; i < layerErrors_[layerErrors_.size() - 1].size(); i++)
 					{
 						layerErrors_[layerErrors_.size() - 1][i][0] = Maths::lossFunctPow3(layers_[layers_.size() - 1], importer_->getY())[i];
 					}
 				}
-				else if (lossFunction == 4)
+				else if (lossFunction == LOSSFUNCTPOW3PLOGPOW3)
 				{
 					for (int i = 0; i < layerErrors_[layerErrors_.size() - 1].size(); i++)
 					{

@@ -41,7 +41,7 @@ namespace WhydahGally
 			Matrix differBiasF_;
 			Matrix differBiasO_;
 
-			Parameters(const int& dimX, const int& numMemCell, const bool& importParam, const float& max, const float& min, const int& seedNo);
+			Parameters(const int& dimX, const int& numMemCell, const bool& importParam, const float& max, const float& min, const float& seedNo);
 			~Parameters();
 
 			void recomputeWeightsBias(const float& alpha);

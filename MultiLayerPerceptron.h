@@ -13,6 +13,18 @@ namespace WhydahGally
 {
 	namespace Base
 	{
+		struct DistribParamForMLP
+		{
+			//Parameters for the random distributions used to train the MLP.
+			float mu_;
+			float sigma_;
+			int ranDistr_;
+			float epsilon_;
+			float muAlpha_;
+			float sigmaAlpha_;
+			float seedNo_;
+		};
+
 		class MultiLayerPerceptron : public IMachineLearningAlgorithm
 		{
 		protected:
@@ -28,7 +40,7 @@ namespace WhydahGally
 			std::string importFileName_;
 			std::string exportFileName_;
 
-			int* numNeurArr_;
+			int numNeurArr_[12];
 			Importer* importer_;
 
 			std::vector<float> lastLayerError_;
@@ -52,7 +64,7 @@ namespace WhydahGally
 			void computeErrors(const int& counter, const int& lossFunction, const bool& plot, const bool& backpropagation);
 
 		public:
-			MultiLayerPerceptron(Importer& importer, const float& limMin, const float& limMax, const float& seedNo, const int& numNeur1, const int& numNeur2 = 0, const int& numNeur3 = 0, const int& numNeur4 = 0, const int& numNeur5 = 0, const int& numNeur6 = 0, const int& numNeur7 = 0, const int& numNeur8 = 0, const int& numNeur9 = 0, const int& numNeur10 = 0, const int& numNeur11 = 0, const int& numNeur12 = 0);
+			MultiLayerPerceptron(Importer& importer, const float& limMin, const float& limMax, const float& seedNo, int numNeurArr[12]);
 			virtual ~MultiLayerPerceptron();
 
 			void importWeights() override;
@@ -60,7 +72,7 @@ namespace WhydahGally
 			void exportWeights() override;
 			void exportWeights(const short int& layer, const std::string& fileName = "");
 			virtual void train() override;
-			void train(const float& mu, const float& sigma, const int& ranDistr, const int& range1, const int& range2, const int& range3, const int& checkPoint1, const int& checkPoint2, const int& checkPoint3, const float& epsilon, const float& muAlpha, const float& sigmaAlpha, const int& lossFunction, const bool& plot, const bool& print, const float& seedNo);
+			void train(DistribParamForMLP& distrParam, int ranges[3], int checkPoints[3], const int& lossFunction, const bool& plot, const bool& print);
 			void test() override;
 			void test(const int& lossFunction);
 			void classify() override;

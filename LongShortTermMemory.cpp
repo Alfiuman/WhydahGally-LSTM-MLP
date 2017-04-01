@@ -4,7 +4,7 @@ namespace WhydahGally
 {
 	namespace Base
 	{
-		Parameters::Parameters(const int& dimX, const int& numMemCell, const bool& importParam, const float& max, const float& min, const int& seedNo)
+		Parameters::Parameters(const int& dimX, const int& numMemCell, const bool& importParam, const float& max, const float& min, const float& seedNo)
 			: numMemCell_(numMemCell), concatLen_(dimX + numMemCell), problem_(0), weightsG_(numMemCell_, concatLen_), weightsI_(numMemCell_, concatLen_), weightsF_(numMemCell_, concatLen_), weightsO_(numMemCell_, concatLen_), biasG_(numMemCell_), biasI_(numMemCell_), biasF_(numMemCell_), biasO_(numMemCell_), differWeightsG_(numMemCell_, concatLen_), differWeightsI_(numMemCell_, concatLen_), differWeightsF_(numMemCell_, concatLen_), differWeightsO_(numMemCell_, concatLen_), differBiasG_(numMemCell_), differBiasI_(numMemCell_), differBiasF_(numMemCell_), differBiasO_(numMemCell_)
 		{
 			if (importParam == 0)
@@ -718,27 +718,27 @@ namespace WhydahGally
 				int count = 0;
 
 				//Computing the losses given a particular loss function.
-				if (lossFunct == 0)
+				if (lossFunct == LOSSFUNCTSIMPLE)
 				{
 					loss_ = pow(Maths::lossFunctSimple(nodeList_.at(idx)->state_->h_.elements_[0], listY.elements_[idx]), 2);
 					generalLoss_ = Maths::abs(Maths::lossFunctSimple(nodeList_.at(idx)->state_->h_.elements_[0], listY.elements_[idx]));
 				}
-				else if(lossFunct == 1)
+				else if(lossFunct == LOSSFUNCTLOG)
 				{
 					loss_ = pow(Maths::lossFunctLog(nodeList_.at(idx)->state_->h_.elements_[0], listY.elements_[idx]), 2);
 					generalLoss_ = Maths::abs(Maths::lossFunctSimple(nodeList_.at(idx)->state_->h_.elements_[0], listY.elements_[idx]));
 				}
-				else if (lossFunct == 2)
+				else if (lossFunct == LOSSFUNCTLOGPOW3)
 				{
 					loss_ = pow(Maths::lossFunctLogPow3(nodeList_.at(idx)->state_->h_.elements_[0], listY.elements_[idx]), 2);
 					generalLoss_ = Maths::abs(Maths::lossFunctSimple(nodeList_.at(idx)->state_->h_.elements_[0], listY.elements_[idx]));
 				}
-				else if (lossFunct == 3)
+				else if (lossFunct == LOSSFUNCTPOW3)
 				{
 					loss_ = pow(Maths::lossFunctPow3(nodeList_.at(idx)->state_->h_.elements_[0], listY.elements_[idx]), 2);
 					generalLoss_ = Maths::abs(Maths::lossFunctSimple(nodeList_.at(idx)->state_->h_.elements_[0], listY.elements_[idx]));
 				}
-				else if (lossFunct == 4)
+				else if (lossFunct == LOSSFUNCTPOW3PLOGPOW3)
 				{
 					loss_ = pow(Maths::lossFunctPow3PLogPow3(nodeList_.at(idx)->state_->h_.elements_[0], listY.elements_[idx]), 2);
 					generalLoss_ = Maths::abs(Maths::lossFunctSimple(nodeList_.at(idx)->state_->h_.elements_[0], listY.elements_[idx]));
@@ -759,27 +759,27 @@ namespace WhydahGally
 				//Computing the losses going backward through the Artificial Neural Network.
 				while (idx >= 0)
 				{
-					if (lossFunct == 0)
+					if (lossFunct == LOSSFUNCTSIMPLE)
 					{
 						loss_ += pow(Maths::lossFunctSimple(nodeList_.at(idx)->state_->h_.elements_[0], listY.elements_[idx]), 2);
 						generalLoss_ += Maths::abs(Maths::lossFunctSimple(nodeList_.at(idx)->state_->h_.elements_[0], listY.elements_[idx]));
 					}
-					else if (lossFunct == 1)
+					else if (lossFunct == LOSSFUNCTLOG)
 					{
 						loss_ += pow(Maths::lossFunctLog(nodeList_.at(idx)->state_->h_.elements_[0], listY.elements_[idx]), 2);
 						generalLoss_ += Maths::abs(Maths::lossFunctSimple(nodeList_.at(idx)->state_->h_.elements_[0], listY.elements_[idx]));
 					}
-					else if (lossFunct == 2)
+					else if (lossFunct == LOSSFUNCTLOGPOW3)
 					{
 						loss_ += pow(Maths::lossFunctLogPow3(nodeList_.at(idx)->state_->h_.elements_[0], listY.elements_[idx]), 2);
 						generalLoss_ += Maths::abs(Maths::lossFunctSimple(nodeList_.at(idx)->state_->h_.elements_[0], listY.elements_[idx]));
 					}
-					else if (lossFunct == 3)
+					else if (lossFunct == LOSSFUNCTPOW3)
 					{
 						loss_ += pow(Maths::lossFunctPow3(nodeList_.at(idx)->state_->h_.elements_[0], listY.elements_[idx]), 2);
 						generalLoss_ += Maths::abs(Maths::lossFunctSimple(nodeList_.at(idx)->state_->h_.elements_[0], listY.elements_[idx]));
 					}
-					else if (lossFunct == 4)
+					else if (lossFunct == LOSSFUNCTPOW3PLOGPOW3)
 					{
 						loss_ += pow(Maths::lossFunctPow3PLogPow3(nodeList_.at(idx)->state_->h_.elements_[0], listY.elements_[idx]), 2);
 						generalLoss_ += Maths::abs(Maths::lossFunctSimple(nodeList_.at(idx)->state_->h_.elements_[0], listY.elements_[idx]));

@@ -11,6 +11,10 @@
 #include "MultiLayerPerceptron.h"
 #include "MLPFast.h"
 
+//OPTIONS
+#define DEBUG	1
+#define CUDA	1
+
 using namespace WhydahGally;
 using namespace Base;
 using namespace Maths;
@@ -26,12 +30,12 @@ public:
 	{
 		std::lock_guard<std::mutex> guard(mu_);
 	
-		PRINT("Final error for " << numThr << " thread is: "  << loss << " and generalLoss is: " << generalLoss) << "\n";
+		PRINT("Final error for thread " << numThr << " is: "  << loss << " and generalLoss is: " << generalLoss) << "\n";
 	}
 };
 
-//Creating the tasks for multithreading analysis for the different machine learning algorithms.
-void taskLSTM(const int& numThr, Importer* imp, const int& numCell, const bool& importParam, const float& max, const float& min, const int& seedNo, const int& testTimes, const int& viewsEach, const float& alpha, const bool& print, const bool& exportParam, const int& operation, const int& statistics, const int& lossFunct, const int& parall, Printer& printer)
+//Creating the tasks for multithreading analysis, for the different machine learning algorithms.
+void taskLSTM(const int& numThr, Importer* imp, const int& numCell, const bool& importParam, const float& max, const float& min, const float& seedNo, const int& testTimes, const int& viewsEach, const float& alpha, const bool& print, const bool& exportParam, const int& operation, const int& statistics, const int& lossFunct, const int& parall, Printer& printer)
 {
 	LongShortTermMemory* k = new LongShortTermMemory(*imp, numCell, importParam, max, min, seedNo);
 
@@ -58,9 +62,9 @@ void taskLSTM(const int& numThr, Importer* imp, const int& numCell, const bool& 
 	delete k;
 }
 
-void taskMLP(const int& numThr, Importer* imp, const float& limMin, const float& limMax, const float& seedNo1, const int& numNeur1, const int& numNeur2, const int& numNeur3, const int& numNeur4, const int& numNeur5, const int& numNeur6, const int& numNeur7, const int& numNeur8, const int& numNeur9, const int& numNeur10, const int& numNeur11, const int& numNeur12, const float& mu, const float& sigma, const int& ranDistr, const int& range1, const int& range2, const int& range3, const int& checkPoint1, const int& checkPoint2, const int& checkPoint3, const float& epsilon, const float& muAlpha, const float& sigmaAlpha, const int& lossFunction, const bool& plot, const bool& print, const float& seedNo2, const bool& importParam, const bool& exportParam, const int& operation, const int& statistics, Printer& printer)
+void taskMLP(const int& numThr, Importer* imp, const float& limMin, const float& limMax, const float& seedNo1, int numNeurArr[12], DistribParamForMLP& distrParam, int ranges[3], int checkPoints[3], const int& lossFunction, const bool& plot, const bool& print, const bool& importParam, const bool& exportParam, const int& operation, const int& statistics, Printer& printer)
 {
-	MultiLayerPerceptron* b = new MultiLayerPerceptron(*imp, limMin, limMax, seedNo1, numNeur1, numNeur2);
+	MultiLayerPerceptron* b = new MultiLayerPerceptron(*imp, limMin, limMax, seedNo1, numNeurArr);
 
 	if (importParam == 1)
 	{
@@ -69,7 +73,7 @@ void taskMLP(const int& numThr, Importer* imp, const float& limMin, const float&
 
 	if (operation == 1)
 	{
-		b->train(mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print, seedNo2);
+		b->train(distrParam, ranges, checkPoints, lossFunction, plot, print);
 
 		printer.printError(b->getError(), b->getErrorV(), numThr);
 	}
@@ -95,9 +99,9 @@ void taskMLP(const int& numThr, Importer* imp, const float& limMin, const float&
 	delete b;
 }
 
-void taskMLPFst(const int& numThr, Importer* imp, const float& limMin, const float& limMax, const float& seedNo1, const int& numNeur1, const int& numNeur2, const int& numNeur3, const int& numNeur4, const int& numNeur5, const int& numNeur6, const int& numNeur7, const int& numNeur8, const int& numNeur9, const int& numNeur10, const int& numNeur11, const int& numNeur12, const float& mu, const float& sigma, const int& ranDistr, const int& range1, const int& range2, const int& range3, const int& checkPoint1, const int& checkPoint2, const int& checkPoint3, const float& epsilon, const float& muAlpha, const float& sigmaAlpha, const int& lossFunction, const bool& plot, const bool& print, const float& seedNo2, const bool& importParam, const bool& exportParam, const int& operation, const int& statistics, Printer& printer, const int& parall)
+void taskMLPFst(const int& numThr, Importer* imp, const float& limMin, const float& limMax, const float& seedNo1, int numNeurArr[12], DistribParamForMLP& distrParam, int ranges[3], int checkPoints[3], const int& lossFunction, const bool& plot, const bool& print, const bool& importParam, const bool& exportParam, const int& operation, const int& statistics, Printer& printer, const int& parall)
 {
-	MLPFast* c = new MLPFast(*imp, limMin, limMax, seedNo1, numNeur1, numNeur2);
+	MLPFast* c = new MLPFast(*imp, limMin, limMax, seedNo1, numNeurArr);
 
 	if (importParam == 1)
 	{
@@ -106,7 +110,7 @@ void taskMLPFst(const int& numThr, Importer* imp, const float& limMin, const flo
 
 	if (operation == 1)
 	{
-		c->train(mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print, seedNo2, parall);
+		c->train(distrParam, ranges, checkPoints, lossFunction, plot, print, parall);
 
 		printer.printError(c->getError(), c->getErrorV(), numThr);
 	}
@@ -148,7 +152,7 @@ int main()
 	//General debug parameters.
 	int numThreads = 1;
 
-	int hist = 0;
+	int hist = 0; //Recommended 0 for LSTM and 4 for MLP and MLPFast if the time series is under 50 time points.
 	std::string nameFile = "Data9";
 
 	bool importParam = 0;
@@ -158,8 +162,8 @@ int main()
 	int operation = TRAIN;
 	bool statistics = 0;
 	bool diffThreads = 0;
-	int parall = 0;
-	float bias = 1;
+	int parall = CPU;
+	float bias = DEFAULT_BIAS;
 
 	Importer* a = new Importer(hist, bias, nameFile);
 
@@ -185,9 +189,9 @@ int main()
 		exportParam = 0;
 	}
 
-	if (numThreads > 8 && diffThreads == 1)
+	if (numThreads > MAX_NUM_THREADS && diffThreads == 1)
 	{
-		numThreads = 8;
+		numThreads = MAX_NUM_THREADS;
 	}
 
 	std::vector<std::thread> tt(numThreads);
@@ -202,7 +206,7 @@ int main()
 		int numCell = 20;
 		float max = 1.0f;
 		float min = -1.0f;
-		float seedNo = 0.0f;
+		float seedNo = DEFAULT_SEEDNO;
 		int lossFunct = LOSSFUNCTSIMPLE;
 
 		int testTimes = 5000;
@@ -271,35 +275,22 @@ int main()
 		float limMin = -10.0f;
 		float limMax = 10.0f;
 		float seedNo1 = 0.0f;
-		int numNeur1 = 18;
-		int numNeur2 = 24;
-		int numNeur3 = 0;
-		int numNeur4 = 0;
-		int numNeur5 = 0;
-		int numNeur6 = 0;
-		int numNeur7 = 0;
-		int numNeur8 = 0;
-		int numNeur9 = 0;
-		int numNeur10 = 0;
-		int numNeur11 = 0;
-		int numNeur12 = 0;
+		int numNeurArr[12]{ 18, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-		float mu = -10.0f;
-		float sigma = 10.0f;
-		int ranDistr = 0;
-		int range1 = 1000;
-		int range2 = 1000;
-		int range3 = 25000;
-		int checkPoint1 = 100;
-		int checkPoint2 = 100;
-		int checkPoint3 = 100;
-		float epsilon = 0.05f;
-		float muAlpha = 0.4f;
-		float sigmaAlpha = 0.1f;
+		DistribParamForMLP distrParam;
+		distrParam.mu_ = -10.0f;
+		distrParam.sigma_ = 10.0f;
+		distrParam.ranDistr_ = 0;
+		distrParam.epsilon_ = 0.05f;
+		distrParam.muAlpha_ = 0.4f;
+		distrParam.sigmaAlpha_ = 0.1f;
+		distrParam.seedNo_ = DEFAULT_SEEDNO;
+
+		int ranges[3]{ 1000, 1000, 25000 };
+		int checkPoints[3]{ 100, 100, 100 };
 		int lossFunction = LOSSFUNCTSIMPLE;
 		bool print1 = 1;
 		bool plot = 1;
-		float seedNo2 = 0.0f;
 
 		if (numThreads != 1)
 		{
@@ -313,46 +304,46 @@ int main()
 			{
 				for (int i = 0; i < numThreads; i++)
 				{
-					tt[i] = std::thread(taskMLP, i, a, limMin, limMax, seedNo1, numNeur1, numNeur2, numNeur3, numNeur4, numNeur5, numNeur6, numNeur7, numNeur8, numNeur9, numNeur10, numNeur11, numNeur12, mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print1, seedNo2, importParam, exportParam, operation, statistics, std::ref(printer));
+					tt[i] = std::thread(taskMLP, i, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
 				}
 			}
 			else
 			{
-				tt[0] = std::thread(taskMLP, 0, a, limMin, limMax, seedNo1, 18, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print1, seedNo2, importParam, exportParam, operation, statistics, std::ref(printer));
+				tt[0] = std::thread(taskMLP, 0, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
 
 				if (numThreads > 1)
 				{
-					tt[1] = std::thread(taskMLP, 1, a, limMin, limMax, seedNo1, 18, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print1, seedNo2, importParam, exportParam, operation, statistics, std::ref(printer));
+					tt[1] = std::thread(taskMLP, 1, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
 				}
 
 				if (numThreads > 2)
 				{
-					tt[2] = std::thread(taskMLP, 2, a, limMin, limMax, seedNo1, 24, 12, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print1, seedNo2, importParam, exportParam, operation, statistics, std::ref(printer));
+					tt[2] = std::thread(taskMLP, 2, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
 				}
 
 				if (numThreads > 3)
 				{
-					tt[3] = std::thread(taskMLP, 3, a, limMin, limMax, seedNo1, 18, 24, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print1, seedNo2, importParam, exportParam, operation, statistics, std::ref(printer));
+					tt[3] = std::thread(taskMLP, 3, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
 				}
 
 				if (numThreads > 4)
 				{
-					tt[4] = std::thread(taskMLP, 4, a, limMin, limMax, seedNo1, 24, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print1, seedNo2, importParam, exportParam, operation, statistics, std::ref(printer));
+					tt[4] = std::thread(taskMLP, 4, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
 				}
 
 				if (numThreads > 5)
 				{
-					tt[5] = std::thread(taskMLP, 5, a, limMin, limMax, seedNo1, 12, 24, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print1, seedNo2, importParam, exportParam, operation, statistics, std::ref(printer));
+					tt[5] = std::thread(taskMLP, 5, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
 				}
 
 				if (numThreads > 6)
 				{
-					tt[6] = std::thread(taskMLP, 6, a, limMin, limMax, seedNo1, 12, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print1, seedNo2, importParam, exportParam, operation, statistics, std::ref(printer));
+					tt[6] = std::thread(taskMLP, 6, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
 				}
 
 				if (numThreads > 7)
 				{
-					tt[7] = std::thread(taskMLP, 7, a, limMin, limMax, seedNo1, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print1, seedNo2, importParam, exportParam, operation, statistics, std::ref(printer));
+					tt[7] = std::thread(taskMLP, 7, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
 				}
 			}
 		}
@@ -362,46 +353,46 @@ int main()
 			{
 				for (int i = 0; i < numThreads; i++)
 				{
-					tt[i] = std::thread(taskMLPFst, i, a, limMin, limMax, seedNo1, numNeur1, numNeur2, numNeur3, numNeur4, numNeur5, numNeur6, numNeur7, numNeur8, numNeur9, numNeur10, numNeur11, numNeur12, mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print1, seedNo2, importParam, exportParam, operation, statistics, std::ref(printer), parall);
+					tt[i] = std::thread(taskMLPFst, i, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
 				}
 			}
 			else
 			{
-				tt[0] = std::thread(taskMLPFst, 0, a, limMin, limMax, seedNo1, 18, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print1, seedNo2, importParam, exportParam, operation, statistics, std::ref(printer), parall);
+				tt[0] = std::thread(taskMLPFst, 0, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
 
 				if (numThreads > 1)
 				{
-					tt[1] = std::thread(taskMLPFst, 1, a, limMin, limMax, seedNo1, 18, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print1, seedNo2, importParam, exportParam, operation, statistics, std::ref(printer), parall);
+					tt[1] = std::thread(taskMLPFst, 1, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
 				}
 
 				if (numThreads > 2)
 				{
-					tt[2] = std::thread(taskMLPFst, 2, a, limMin, limMax, seedNo1, 24, 12, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print1, seedNo2, importParam, exportParam, operation, statistics, std::ref(printer), parall);
+					tt[2] = std::thread(taskMLPFst, 2, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
 				}
 
 				if (numThreads > 3)
 				{
-					tt[3] = std::thread(taskMLPFst, 3, a, limMin, limMax, seedNo1, 18, 24, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print1, seedNo2, importParam, exportParam, operation, statistics, std::ref(printer), parall);
+					tt[3] = std::thread(taskMLPFst, 3, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
 				}
 
 				if (numThreads > 4)
 				{
-					tt[4] = std::thread(taskMLPFst, 4, a, limMin, limMax, seedNo1, 24, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print1, seedNo2, importParam, exportParam, operation, statistics, std::ref(printer), parall);
+					tt[4] = std::thread(taskMLPFst, 4, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
 				}
 
 				if (numThreads > 5)
 				{
-					tt[5] = std::thread(taskMLPFst, 5, a, limMin, limMax, seedNo1, 12, 24, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print1, seedNo2, importParam, exportParam, operation, statistics, std::ref(printer), parall);
+					tt[5] = std::thread(taskMLPFst, 5, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
 				}
 
 				if (numThreads > 6)
 				{
-					tt[6] = std::thread(taskMLPFst, 6, a, limMin, limMax, seedNo1, 12, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print1, seedNo2, importParam, exportParam, operation, statistics, std::ref(printer), parall);
+					tt[6] = std::thread(taskMLPFst, 6, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
 				}
 
 				if (numThreads > 7)
 				{
-					tt[7] = std::thread(taskMLPFst, 7, a, limMin, limMax, seedNo1, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print1, seedNo2, importParam, exportParam, operation, statistics, std::ref(printer), parall);
+					tt[7] = std::thread(taskMLPFst, 7, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
 				}
 			}
 		}
@@ -419,6 +410,7 @@ int main()
 #else
 
 	//Creating the variables.
+	//General variables.
 	bool active = 1;
 	int algorithm = LSTM;
 	int operation = TRAIN;
@@ -430,8 +422,9 @@ int main()
 	bool statistics = 0;
 	bool diffThreads = 0;
 	int parall = 0;
-	float bias = 1.0f;
+	float bias = 0.0f;
 
+	//LSTM variables.
 	int numCell = 0;
 	float max = 0.0f;
 	float min = 0.0f;
@@ -442,37 +435,24 @@ int main()
 	float alpha = 0.0f;
 	bool print = 0;
 
+	//MLP variables.
 	float limMax = 0.0f;
 	float limMin = 0.0f;
 	float seedNo1 = 0.0f;
-	int numNeur1 = 0;
-	int numNeur2 = 0;
-	int numNeur3 = 0;
-	int numNeur4 = 0;
-	int numNeur5 = 0;
-	int numNeur6 = 0;
-	int numNeur7 = 0;
-	int numNeur8 = 0;
-	int numNeur9 = 0;
-	int numNeur10 = 0;
-	int numNeur11 = 0;
-	int numNeur12 = 0;
-	int ranDistr = 0;
-	float mu = 0.0f;
-	float sigma = 0.0f;
-	int range1 = 1000;
-	int range2 = 1000;
-	int range3 = 2500;
-	int checkPoint1 = 100;
-	int checkPoint2 = 100;
-	int checkPoint3 = 100;
-	float epsilon = 0.05f;
-	float muAlpha = 0.4f;
-	float sigmaAlpha = 0.1f;
+	int numNeurArr[12]{ 0 };
+	DistribParamForMLP distrParam;
+	distrParam.mu_ = 0.0f;
+	distrParam.sigma_ = 0.0f;
+	distrParam.ranDistr_ = 0;
+	distrParam.epsilon_ = 0.0f;
+	distrParam.muAlpha_ = 0.0f;
+	distrParam.sigmaAlpha_ = 0.0f;
+	distrParam.seedNo_ = 0.0f;
+	int ranges[3]{ 0 };
+	int checkPoints[3]{ 0 };
 	int lossFunction = LOSSFUNCTSIMPLE;
 	bool print1 = 0;
-	bool plot = 1;
-	float seedNo2 = 0.0f;
+	bool plot = 0;
 
 	//Asking to the user the various parameters.
 	std::string answer;
@@ -550,6 +530,11 @@ int main()
 			numThreads = 1;
 		}
 
+		if (numThreads > MAX_NUM_THREADS)
+		{
+			numThreads = MAX_NUM_THREADS;
+		}
+
 		if (operation == TEST || operation == CLASSIFY)
 		{
 			numThreads = 1;
@@ -598,11 +583,11 @@ int main()
 		}
 		catch (const std::invalid_argument& e)
 		{
-			bias = 1.0f;
+			bias = DEFAULT_BIAS;
 		}
 		catch (const std::out_of_range& e)
 		{
-			bias = 1.0f;
+			bias = DEFAULT_BIAS;
 		}
 
 		PRINT("You chose " << bias << ".\n");
@@ -804,11 +789,11 @@ int main()
 			}
 			catch (const std::invalid_argument& e)
 			{
-				seedNo = 0.0f;
+				seedNo = DEFAULT_SEEDNO;
 			}
 			catch (const std::out_of_range& e)
 			{
-				seedNo = 0.0f;
+				seedNo = DEFAULT_SEEDNO;
 			}
 
 			PRINT("You chose " << seedNo << ".\n");
@@ -983,11 +968,11 @@ int main()
 			}
 			catch (const std::invalid_argument& e)
 			{
-				seedNo1 = 0.0f;
+				seedNo1 = DEFAULT_SEEDNO;
 			}
 			catch (const std::out_of_range& e)
 			{
-				seedNo1 = 0.0f;
+				seedNo1 = DEFAULT_SEEDNO;
 			}
 
 			PRINT("You chose " << seedNo1 << ".\n");
@@ -998,23 +983,23 @@ int main()
 
 			try
 			{
-				numNeur1 = std::stoi(answer);
+				numNeurArr[0] = std::stoi(answer);
 			}
 			catch (const std::invalid_argument& e)
 			{
-				numNeur1 = 10;
+				numNeurArr[0] = 10;
 			}
 			catch (const std::out_of_range& e)
 			{
-				numNeur1 = 10;
+				numNeurArr[0] = 10;
 			}
 
-			if (numNeur1 < 0)
+			if (numNeurArr[0] < 0)
 			{
-				numNeur1 = 10;
+				numNeurArr[0] = 10;
 			}
 
-			PRINT("You chose " << numNeur1 << ".\n");
+			PRINT("You chose " << numNeurArr[0] << ".\n");
 			answer.clear();
 
 			PRINT("\nHow many neurons do you want in the second layer?\n");
@@ -1022,283 +1007,283 @@ int main()
 
 			try
 			{
-				numNeur2 = std::stoi(answer);
+				numNeurArr[1] = std::stoi(answer);
 			}
 			catch (const std::invalid_argument& e)
 			{
-				numNeur2 = 10;
+				numNeurArr[1] = 10;
 			}
 			catch (const std::out_of_range& e)
 			{
-				numNeur2 = 10;
+				numNeurArr[1] = 10;
 			}
 
-			if (numNeur2 < 0)
+			if (numNeurArr[1] < 0)
 			{
-				numNeur2 = 10;
+				numNeurArr[1] = 10;
 			}
 
-			PRINT("You chose " << numNeur2 << ".\n");
+			PRINT("You chose " << numNeurArr[1] << ".\n");
 			answer.clear();
 
-			if (numNeur2 != 0)
+			if (numNeurArr[1] != 0)
 			{
 				PRINT("\nHow many neurons do you want in the third layer?\n");
 				std::getline(std::cin, answer);
 
 				try
 				{
-					numNeur3 = std::stoi(answer);
+					numNeurArr[2] = std::stoi(answer);
 				}
 				catch (const std::invalid_argument& e)
 				{
-					numNeur3 = 10;
+					numNeurArr[2] = 10;
 				}
 				catch (const std::out_of_range& e)
 				{
-					numNeur3 = 10;
+					numNeurArr[2] = 10;
 				}
 
-				if (numNeur3 < 0)
+				if (numNeurArr[2] < 0)
 				{
-					numNeur3 = 10;
+					numNeurArr[2] = 10;
 				}
 
-				PRINT("You chose " << numNeur3 << ".\n");
+				PRINT("You chose " << numNeurArr[2] << ".\n");
 				answer.clear();
 
-				if (numNeur3 != 0)
+				if (numNeurArr[2] != 0)
 				{
 					PRINT("\nHow many neurons do you want in the fourth layer?\n");
 					std::getline(std::cin, answer);
 
 					try
 					{
-						numNeur4 = std::stoi(answer);
+						numNeurArr[3] = std::stoi(answer);
 					}
 					catch (const std::invalid_argument& e)
 					{
-						numNeur4 = 10;
+						numNeurArr[3] = 10;
 					}
 					catch (const std::out_of_range& e)
 					{
-						numNeur4 = 10;
+						numNeurArr[3] = 10;
 					}
 
-					if (numNeur4 < 0)
+					if (numNeurArr[3] < 0)
 					{
-						numNeur4 = 10;
+						numNeurArr[3] = 10;
 					}
 
-					PRINT("You chose " << numNeur4 << ".\n");
+					PRINT("You chose " << numNeurArr[3] << ".\n");
 					answer.clear();
 
-					if (numNeur4 != 0)
+					if (numNeurArr[3] != 0)
 					{
 						PRINT("\nHow many neurons do you want in the fifth layer?\n");
 						std::getline(std::cin, answer);
 
 						try
 						{
-							numNeur5 = std::stoi(answer);
+							numNeurArr[4] = std::stoi(answer);
 						}
 						catch (const std::invalid_argument& e)
 						{
-							numNeur5 = 10;
+							numNeurArr[4] = 10;
 						}
 						catch (const std::out_of_range& e)
 						{
-							numNeur5 = 10;
+							numNeurArr[4] = 10;
 						}
 
-						if (numNeur5 < 0)
+						if (numNeurArr[4] < 0)
 						{
-							numNeur5 = 10;
+							numNeurArr[4] = 10;
 						}
 
-						PRINT("You chose " << numNeur5 << ".\n");
+						PRINT("You chose " << numNeurArr[4] << ".\n");
 						answer.clear();
 
-						if (numNeur5 != 0)
+						if (numNeurArr[4] != 0)
 						{
 							PRINT("\nHow many neurons do you want in the sixth layer?\n");
 							std::getline(std::cin, answer);
 
 							try
 							{
-								numNeur6 = std::stoi(answer);
+								numNeurArr[5] = std::stoi(answer);
 							}
 							catch (const std::invalid_argument& e)
 							{
-								numNeur6 = 10;
+								numNeurArr[5] = 10;
 							}
 							catch (const std::out_of_range& e)
 							{
-								numNeur6 = 10;
+								numNeurArr[5] = 10;
 							}
 
-							if (numNeur6 < 0)
+							if (numNeurArr[5] < 0)
 							{
-								numNeur6 = 10;
+								numNeurArr[5] = 10;
 							}
 
-							PRINT("You chose " << numNeur6 << ".\n");
+							PRINT("You chose " << numNeurArr[5] << ".\n");
 							answer.clear();
 
-							if (numNeur6 != 0)
+							if (numNeurArr[5] != 0)
 							{
 								PRINT("\nHow many neurons do you want in the seventh layer?\n");
 								std::getline(std::cin, answer);
 
 								try
 								{
-									numNeur7 = std::stoi(answer);
+									numNeurArr[6] = std::stoi(answer);
 								}
 								catch (const std::invalid_argument& e)
 								{
-									numNeur7 = 10;
+									numNeurArr[6] = 10;
 								}
 								catch (const std::out_of_range& e)
 								{
-									numNeur7 = 10;
+									numNeurArr[6] = 10;
 								}
 
-								if (numNeur7 < 0)
+								if (numNeurArr[6] < 0)
 								{
-									numNeur7 = 10;
+									numNeurArr[6] = 10;
 								}
 
-								PRINT("You chose " << numNeur7 << ".\n");
+								PRINT("You chose " << numNeurArr[6] << ".\n");
 								answer.clear();
 
-								if (numNeur7 != 0)
+								if (numNeurArr[6] != 0)
 								{
 									PRINT("\nHow many neurons do you want in the eighth layer?\n");
 									std::getline(std::cin, answer);
 
 									try
 									{
-										numNeur8 = std::stoi(answer);
+										numNeurArr[7] = std::stoi(answer);
 									}
 									catch (const std::invalid_argument& e)
 									{
-										numNeur8 = 10;
+										numNeurArr[7] = 10;
 									}
 									catch (const std::out_of_range& e)
 									{
-										numNeur8 = 10;
+										numNeurArr[7] = 10;
 									}
 
-									if (numNeur8 < 0)
+									if (numNeurArr[7] < 0)
 									{
-										numNeur8 = 10;
+										numNeurArr[7] = 10;
 									}
 
-									PRINT("You chose " << numNeur8 << ".\n");
+									PRINT("You chose " << numNeurArr[7] << ".\n");
 									answer.clear();
 
-									if (numNeur8 != 0)
+									if (numNeurArr[7] != 0)
 									{
 										PRINT("\nHow many neurons do you want in the ninth layer?\n");
 										std::getline(std::cin, answer);
 
 										try
 										{
-											numNeur9 = std::stoi(answer);
+											numNeurArr[8] = std::stoi(answer);
 										}
 										catch (const std::invalid_argument& e)
 										{
-											numNeur9 = 10;
+											numNeurArr[8] = 10;
 										}
 										catch (const std::out_of_range& e)
 										{
-											numNeur9 = 10;
+											numNeurArr[8] = 10;
 										}
 
-										if (numNeur9 < 0)
+										if (numNeurArr[8] < 0)
 										{
-											numNeur9 = 10;
+											numNeurArr[8] = 10;
 										}
 
-										PRINT("You chose " << numNeur9 << ".\n");
+										PRINT("You chose " << numNeurArr[8] << ".\n");
 										answer.clear();
 
-										if (numNeur9 != 0)
+										if (numNeurArr[8] != 0)
 										{
 											PRINT("\nHow many neurons do you want in the tenth layer?\n");
 											std::getline(std::cin, answer);
 
 											try
 											{
-												numNeur10 = std::stoi(answer);
+												numNeurArr[9] = std::stoi(answer);
 											}
 											catch (const std::invalid_argument& e)
 											{
-												numNeur10 = 10;
+												numNeurArr[9] = 10;
 											}
 											catch (const std::out_of_range& e)
 											{
-												numNeur10 = 10;
+												numNeurArr[9] = 10;
 											}
 
-											if (numNeur10 < 0)
+											if (numNeurArr[9] < 0)
 											{
-												numNeur10 = 10;
+												numNeurArr[9] = 10;
 											}
 
-											PRINT("You chose " << numNeur10 << ".\n");
+											PRINT("You chose " << numNeurArr[9] << ".\n");
 											answer.clear();
 
-											if (numNeur10 != 0)
+											if (numNeurArr[9] != 0)
 											{
 												PRINT("\nHow many neurons do you want in the eleventh layer?\n");
 												std::getline(std::cin, answer);
 
 												try
 												{
-													numNeur11 = std::stoi(answer);
+													numNeurArr[10] = std::stoi(answer);
 												}
 												catch (const std::invalid_argument& e)
 												{
-													numNeur11 = 10;
+													numNeurArr[10] = 10;
 												}
 												catch (const std::out_of_range& e)
 												{
-													numNeur11 = 10;
+													numNeurArr[10] = 10;
 												}
 
-												if (numNeur11 < 0)
+												if (numNeurArr[10] < 0)
 												{
-													numNeur11 = 10;
+													numNeurArr[10] = 10;
 												}
 
-												PRINT("You chose " << numNeur11 << ".\n");
+												PRINT("You chose " << numNeurArr[10] << ".\n");
 												answer.clear();
 
-												if (numNeur11 != 0)
+												if (numNeurArr[10] != 0)
 												{
 													PRINT("\nHow many neurons do you want in the twelfth layer?\n");
 													std::getline(std::cin, answer);
 
 													try
 													{
-														numNeur12 = std::stoi(answer);
+														numNeurArr[11] = std::stoi(answer);
 													}
 													catch (const std::invalid_argument& e)
 													{
-														numNeur12 = 10;
+														numNeurArr[11] = 10;
 													}
 													catch (const std::out_of_range& e)
 													{
-														numNeur12 = 10;
+														numNeurArr[11] = 10;
 													}
 
-													if (numNeur12 < 0)
+													if (numNeurArr[11] < 0)
 													{
-														numNeur12 = 10;
+														numNeurArr[11] = 10;
 													}
 
-													PRINT("You chose " << numNeur12 << ".\n");
+													PRINT("You chose " << numNeurArr[11] << ".\n");
 													answer.clear();
 												}
 											}
@@ -1316,138 +1301,138 @@ int main()
 
 			try
 			{
-				ranDistr = std::stoi(answer);
+				distrParam.ranDistr_ = std::stoi(answer);
 			}
 			catch (const std::invalid_argument& e)
 			{
-				ranDistr = 0;
+				distrParam.ranDistr_ = 0;
 			}
 			catch (const std::out_of_range& e)
 			{
-				ranDistr = 0;
+				distrParam.ranDistr_ = 0;
 			}
 
-			if (ranDistr < 0 || ranDistr > 1)
+			if (distrParam.ranDistr_ < 0 || distrParam.ranDistr_ > 1)
 			{
-				ranDistr = 0;
+				distrParam.ranDistr_ = 0;
 			}
 
-			PRINT("You chose " << ranDistr << ".\n");
+			PRINT("You chose " << distrParam.ranDistr_ << ".\n");
 			answer.clear();
 
-			PRINT("\nWhat the value of mu do you want?\n");
+			PRINT("\nWhat the value of Mu do you want?\n");
 			std::getline(std::cin, answer);
 
 			try
 			{
-				mu = std::stof(answer);
+				distrParam.mu_ = std::stof(answer);
 			}
 			catch (const std::invalid_argument& e)
 			{
-				mu = 0.0f;
+				distrParam.mu_ = -10.0f;
 			}
 			catch (const std::out_of_range& e)
 			{
-				mu = 0.0f;
+				distrParam.mu_ = -10.0f;
 			}
 
-			PRINT("You chose " << mu << ".\n");
+			PRINT("You chose " << distrParam.mu_ << ".\n");
 			answer.clear();
 
-			PRINT("\nWhat the value of sigma do you want?\n");
+			PRINT("\nWhat the value of Sigma do you want?\n");
 			std::getline(std::cin, answer);
 
 			try
 			{
-				sigma = std::stof(answer);
+				distrParam.sigma_ = std::stof(answer);
 			}
 			catch (const std::invalid_argument& e)
 			{
-				sigma = 0.0f;
+				distrParam.sigma_ = 10.0f;
 			}
 			catch (const std::out_of_range& e)
 			{
-				sigma = 0.0f;
+				distrParam.sigma_ = 10.0f;
 			}
 
-			if (sigma < mu && ranDistr == 0)
+			if (distrParam.sigma_ < distrParam.mu_ && distrParam.ranDistr_ == 0)
 			{
-				sigma = mu + 1.0f;
+				distrParam.sigma_ = distrParam.mu_ + 1.0f;
 			}
 
-			PRINT("You chose " << sigma << ".\n");
+			PRINT("You chose " << distrParam.sigma_ << ".\n");
 			answer.clear();
 
-			PRINT("\nHow many iterations do you ant for the first phase?\n");
+			PRINT("\nHow many iterations do you want for the first phase?\n");
 			std::getline(std::cin, answer);
 
 			try
 			{
-				range1 = std::stoi(answer);
+				ranges[0] = std::stoi(answer);
 			}
 			catch (const std::invalid_argument& e)
 			{
-				range1 = 1000;
+				ranges[0] = 1000;
 			}
 			catch (const std::out_of_range& e)
 			{
-				range1 = 1000;
+				ranges[0] = 1000;
 			}
 
-			if (range1 < 0)
+			if (ranges[0] < 0)
 			{
-				range1 = 1000;
+				ranges[0] = 1000;
 			}
 
-			PRINT("You chose " << range1 << ".\n");
+			PRINT("You chose " << ranges[0] << ".\n");
 			answer.clear();
 
-			PRINT("\nHow many iterations do you ant for the second phase?\n");
+			PRINT("\nHow many iterations do you want for the second phase?\n");
 			std::getline(std::cin, answer);
 
 			try
 			{
-				range2 = std::stoi(answer);
+				ranges[1] = std::stoi(answer);
 			}
 			catch (const std::invalid_argument& e)
 			{
-				range2 = 1000;
+				ranges[1] = 1000;
 			}
 			catch (const std::out_of_range& e)
 			{
-				range2 = 1000;
+				ranges[1] = 1000;
 			}
 
-			if (range2 < 0)
+			if (ranges[1] < 0)
 			{
-				range2 = 1000;
+				ranges[1] = 1000;
 			}
 
-			PRINT("You chose " << range2 << ".\n");
+			PRINT("You chose " << ranges[1] << ".\n");
 			answer.clear();
 
-			PRINT("\nHow many iterations do you ant for the third phase?\n");
+			PRINT("\nHow many iterations do you want for the third phase?\n");
 			std::getline(std::cin, answer);
 
 			try
 			{
-				range3 = std::stoi(answer);
+				ranges[2] = std::stoi(answer);
 			}
 			catch (const std::invalid_argument& e)
 			{
-				range3 = 1000;
+				ranges[2] = 1000;
 			}
 			catch (const std::out_of_range& e)
 			{
-				range3 = 1000;
+				ranges[2] = 1000;
 			}
 
-			if (range3 < 0)
+			if (ranges[2] < 0)
 			{
-				range3 = 1000;
+				ranges[2] = 1000;
 			}
 
-			PRINT("You chose " << range3 << ".\n");
+			PRINT("You chose " << ranges[2] << ".\n");
 			answer.clear();
 
 			PRINT("\nAt the multiple of which iteration number do you want the checkpoint for the first phase?\n");
@@ -1455,23 +1440,23 @@ int main()
 
 			try
 			{
-				checkPoint1 = std::stoi(answer);
+				checkPoints[0] = std::stoi(answer);
 			}
 			catch (const std::invalid_argument& e)
 			{
-				checkPoint1 = 100;
+				checkPoints[0] = 100;
 			}
 			catch (const std::out_of_range& e)
 			{
-				checkPoint1 = 100;
+				checkPoints[0] = 100;
 			}
 
-			if (checkPoint1 < 0)
+			if (checkPoints[0] < 0)
 			{
-				checkPoint1 = 100;
+				checkPoints[0] = 100;
 			}
 
-			PRINT("You chose " << checkPoint1 << ".\n");
+			PRINT("You chose " << checkPoints[0] << ".\n");
 			answer.clear();
 
 			PRINT("\nAt the multiple of which iteration number do you want the checkpoint for the second phase?\n");
@@ -1479,23 +1464,23 @@ int main()
 
 			try
 			{
-				checkPoint2 = std::stoi(answer);
+				checkPoints[1] = std::stoi(answer);
 			}
 			catch (const std::invalid_argument& e)
 			{
-				checkPoint2 = 100;
+				checkPoints[1] = 100;
 			}
 			catch (const std::out_of_range& e)
 			{
-				checkPoint2 = 100;
+				checkPoints[1] = 100;
 			}
 
-			if (checkPoint2 < 0)
+			if (checkPoints[1] < 0)
 			{
-				checkPoint2 = 100;
+				checkPoints[1] = 100;
 			}
 
-			PRINT("You chose " << checkPoint2 << ".\n");
+			PRINT("You chose " << checkPoints[1] << ".\n");
 			answer.clear();
 
 			PRINT("\nAt the multiple of which iteration number do you want the checkpoint for the third phase?\n");
@@ -1503,90 +1488,90 @@ int main()
 
 			try
 			{
-				checkPoint3 = std::stoi(answer);
+				checkPoints[2] = std::stoi(answer);
 			}
 			catch (const std::invalid_argument& e)
 			{
-				checkPoint3 = 100;
+				checkPoints[2] = 100;
 			}
 			catch (const std::out_of_range& e)
 			{
-				checkPoint3 = 100;
+				checkPoints[2] = 100;
 			}
 
-			if (checkPoint3 < 0)
+			if (checkPoints[2] < 0)
 			{
-				checkPoint3 = 100;
+				checkPoints[2] = 100;
 			}
 
-			PRINT("You chose " << checkPoint3 << ".\n");
+			PRINT("You chose " << checkPoints[2] << ".\n");
 			answer.clear();
 
-			PRINT("\nWhich value of epsilon do you want?\n");
+			PRINT("\nWhich value of Epsilon do you want?\n");
 			std::getline(std::cin, answer);
 
 			try
 			{
-				epsilon = std::stof(answer);
+				distrParam.epsilon_ = std::stof(answer);
 			}
 			catch (const std::invalid_argument& e)
 			{
-				epsilon = 1.0f;
+				distrParam.epsilon_ = 0.05f;
 			}
 			catch (const std::out_of_range& e)
 			{
-				epsilon = 1.0f;
+				distrParam.epsilon_ = 0.05f;
 			}
 
-			if (epsilon < 0)
+			if (distrParam.epsilon_ < 0)
 			{
-				epsilon = 1.0f;
+				distrParam.epsilon_ = 1.0f;
 			}
 
-			PRINT("You chose " << epsilon << ".\n");
+			PRINT("You chose " << distrParam.epsilon_ << ".\n");
 			answer.clear();
 
-			PRINT("\nWhich value of mu Alpha do you want?\n");
+			PRINT("\nWhich value of Mu Alpha do you want?\n");
 			std::getline(std::cin, answer);
 
 			try
 			{
-				muAlpha = std::stof(answer);
+				distrParam.muAlpha_ = std::stof(answer);
 			}
 			catch (const std::invalid_argument& e)
 			{
-				muAlpha = 1.0f;
+				distrParam.muAlpha_ = 0.4f;
 			}
 			catch (const std::out_of_range& e)
 			{
-				muAlpha = 1.0f;
+				distrParam.muAlpha_ = 0.4f;
 			}
 
-			PRINT("You chose " << muAlpha << ".\n");
+			PRINT("You chose " << distrParam.muAlpha_ << ".\n");
 			answer.clear();
 
-			PRINT("\nWhich value of sigma Alpha do you want?\n");
+			PRINT("\nWhich value of Sigma Alpha do you want?\n");
 			std::getline(std::cin, answer);
 
 			try
 			{
-				sigmaAlpha = std::stof(answer);
+				distrParam.sigmaAlpha_ = std::stof(answer);
 			}
 			catch (const std::invalid_argument& e)
 			{
-				sigmaAlpha = 1.0f;
+				distrParam.sigmaAlpha_ = 0.1f;
 			}
 			catch (const std::out_of_range& e)
 			{
-				sigmaAlpha = 1.0f;
+				distrParam.sigmaAlpha_ = 0.1f;
 			}
 
-			if (sigmaAlpha < 0)
+			if (distrParam.sigmaAlpha_ < 0)
 			{
-				sigmaAlpha = 1.0f;
+				distrParam.sigmaAlpha_ = 0.1f;
 			}
 
-			PRINT("You chose " << sigmaAlpha << ".\n");
+			PRINT("You chose " << distrParam.sigmaAlpha_ << ".\n");
 			answer.clear();
 
 			PRINT("\nWhich loss function do you want to use? (0 simple, 1 log, 2 logPow3, 3 pow3, 4 pow3LogPow3)\n");
@@ -1662,18 +1647,18 @@ int main()
 
 			try
 			{
-				seedNo2 = std::stof(answer);
+				distrParam.seedNo_ = std::stof(answer);
 			}
 			catch (const std::invalid_argument& e)
 			{
-				seedNo2 = 0.0f;
+				distrParam.seedNo_ = DEFAULT_SEEDNO;
 			}
 			catch (const std::out_of_range& e)
 			{
-				seedNo2 = 0.0f;
+				distrParam.seedNo_ = DEFAULT_SEEDNO;
 			}
 
-			PRINT("You chose " << seedNo2 << ".\n");
+			PRINT("You chose " << distrParam.seedNo_ << ".\n");
 			answer.clear();
 		}
 
@@ -1700,41 +1685,41 @@ int main()
 			}
 			else
 			{
-				tt[0] = std::thread(taskLSTM, 0, a, 20, importParam, max, min, 0, testTimes, viewsEach, 0.11, print, exportParam, operation, statistics, lossFunct, parall, std::ref(printer));
+				tt[0] = std::thread(taskLSTM, 0, a, 20, importParam, max, min, DEFAULT_SEEDNO, testTimes, viewsEach, 0.11, print, exportParam, operation, statistics, lossFunct, parall, std::ref(printer));
 
 				if (numThreads > 1)
 				{
-					tt[1] = std::thread(taskLSTM, 1, a, 20, importParam, max, min, 1, testTimes, viewsEach, 0.11, print, exportParam, operation, statistics, lossFunct, parall, std::ref(printer));
+					tt[1] = std::thread(taskLSTM, 1, a, 20, importParam, max, min, 1.0f, testTimes, viewsEach, 0.11, print, exportParam, operation, statistics, lossFunct, parall, std::ref(printer));
 				}
 
 				if (numThreads > 2)
 				{
-					tt[2] = std::thread(taskLSTM, 2, a, 20, importParam, max, min, 0, testTimes, viewsEach, 0.5, print, exportParam, operation, statistics, lossFunct, parall, std::ref(printer));
+					tt[2] = std::thread(taskLSTM, 2, a, 20, importParam, max, min, DEFAULT_SEEDNO, testTimes, viewsEach, 0.5, print, exportParam, operation, statistics, lossFunct, parall, std::ref(printer));
 				}
 
 				if (numThreads > 3)
 				{
-					tt[3] = std::thread(taskLSTM, 3, a, 20, importParam, max, min, 1, testTimes, viewsEach, 0.5, print, exportParam, operation, statistics, lossFunct, parall, std::ref(printer));
+					tt[3] = std::thread(taskLSTM, 3, a, 20, importParam, max, min, 1.0f, testTimes, viewsEach, 0.5, print, exportParam, operation, statistics, lossFunct, parall, std::ref(printer));
 				}
 
 				if (numThreads > 4)
 				{
-					tt[4] = std::thread(taskLSTM, 4, a, 20, importParam, max, min, 0, testTimes, viewsEach, 0.9, print, exportParam, operation, statistics, lossFunct, parall, std::ref(printer));
+					tt[4] = std::thread(taskLSTM, 4, a, 20, importParam, max, min, DEFAULT_SEEDNO, testTimes, viewsEach, 0.9, print, exportParam, operation, statistics, lossFunct, parall, std::ref(printer));
 				}
 
 				if (numThreads > 5)
 				{
-					tt[5] = std::thread(taskLSTM, 5, a, 20, importParam, max, min, 1, testTimes, viewsEach, 0.9, print, exportParam, operation, statistics, lossFunct, parall, std::ref(printer));
+					tt[5] = std::thread(taskLSTM, 5, a, 20, importParam, max, min, 1.0f, testTimes, viewsEach, 0.9, print, exportParam, operation, statistics, lossFunct, parall, std::ref(printer));
 				}
 
 				if (numThreads > 6)
 				{
-					tt[6] = std::thread(taskLSTM, 6, a, 40, importParam, max, min, 0, testTimes, viewsEach, 0.11, print, exportParam, operation, statistics, lossFunct, parall, std::ref(printer));
+					tt[6] = std::thread(taskLSTM, 6, a, 40, importParam, max, min, DEFAULT_SEEDNO, testTimes, viewsEach, 0.11, print, exportParam, operation, statistics, lossFunct, parall, std::ref(printer));
 				}
 
 				if (numThreads > 7)
 				{
-					tt[7] = std::thread(taskLSTM, 7, a, 40, importParam, max, min, 1, testTimes, viewsEach, 0.11, print, exportParam, operation, statistics, lossFunct, parall, std::ref(printer));
+					tt[7] = std::thread(taskLSTM, 7, a, 40, importParam, max, min, 1.0f, testTimes, viewsEach, 0.11, print, exportParam, operation, statistics, lossFunct, parall, std::ref(printer));
 				}
 			}
 		}
@@ -1745,46 +1730,46 @@ int main()
 			{
 				for (int i = 0; i < numThreads; i++)
 				{
-					tt[i] = std::thread(taskMLP, i, a, limMin, limMax, seedNo1, numNeur1, numNeur2, numNeur3, numNeur4, numNeur5, numNeur6, numNeur7, numNeur8, numNeur9, numNeur10, numNeur11, numNeur12, mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print1, seedNo2, importParam, exportParam, operation, statistics, std::ref(printer));
+					tt[i] = std::thread(taskMLP, i, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
 				}
 			}
 			else
 			{
-				tt[0] = std::thread(taskMLP, 0, a, limMin, limMax, seedNo1, 18, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print1, seedNo2, importParam, exportParam, operation, statistics, std::ref(printer));
+				tt[0] = std::thread(taskMLP, 0, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
 
 				if (numThreads > 1)
 				{
-					tt[1] = std::thread(taskMLP, 1, a, limMin, limMax, seedNo1, 18, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print1, seedNo2, importParam, exportParam, operation, statistics, std::ref(printer));
+					tt[1] = std::thread(taskMLP, 1, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
 				}
 
 				if (numThreads > 2)
 				{
-					tt[2] = std::thread(taskMLP, 2, a, limMin, limMax, seedNo1, 24, 12, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print1, seedNo2, importParam, exportParam, operation, statistics, std::ref(printer));
+					tt[2] = std::thread(taskMLP, 2, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
 				}
 
 				if (numThreads > 3)
 				{
-					tt[3] = std::thread(taskMLP, 3, a, limMin, limMax, seedNo1, 18, 24, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print1, seedNo2, importParam, exportParam, operation, statistics, std::ref(printer));
+					tt[3] = std::thread(taskMLP, 3, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
 				}
 
 				if (numThreads > 4)
 				{
-					tt[4] = std::thread(taskMLP, 4, a, limMin, limMax, seedNo1, 24, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print1, seedNo2, importParam, exportParam, operation, statistics, std::ref(printer));
+					tt[4] = std::thread(taskMLP, 4, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
 				}
 
 				if (numThreads > 5)
 				{
-					tt[5] = std::thread(taskMLP, 5, a, limMin, limMax, seedNo1, 12, 24, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print1, seedNo2, importParam, exportParam, operation, statistics, std::ref(printer));
+					tt[5] = std::thread(taskMLP, 5, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
 				}
 
 				if (numThreads > 6)
 				{
-					tt[6] = std::thread(taskMLP, 6, a, limMin, limMax, seedNo1, 12, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print1, seedNo2, importParam, exportParam, operation, statistics, std::ref(printer));
+					tt[6] = std::thread(taskMLP, 6, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
 				}
 
 				if (numThreads > 7)
 				{
-					tt[7] = std::thread(taskMLP, 7, a, limMin, limMax, seedNo1, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print1, seedNo2, importParam, exportParam, operation, statistics, std::ref(printer));
+					tt[7] = std::thread(taskMLP, 7, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
 				}
 			}
 		}
@@ -1795,46 +1780,46 @@ int main()
 			{
 				for (int i = 0; i < numThreads; i++)
 				{
-					tt[i] = std::thread(taskMLPFst, i, a, limMin, limMax, seedNo1, numNeur1, numNeur2, numNeur3, numNeur4, numNeur5, numNeur6, numNeur7, numNeur8, numNeur9, numNeur10, numNeur11, numNeur12, mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print1, seedNo2, importParam, exportParam, operation, statistics, std::ref(printer), parall);
+					tt[i] = std::thread(taskMLPFst, i, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
 				}
 			}
 			else
 			{
-				tt[0] = std::thread(taskMLPFst, 0, a, limMin, limMax, seedNo1, 18, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print1, seedNo2, importParam, exportParam, operation, statistics, std::ref(printer), parall);
+				tt[0] = std::thread(taskMLPFst, 0, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
 
 				if (numThreads > 1)
 				{
-					tt[1] = std::thread(taskMLPFst, 1, a, limMin, limMax, seedNo1, 18, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print1, seedNo2, importParam, exportParam, operation, statistics, std::ref(printer), parall);
+					tt[1] = std::thread(taskMLPFst, 1, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
 				}
 
 				if (numThreads > 2)
 				{
-					tt[2] = std::thread(taskMLPFst, 2, a, limMin, limMax, seedNo1, 24, 12, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print1, seedNo2, importParam, exportParam, operation, statistics, std::ref(printer), parall);
+					tt[2] = std::thread(taskMLPFst, 2, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
 				}
 
 				if (numThreads > 3)
 				{
-					tt[3] = std::thread(taskMLPFst, 3, a, limMin, limMax, seedNo1, 18, 24, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print1, seedNo2, importParam, exportParam, operation, statistics, std::ref(printer), parall);
+					tt[3] = std::thread(taskMLPFst, 3, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
 				}
 
 				if (numThreads > 4)
 				{
-					tt[4] = std::thread(taskMLPFst, 4, a, limMin, limMax, seedNo1, 24, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print1, seedNo2, importParam, exportParam, operation, statistics, std::ref(printer), parall);
+					tt[4] = std::thread(taskMLPFst, 4, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
 				}
 
 				if (numThreads > 5)
 				{
-					tt[5] = std::thread(taskMLPFst, 5, a, limMin, limMax, seedNo1, 12, 24, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print1, seedNo2, importParam, exportParam, operation, statistics, std::ref(printer), parall);
+					tt[5] = std::thread(taskMLPFst, 5, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
 				}
 
 				if (numThreads > 6)
 				{
-					tt[6] = std::thread(taskMLPFst, 6, a, limMin, limMax, seedNo1, 12, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print1, seedNo2, importParam, exportParam, operation, statistics, std::ref(printer), parall);
+					tt[6] = std::thread(taskMLPFst, 6, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
 				}
 
 				if (numThreads > 7)
 				{
-					tt[7] = std::thread(taskMLPFst, 7, a, limMin, limMax, seedNo1, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, mu, sigma, ranDistr, range1, range2, range3, checkPoint1, checkPoint2, checkPoint3, epsilon, muAlpha, sigmaAlpha, lossFunction, plot, print1, seedNo2, importParam, exportParam, operation, statistics, std::ref(printer), parall);
+					tt[7] = std::thread(taskMLPFst, 7, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
 				}
 			}
 		}
