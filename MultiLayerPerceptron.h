@@ -40,7 +40,7 @@ namespace WhydahGally
 			std::string importFileName_;
 			std::string exportFileName_;
 
-			int numNeurArr_[12];
+			int numNeurArr_[MAX_NUM_LAYERS_MLP];
 			Importer* importer_;
 
 			std::vector<float> lastLayerError_;
@@ -64,7 +64,7 @@ namespace WhydahGally
 			void computeErrors(const int& counter, const int& lossFunction, const bool& plot, const bool& backpropagation);
 
 		public:
-			MultiLayerPerceptron(Importer& importer, const float& limMin, const float& limMax, const float& seedNo, int numNeurArr[12]);
+			MultiLayerPerceptron(Importer& importer, const float& limMin, const float& limMax, const float& seedNo, int numNeurArr[MAX_NUM_LAYERS_MLP]);
 			virtual ~MultiLayerPerceptron();
 
 			void importWeights() override;

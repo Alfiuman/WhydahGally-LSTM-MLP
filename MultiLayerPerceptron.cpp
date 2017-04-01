@@ -4,66 +4,31 @@ namespace WhydahGally
 {
 	namespace Base
 	{
-		MultiLayerPerceptron::MultiLayerPerceptron(Importer& importer, const float& limMin, const float& limMax, const float& seedNo, int numNeurArr[12])
-			: error_(10000000.1f), errorV_(10000000.1f), bestError_(10000000.1f), bestErrorExpl_(10000000.1f), importFileName_(""), start_(0), importer_(&importer), historyLength_(importer.getHistoryLength())
+		MultiLayerPerceptron::MultiLayerPerceptron(Importer& importer, const float& limMin, const float& limMax, const float& seedNo, int numNeurArr[MAX_NUM_LAYERS_MLP])
+			: error_(10000000.1f), errorV_(10000000.1f), bestError_(10000000.1f), bestErrorExpl_(10000000.1f), importFileName_(""), start_(0), importer_(&importer), historyLength_(importer.getHistoryLength()), numNeurLayers_(0), numNeurArr_{ 0 }
 		{
 			//Building the MLP.
+			for (int i = 0; i < MAX_NUM_LAYERS_MLP; i++)
+			{
+				if (numNeurArr[i] == 0)
+				{
+					numNeurLayers_ = i;
+					break;
+				}
+
+				numNeurArr_[i] = numNeurArr[i];
+				PRINT(numNeurArr_[i] << '\n');
+			}
+			PRINT(numNeurLayers_ << '\n');
+			if (numNeurLayers_ == 0)
+			{
+				numNeurLayers_ = MAX_NUM_LAYERS_MLP;
+			}
+
 			if (numNeurArr[0] == 0)
 			{
 				PRINT("A MLP needs at least one layer of neurons.\n");
-			}
-			else if (numNeurArr[1] == 0)
-			{
-				numNeurLayers_ = 1;
-			}
-			else if (numNeurArr[2] == 0)
-			{
-				numNeurLayers_ = 2;
-			}
-			else if (numNeurArr[3] == 0)
-			{
-				numNeurLayers_ = 3;
-			}
-			else if (numNeurArr[4] == 0)
-			{
-				numNeurLayers_ = 4;
-			}
-			else if (numNeurArr[5] == 0)
-			{
-				numNeurLayers_ = 5;
-			}
-			else if (numNeurArr[6] == 0)
-			{
-				numNeurLayers_ = 6;
-			}
-			else if (numNeurArr[7] == 0)
-			{
-				numNeurLayers_ = 7;
-			}
-			else if (numNeurArr[8] == 0)
-			{
-				numNeurLayers_ = 8;
-			}
-			else if (numNeurArr[9] == 0)
-			{
-				numNeurLayers_ = 9;
-			}
-			else if (numNeurArr[10] == 0)
-			{
-				numNeurLayers_ = 10;
-			}
-			else if (numNeurArr[11] == 0)
-			{
-				numNeurLayers_ = 11;
-			}
-			else
-			{
-				numNeurLayers_ = 12;
-			}
-
-			for (int i = 0; i < 12; i++)
-			{
-				numNeurArr_[i] = numNeurArr[i];
+				numNeurArr_[0] = 1;
 			}
 
 			buildWeights(limMin, limMax, seedNo);
