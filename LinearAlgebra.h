@@ -14,6 +14,7 @@ namespace WhydahGally
 {
 	namespace Maths
 	{
+		//Tests needed to perform linear algebra operations safely.
 		bool isVectMatrixMathCompatible(const std::vector<std::vector<float>>& x);
 
 		bool areMatricesMultiplicable(const std::vector<std::vector<float>>& x, const std::vector<std::vector<float>>& y);
@@ -24,6 +25,7 @@ namespace WhydahGally
 		bool areMatricesExactSameSize(const Matrix& x, const Matrix& y);
 		bool areMatrix1VectorSameSize(const std::vector<std::vector<float>>& x, const std::vector<float>& y);
 
+		//Linear algebra operations.
 		std::vector<float> matrixVectorProduct(const std::vector<std::vector<float>>& x, std::vector<float>& y);
 		std::vector<std::vector<float>> matricesDotProduct(const std::vector<std::vector<float>>& x, const std::vector<std::vector<float>>& y);
 		void matricesDotProduct(const Matrix& x, const Matrix& y, Matrix* out, const int& parall, int resize = 1);

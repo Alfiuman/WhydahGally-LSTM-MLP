@@ -15,6 +15,7 @@ using namespace WhydahGally;
 using namespace Base;
 using namespace Maths;
 
+//Creating the thread-safe Printer class for outputting the final loss of the machine learning algorithms.
 class Printer
 {
 private:
@@ -29,6 +30,7 @@ public:
 	}
 };
 
+//Creating the tasks for multithreading analysis for the different machine learning algorithms.
 void taskLSTM(const int& numThr, Importer* imp, const int& numCell, const bool& importParam, const float& max, const float& min, const int& seedNo, const int& testTimes, const int& viewsEach, const float& alpha, const bool& print, const bool& exportParam, const int& operation, const int& statistics, const int& lossFunct, const int& parall, Printer& printer)
 {
 	LongShortTermMemory* k = new LongShortTermMemory(*imp, numCell, importParam, max, min, seedNo);
@@ -143,6 +145,7 @@ int main()
 
 #if DEBUG
 
+	//General debug parameters.
 	int numThreads = 1;
 
 	int hist = 0;
@@ -195,6 +198,7 @@ int main()
 	{
 		// LSTM -------------------------------------------------------------------------------------------------
 		
+		//LSTM debug parameters.
 		int numCell = 20;
 		float max = 1.0f;
 		float min = -1.0f;
@@ -211,6 +215,7 @@ int main()
 			print = 0;
 		}
 
+		//Creating the LSTM debug threads.
 		if (diffThreads == 0)
 		{
 			for (int i = 0; i < numThreads; i++)
@@ -262,6 +267,7 @@ int main()
 	{
 		// MLP --------------------------------------------------------------------------------------------------
 
+		//MLP debug parameters.
 		float limMin = -10.0f;
 		float limMax = 10.0f;
 		float seedNo1 = 0.0f;
@@ -300,6 +306,7 @@ int main()
 			print1 = 0;
 		}
 
+		//Creating the MLP debug threads.
 		if (algorithm == 2)
 		{
 			if (diffThreads == 0)
@@ -401,6 +408,7 @@ int main()
 	}
 	// FINAL ------------------------------------------------------------------------------------------------
 
+	//Joining the debug threads.
 	for (int i = 0; i < numThreads; i++)
 	{
 		tt[i].join();
@@ -410,6 +418,7 @@ int main()
 
 #else
 
+	//Creating the variables.
 	bool active = 1;
 	int algorithm = LSTM;
 	int operation = TRAIN;
@@ -465,6 +474,7 @@ int main()
 	bool plot = 1;
 	float seedNo2 = 0.0f;
 
+	//Asking to the user the various parameters.
 	std::string answer;
 
 	while (active == 1)
@@ -1680,6 +1690,7 @@ int main()
 
 		if (algorithm == 1)
 		{
+			//Creating the LSTM threads.
 			if (diffThreads == 0)
 			{
 				for (int i = 0; i < numThreads; i++)
@@ -1729,6 +1740,7 @@ int main()
 		}
 		else if (algorithm == 2)
 		{
+			//Creating the MLP threads.
 			if (diffThreads == 0)
 			{
 				for (int i = 0; i < numThreads; i++)
@@ -1778,6 +1790,7 @@ int main()
 		}
 		else if (algorithm == 3)
 		{
+			//Creating the MLPFast threads.
 			if (diffThreads == 0)
 			{
 				for (int i = 0; i < numThreads; i++)
@@ -1826,6 +1839,7 @@ int main()
 			}
 		}
 
+		//Joining the threads.
 		for (int i = 0; i < numThreads; i++)
 		{
 			tt[i].join();
@@ -1833,6 +1847,7 @@ int main()
 
 		delete a;
 
+		//Asking if the user wants to perform another analysis.
 		PRINT("\nDo you want to perform another analysis? (1 yes, 0 no)\n");
 		std::getline(std::cin, answer);
 
@@ -1853,6 +1868,7 @@ int main()
 		answer.clear();
 	} 
 #endif
+	//End of the program.
 	PRINT("\n\nEND") << "\n";
 
 	std::cin.get();

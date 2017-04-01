@@ -9,6 +9,7 @@ namespace WhydahGally
 		public:
 			virtual ~IMachineLearningAlgorithm() {};
 
+			//Functions needed for machine learning algorithms.
 			virtual void importWeights() = 0;
 			virtual void train() = 0;
 			virtual void exportWeights() = 0;

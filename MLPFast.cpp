@@ -20,6 +20,7 @@ namespace WhydahGally
 			{
 				for (int j = 0; j < layersF_[i + 1].rows_; j++)
 				{
+					//Computing the layers using the sigmoid function.
 					Matrix results(1);
 					Maths::matricesDotProduct(layersF_[i], weightsF_[i], &results, parall);
 
@@ -34,6 +35,7 @@ namespace WhydahGally
 
 			Maths::matricesDotProduct(layersF_[layersF_.size() - 2], weightsF_[weights_.size() - 1], &results, parall);
 
+			//Avoiding extreme values such as 1.0 and 0.0 .
 			for (int i = 0; i < layersF_[layersF_.size() - 1].rows_; i++)
 			{
 				layersF_[layersF_.size() - 1].elements_[i * layersF_[layersF_.size() - 1].cols_ + 0] = Maths::sigmoid(results.elements_[i * results.cols_ + 0]);
@@ -51,6 +53,7 @@ namespace WhydahGally
 
 		void MLPFast::computeErrors(const int& counter, const int& lossFunction, const bool& plot, const bool& backpropagation, const int& parall)
 		{
+			//Computing the last layer errors.
 			Matrix results(1);
 			Maths::matricesDifference(layersF_[layers_.size() - 1], importer_->getYMat(), &results, parall);
 
@@ -61,6 +64,7 @@ namespace WhydahGally
 			
 			if (backpropagation == 0)
 			{
+				//Steps executed if we are not using the backpropagation algorithm.
 				if (counter == 0 && start_ == 0)
 				{
 					bestErrorExpl_ = Maths::sum(Maths::abs(lastLayerErrorV_));
@@ -68,6 +72,7 @@ namespace WhydahGally
 
 				start_ = 1;
 
+				//Computing the last layer errors given a particular loss function.
 				if (lossFunction == 0)
 				{
 					for (int i = 0; i < importer_->getYMat().rows_; i++)
@@ -104,6 +109,7 @@ namespace WhydahGally
 					}
 				}
 
+				//Storing the best weights and errors found so far.
 				if (Maths::mean(Maths::abs(lastLayerError_)) < bestError_)
 				{
 					for (int i = 0; i < weightsF_.size(); i++)
@@ -124,12 +130,14 @@ namespace WhydahGally
 
 				if (plot == 1)
 				{
+					//Storing the data to plot.
 					errorsToPlot_.push_back(bestError_);
 					errorsToPlotExpl_.push_back(bestErrorExpl_);
 				}
 			}
 			else
 			{
+				//Steps executed if we are using the backpropagation algorithm.
 				if (counter == 0 && start_ == 0)
 				{
 					bestErrorExpl_ = Maths::mean(Maths::abs(lastLayerErrorV_));
@@ -137,6 +145,7 @@ namespace WhydahGally
 
 				start_ = 1;
 
+				//Computing the errors.
 				if (lossFunction == 0)
 				{
 					for (int i = 0; i < layerErrors_[layerErrors_.size() - 1].size(); i++)
@@ -173,11 +182,13 @@ namespace WhydahGally
 					}
 				}
 
+				//Storing the general errors.
 				error_ = Maths::mean(Maths::abs(layerErrors_[layerErrors_.size() - 1]));
 				errorV_ = Maths::mean(Maths::abs(lastLayerErrorV_));
 
 				if (plot == 1)
 				{
+					//Storing the errors to plot.
 					errorsToPlot_.push_back(error_);
 					errorsToPlotExpl_.push_back(errorV_);
 				}
@@ -186,11 +197,14 @@ namespace WhydahGally
 
 		void MLPFast::train()
 		{
+			//Training the MLP using default arguments.
 			train(-10.0f, 10.0f, 0, 1000, 1000, 25000, 100, 100, 100, 0.05f, 0.4f, 0.1f, LOSSFUNCTSIMPLE, 0, 1, 0, 0);
 		}
 
 		void MLPFast::train(const float& mu, const float& sigma, const int& ranDistr, const int& range1, const int& range2, const int& range3, const int& checkPoint1, const int& checkPoint2, const int& checkPoint3, const float& epsilon, const float& muAlpha, const float& sigmaAlpha, const int& lossFunction, const bool& plot, const bool& print, const float& seedNo, const int& parall)
 		{
+			//Proper training for the MLP.
+			//Building the vectors of matrices that store the weights.
 			for (int i = 0; i < weights_.size(); i++)
 			{
 				weightsF_.push_back(Matrix(weights_[i].size(), weights_[i][0].size()));
@@ -276,6 +290,7 @@ namespace WhydahGally
 				fase3 = 1;
 			}
 
+			//Populating randomly the weights and evaluating them.
 			for (int r = 0; r <= range1; r++)
 			{
 				backpropagation = 0;
@@ -334,6 +349,7 @@ namespace WhydahGally
 				}
 			}
 
+			//Modifying the weights going randomly around them; after it, evaluating them.
 			for (int r = 0; r <= range2; r++)
 			{
 				backpropagation = 0;
@@ -374,6 +390,7 @@ namespace WhydahGally
 
 			float alpha = 0.0;
 
+			//Backpropagation algorithm to train the MLP.
 			for (int r = 0; r <= range3; r++)
 			{
 				backpropagation = 1;
@@ -410,6 +427,7 @@ namespace WhydahGally
 							}
 						}
 
+						//Computing the deltas using the derivative of the sigmoid function.
 						for (int j = 0; j < layersF_[i].rows_; j++)
 						{
 							for (int k = 0; k < layersF_[i].cols_; k++)
@@ -438,7 +456,7 @@ namespace WhydahGally
 							}
 						}
 						
-
+						//Adjusting the weights.
 						for (int j = 0; j < weightsF_[i].rows_; j++)
 						{
 							for (int k = 0; k < weightsF_[i].cols_; k++)
@@ -452,6 +470,7 @@ namespace WhydahGally
 
 			if (fase3 == 1)
 			{
+				//Repopulating the top weights.
 				for (int i = 0; i < weightsF_.size(); i++)
 				{
 					for (int j = 0; j < weightsF_[i].rows_; j++)
@@ -464,6 +483,7 @@ namespace WhydahGally
 				}
 			}
 
+			//Copying the layers.
 			for (int i = 0; i < layersF_.size(); i++)
 			{
 				for (int j = 0; j < layersF_[i].rows_; j++)

@@ -1,5 +1,6 @@
 #pragma once
 
+//MACROS
 #define PRINT(x) std::cout << x
 
 //OPTIONS

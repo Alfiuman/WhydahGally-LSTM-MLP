@@ -14,6 +14,7 @@ namespace WhydahGally
 {
 	namespace Base
 	{
+		//Collections of parameters for a Node.
 		struct Parameters
 		{
 			int numMemCell_;
@@ -47,6 +48,7 @@ namespace WhydahGally
 			void importParameters();
 		};
 
+		//State of a Node.
 		struct State
 		{
 			int numMemCell_;
@@ -65,6 +67,7 @@ namespace WhydahGally
 			~State();
 		};
 
+		//Node of the Artificial Neural Network.
 		struct Node
 		{
 			Parameters* param_;
@@ -82,7 +85,7 @@ namespace WhydahGally
 			void computeTopDiffer(const Matrix& topDiffH, const Matrix& topDiffS, const int& parall);
 		};
 
-
+		//Artificial Neural Network for time series analysis.
 		class LongShortTermMemory : public IMachineLearningAlgorithm
 		{
 		private:

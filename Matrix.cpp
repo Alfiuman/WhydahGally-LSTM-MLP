@@ -2,6 +2,7 @@
 
 namespace WhydahGally
 {
+	//Normal constructor.
 	Matrix::Matrix(int x, int y)
 		: rows_(x), cols_(y)
 	{
@@ -33,6 +34,7 @@ namespace WhydahGally
 
 	Matrix::Matrix(const Matrix& x)
 	{
+		//Constructing a matrix copying another one.
 		if (x.rows_ <= 0)
 		{
 			rows_ = 1;
@@ -69,6 +71,7 @@ namespace WhydahGally
 
 	void Matrix::resize(int x, int y)
 	{
+		//Resizing the matrix and zeroing its elements.
 		if (x <= 0)
 		{
 			rows_ = 1;
@@ -98,6 +101,7 @@ namespace WhydahGally
 
 	void Matrix::assign(const float& x)
 	{
+		//Populating the entire matix with a value.
 		for (int i = 0; i < (rows_ * cols_); i++)
 		{
 			elements_[i] = x;
@@ -106,6 +110,7 @@ namespace WhydahGally
 
 	Matrix& Matrix::copy(const Matrix& right)
 	{
+		//Reconstructing an existing matrix copying another one.
 		if (right.rows_ <= 0)
 		{
 			rows_ = 1;

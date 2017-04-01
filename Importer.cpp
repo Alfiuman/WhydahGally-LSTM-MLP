@@ -4,9 +4,11 @@ namespace WhydahGally
 {
 	namespace Base
 	{
+		//It populates the Importer from a selected txt file.
 		Importer::Importer(const int& historyLength, const float& bias, const std::string& fileName)
 			: fileName_(fileName), numNumbers_(0), numRows_(0), numColumns_(0), historyLength_(historyLength), yMat_(1), bias_(bias)
 		{
+			//Opening and reading the txt file.
 			if (fileName_ == "")
 			{
 				PRINT("Please enter the File Name: \n");
@@ -39,6 +41,7 @@ namespace WhydahGally
 
 				std::vector<std::vector<float>> ee(numRows_ - 1, std::vector<float>());
 
+				//Populating the header vector and creating the conditions to populate the other vectors.
 				for (int i = 0; i < numNumbers_; ++i)
 				{
 					if (i < numColumns_)
@@ -150,6 +153,7 @@ namespace WhydahGally
 					}
 				}
 
+				//Populating the bias vector.
 				for (int i = 0; i < yp.size(); i++)
 				{
 					bias_.push_back(bias);
@@ -162,6 +166,7 @@ namespace WhydahGally
 					x_.at(i).resize(xp.at(i).size());
 				}
 
+				//Populating the X vector.
 				for (int i = 0; i < xp.size(); i++)
 				{
 					for (int j = 0; j < xp.at(i).size(); j++)
@@ -172,11 +177,7 @@ namespace WhydahGally
 
 				y_.resize(yp.size());
 
-				for (int i = 0; i < yp.size(); i++)
-				{
-					y_.at(i) = *yp.at(i);
-				}
-
+				//Populating the Y vector.
 				for (int i = 0; i < yp.size(); i++)
 				{
 					y_.at(i) = *yp.at(i);
@@ -184,6 +185,7 @@ namespace WhydahGally
 
 				yMat_.resize(y_.size());
 
+				//Populating the Y matrix.
 				for (int i = 0; i < y_.size(); i++)
 				{
 					yMat_.elements_[i] = y_[i];
@@ -191,6 +193,7 @@ namespace WhydahGally
 
 				series_.resize(ee.size());
 
+				//Populating the series vector.
 				for (int i = 0; i < ee.size(); i++)
 				{
 					series_.at(i) = ee.at(i).at(0);
@@ -198,6 +201,7 @@ namespace WhydahGally
 
 				yy_.resize(ee.size());
 
+				//Populating the YY vector.
 				for (int i = 0; i < ee.size(); i++)
 				{
 					yy_.at(i) = ee.at(i).at(1);
@@ -210,6 +214,7 @@ namespace WhydahGally
 					xx_.at(i).resize(ee.at(i).size() - 2);
 				}
 
+				//Populating the XX vector.
 				for (int i = 0; i < ee.size(); i++)
 				{
 					for (int j = 0; j < ee.at(i).size() - 2; j++)

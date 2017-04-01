@@ -8,6 +8,8 @@ namespace WhydahGally
 {
 	struct Matrix
 	{
+		//Struct built around a dynamic allocated array in order to have a proper functioning matrix.
+		//Everything is public in order to simulate as much as possible a normal array.
 		int rows_;
 		int cols_;
 		float* elements_;

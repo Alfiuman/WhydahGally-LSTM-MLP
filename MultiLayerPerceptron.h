@@ -16,6 +16,7 @@ namespace WhydahGally
 		class MultiLayerPerceptron : public IMachineLearningAlgorithm
 		{
 		protected:
+			//Protected in order to be used by the MLPFast.
 			int numNeurLayers_;
 			float errorV_;
 			float error_;
@@ -65,6 +66,7 @@ namespace WhydahGally
 			void classify() override;
 			void computeStatistics() override;
 
+			//Getter functions.
 			inline std::vector<std::vector<std::vector<float>>> getWeights() const { return topWeights_; }
 			inline std::vector<std::vector<std::vector<float>>> getLayers() const { return layers_; }
 			inline float getError() const { return error_; }

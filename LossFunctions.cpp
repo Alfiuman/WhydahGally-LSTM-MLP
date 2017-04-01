@@ -4,6 +4,7 @@ namespace WhydahGally
 {
 	namespace Maths
 	{
+		//Simple loss function.
 		std::vector<float> lossFunctSimple(const std::vector<float>& x, const std::vector<float>& y)
 		{
 			return vectorsDifference(x, y);
@@ -14,6 +15,7 @@ namespace WhydahGally
 			return matrixVectorDifference(x, y);
 		}
 
+		//Logarithmic loss function.
 		std::vector<float> lossFunctLog(const std::vector<float>& x, const std::vector<float>& y)
 		{
 			std::vector<float> results;
@@ -40,6 +42,7 @@ namespace WhydahGally
 			return results;
 		}
 
+		//Cubic logarithmic loss function.
 		std::vector<float> lossFunctLogPow3(const std::vector<float>& x, const std::vector<float>& y)
 		{
 			std::vector<float> results;
@@ -66,6 +69,7 @@ namespace WhydahGally
 			return results;
 		}
 
+		//Cubic loss function.
 		std::vector<float> lossFunctPow3(const std::vector<float>& x, const std::vector<float>& y)
 		{
 			std::vector<float> results;
@@ -92,6 +96,7 @@ namespace WhydahGally
 			return results;
 		}
 
+		//Cubic plus cubic logarithmic loss function.
 		std::vector<float> lossFunctPow3PLogPow3(const std::vector<float>& x, const std::vector<float>& y)
 		{
 			std::vector<float> results;

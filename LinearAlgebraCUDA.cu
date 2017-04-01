@@ -4,6 +4,7 @@ namespace WhydahGally
 {
 	namespace Maths
 	{
+		//Kernels.
 		__global__ void MultipMatrices(float* d_inFirst, float* d_inSecond, float* d_out, int rowFirst, int colFirst, int colSecond)
 		{
 			int row = blockIdx.y * blockDim.y + threadIdx.y;
@@ -174,7 +175,7 @@ namespace WhydahGally
 			d_out[row] = diff;
 		}
 
-
+		//Functions.
 		void matricesDotProductGPU(float* h_first, const int& rowFirst, const int& colFirst, float* h_second, const int& rowSecond, const int& colSecond, float* h_result)
 		{
 			float* d_inFirst;

@@ -11,6 +11,7 @@ namespace WhydahGally
 {
 	namespace Maths
 	{
+		//Maths functions.
 		template<typename T> T sigmoid(const T& x)
 		{
 			return 1 / (1 + exp(-x));
@@ -55,6 +56,7 @@ namespace WhydahGally
 		std::vector<float> abs(const std::vector<float>& x);
 		std::vector<std::vector<float>> abs(const std::vector<std::vector<float>>& x);
 
+		//Pseudo-random number generation with normal distribution using the Box-Muller method. 
 		template<typename T> T randNormalDistrib(const T& mean, const T& stdDev)
 		{
 			static bool nBool = 0;

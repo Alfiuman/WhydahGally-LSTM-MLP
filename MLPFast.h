@@ -8,6 +8,7 @@ namespace WhydahGally
 	{
 		class MLPFast : public MultiLayerPerceptron
 		{
+		//Faster version of the MLP; it is faster thanks to the use of the matrices instead of the 2D vectors for the computations.
 		private:
 			std::vector<Matrix> weightsF_;
 			std::vector<Matrix> layersF_;

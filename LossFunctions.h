@@ -11,6 +11,7 @@ namespace WhydahGally
 {
 	namespace Maths
 	{
+		//Different kinds of loss functions.
 		template<typename T> T lossFunctSimple(const T& x, const T& y)
 		{
 			return x - y;

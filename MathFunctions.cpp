@@ -4,6 +4,7 @@ namespace WhydahGally
 {
 	namespace Maths
 	{
+		//Mean.
 		float mean(const std::vector<float>& x)
 		{
 			float sum = 0.0f;
@@ -43,6 +44,7 @@ namespace WhydahGally
 			return sum / (x.rows_ * x.cols_);
 		}
 
+		//Sum.
 		float sum(const std::vector<float>& x)
 		{
 			float sum = 0.0f;
@@ -67,6 +69,7 @@ namespace WhydahGally
 			return sum;
 		}
 
+		//Absolute value.
 		std::vector<float> abs(const std::vector<float>& x)
 		{
 			std::vector<float> results;

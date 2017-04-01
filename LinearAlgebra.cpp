@@ -6,6 +6,7 @@ namespace WhydahGally
 	{
 		bool isVectMatrixMathCompatible(const std::vector<std::vector<float>>& x)
 		{
+			//Test that verifies if a vector is a proper matrix.
 			int data = 1;
 			bool out = 1;
 
@@ -71,7 +72,8 @@ namespace WhydahGally
 
 		bool areMatricesSameSize(const Matrix& x, const Matrix& y)
 		{
-			if ((x.rows_ == y.cols_ && x.cols_ == y.cols_) || (x.rows_ == y.cols_ && x.cols_ == y.rows_))
+			//Test that verifies if two matrices have the same structure.
+			if ((x.rows_ == y.rows_ && x.cols_ == y.cols_) || (x.rows_ == y.cols_ && x.cols_ == y.rows_))
 			{
 				return 1;
 			}
@@ -83,7 +85,8 @@ namespace WhydahGally
 
 		bool areMatricesExactSameSize(const Matrix& x, const Matrix& y)
 		{
-			if (x.rows_ == y.cols_ && x.cols_ == y.cols_)
+			//Test that verifies if two matrices have the same number of rows and columns.
+			if (x.rows_ == y.rows_ && x.cols_ == y.cols_)
 			{
 				return 1;
 			}
@@ -107,6 +110,7 @@ namespace WhydahGally
 
 		std::vector<float> matrixVectorProduct(const std::vector<std::vector<float>>& x, std::vector<float>& y)
 		{
+			//Multiplying a 2D vector by a 1D one.
 			std::vector<float> data;
 			data.resize(x.size());
 
@@ -127,6 +131,7 @@ namespace WhydahGally
 
 		std::vector<std::vector<float>> matricesDotProduct(const std::vector<std::vector<float>> &x, const std::vector<std::vector<float>> &y)
 		{
+			//Dot product between two 2D vectors.
 			std::vector<std::vector<float>> data;
 			data.resize(x.size(), std::vector<float>(y[0].size()));
 
@@ -150,6 +155,7 @@ namespace WhydahGally
 		
 		void matricesDotProduct(const Matrix& x, const Matrix& y, Matrix* out, const int& parall, int resize)
 		{
+			//Dot product between two matrices, with optional CUDA implementation.
 			if (resize == 1)
 			{
 				out->resize(x.rows_, y.cols_);
@@ -187,6 +193,7 @@ namespace WhydahGally
 
 		std::vector<float> vectorsDifference(const std::vector<float>& x, const std::vector<float>& y)
 		{
+			//Difference between two vectors.
 			std::vector<float> results;
 			results.resize(x.size());
 
@@ -200,6 +207,7 @@ namespace WhydahGally
 
 		std::vector<float> matrixVectorDifference(const std::vector<std::vector<float>>& x, const std::vector<float>& y)
 		{
+			//Difference between a fake 2D vector and a 1D one.
 			std::vector<float> results;
 			results.resize(x.size());
 
@@ -213,6 +221,7 @@ namespace WhydahGally
 
 		void matricesDifference(const Matrix& x, const Matrix& y, Matrix* out, const int& parall, int resize)
 		{
+			//Difference between two matrices, with optional CUDA implementation.
 			if (resize == 1)
 			{
 				out->resize(x.rows_, x.cols_);
@@ -240,6 +249,7 @@ namespace WhydahGally
 
 		std::vector<std::vector<float>> outerProduct(const std::vector<float>& x, const std::vector<float>& y)
 		{
+			//Outer product between two vectors.
 			std::vector<std::vector<float>> results;
 			results.resize(x.size(), std::vector<float>(y.size()));
 
@@ -256,6 +266,7 @@ namespace WhydahGally
 
 		void outerProduct(const Matrix& x, const Matrix& y, Matrix* out, const int& parall, int resize)
 		{
+			//Outer product between two matrices, with optional CUDA implementation.
 			if (resize == 1)
 			{
 				out->resize(x.rows_, y.rows_);
@@ -286,6 +297,7 @@ namespace WhydahGally
 
 		std::vector<std::vector<float>> transposeMatrix(const std::vector<std::vector<float>>& x)
 		{
+			//Transpose a 2D vector.
 			std::vector<std::vector<float>> data;
 			data.resize(x[0].size(), std::vector<float>(x.size()));
 
@@ -302,6 +314,7 @@ namespace WhydahGally
 
 		void transposeMatrix(const Matrix& x, Matrix* out, const int& parall, int resize)
 		{
+			//Transpose a matrix, with optional CUDA implementation.
 			if (resize == 1)
 			{
 				out->resize(x.cols_, x.rows_);

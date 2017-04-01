@@ -11,6 +11,7 @@ namespace WhydahGally
 			{
 				srand(seedNo);
 
+				//Populating the weights with random numbers.
 				for (int i = 0; i < weightsG_.rows_; i++)
 				{
 					for (int j = 0; j < weightsG_.cols_; j++)
@@ -43,6 +44,7 @@ namespace WhydahGally
 					}
 				}
 
+				//Populating the bias matrices with random numbers.
 				for (int i = 0; i < biasG_.rows_; i++)
 				{
 					biasG_.elements_[i] = ((max - min) * static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) + min;
@@ -76,6 +78,7 @@ namespace WhydahGally
 
 		void Parameters::importParameters()
 		{
+			//Importing parameters from a txt file.
 			try
 			{
 				std::ifstream file;
@@ -307,6 +310,7 @@ namespace WhydahGally
 
 		void Parameters::recomputeWeightsBias(const float& alpha)
 		{
+			//Recomputing the weights given an alpha and the differentials.
 			for (int i = 0; i < weightsG_.rows_; i++)
 			{
 				for (int j = 0; j < weightsG_.cols_; j++)
@@ -340,7 +344,7 @@ namespace WhydahGally
 				}
 			}
 
-
+			//Recomputing the bias matrices given an alpha and the differentials.
 			for (int i = 0; i < biasG_.rows_; i++)
 			{
 				biasG_.elements_[i] -= alpha * differBiasG_.elements_[i];
@@ -361,6 +365,7 @@ namespace WhydahGally
 				biasO_.elements_[i] -= alpha * differBiasO_.elements_[i];
 			}
 
+			//Zeroing the differentials.
 			for (int i = 0; i < differWeightsG_.rows_; i++)
 			{
 				for (int j = 0; j < differWeightsG_.cols_; j++)
@@ -464,6 +469,7 @@ namespace WhydahGally
 
 			}
 			
+			//Computing the State.
 			Matrix results(param_->weightsG_.rows_);
 
 			Maths::matricesDotProduct(param_->weightsG_, xh, &results, parall);
@@ -516,6 +522,7 @@ namespace WhydahGally
 			Matrix dg(di.rows_);
 			Matrix df(previousS_.rows_);
 			
+			//Computing the differentials.
 			for (int i = 0; i < ds.rows_; i++)
 			{
 				ds.elements_[i] = state_->o_.elements_[i] * (1.0f - pow(tanh(state_->s_.elements_[i]), 2.0f)) * topDiffH.elements_[i] + topDiffS.elements_[i];
@@ -546,6 +553,7 @@ namespace WhydahGally
 			Matrix inputDoo(doo.rows_);
 			Matrix inputDg(dg.rows_);
 
+			//Computing the inputs.
 			for (int i = 0; i < inputDi.rows_; i++)
 			{
 				inputDi.elements_[i] = (1.0f - state_->i_.elements_[i]) * state_->i_.elements_[i] * di.elements_[i];
@@ -566,6 +574,7 @@ namespace WhydahGally
 				inputDg.elements_[i] = (1.0f - pow(state_->g_.elements_[i], 2.0f)) * dg.elements_[i];
 			}
 
+			//Computing the differentials of the various parameters.
 			Matrix results(inputDi.rows_, xh_.rows_);
 
 			Maths::outerProduct(inputDi, xh_, &results, parall);
@@ -607,6 +616,7 @@ namespace WhydahGally
 					param_->differWeightsG_.elements_[i * param_->differWeightsG_.cols_ + j] += results.elements_[i * results.cols_ + j];
 				}
 			}
+
 			for (int i = 0; i < param_->differBiasI_.rows_; i++)
 			{
 				param_->differBiasI_.elements_[i] += inputDi.elements_[i];
@@ -627,6 +637,7 @@ namespace WhydahGally
 				param_->differBiasG_.elements_[i] += inputDg.elements_[i];
 			}
 
+			//Computing the bottom differential of the State.
 			Matrix differXH(xh_.rows_);
 
 			Matrix results1(differXH.rows_);
@@ -706,6 +717,7 @@ namespace WhydahGally
 				generalLoss_ = 0.0f;
 				int count = 0;
 
+				//Computing the losses given a particular loss function.
 				if (lossFunct == 0)
 				{
 					loss_ = pow(Maths::lossFunctSimple(nodeList_.at(idx)->state_->h_.elements_[0], listY.elements_[idx]), 2);
@@ -734,6 +746,7 @@ namespace WhydahGally
 
 				count++;
 
+				//Computing the differentials of H given the Ys.
 				Matrix diffH(nodeList_.at(idx)->state_->h_.rows_);
 				diffH.elements_[0] = 2 * (nodeList_.at(idx)->state_->h_.elements_[0] - listY.elements_[idx]);
 				
@@ -743,6 +756,7 @@ namespace WhydahGally
 
 				idx--;
 
+				//Computing the losses going backward through the Artificial Neural Network.
 				while (idx >= 0)
 				{
 					if (lossFunct == 0)
@@ -804,6 +818,7 @@ namespace WhydahGally
 
 		void LongShortTermMemory::buildListX(const std::vector<float>& x, const int& parall)
 		{
+			//Bulding the X list for time series analysis.
 			Matrix xx(x.size());
 
 			for (int i = 0; i < xx.rows_; i++)
@@ -845,15 +860,18 @@ namespace WhydahGally
 
 		void LongShortTermMemory::train()
 		{
+			//Default training of the algorithm using default arguments.
 			train(10000, 10, 0.11f, 1, 0, 0, 0);
 		}
 
 		void LongShortTermMemory::train(const int& times, const int& view, const float& alpha, const bool& print, const int& lossFunct, const int& parall, const bool& exportParam)
 		{
+			//Training the Artificial Neural Network.
 			if (param_->problem_ == 0)
 			{
 				Matrix y(historyLength_);
 
+				//Building the X 2D vector.
 				std::vector<std::vector<float>> x(historyLength_, std::vector<float>(dimX_));
 
 				for (int h = 0; h < sizeX_ - historyLength_ + 1; h++)
@@ -871,11 +889,13 @@ namespace WhydahGally
 						}
 					}
 
+					//Building the Y matrix.
 					for (int i = 0; i < y.rows_; i++)
 					{
 						y.elements_[i] = importer_->getYY().at(i + h);
 					}
 
+					//Proper training of the algorithm.
 					for (int v = 0; v < times + 1; v++)
 					{
 						for (int w = 0; w < y.rows_; w++)
@@ -885,6 +905,7 @@ namespace WhydahGally
 
 						computeLoss(y, lossFunct, parall);
 
+						//Printing the losses.
 						if (v % view == 0 && print == 1)
 						{
 							PRINT("Loss: " << loss_ << " after " << v << " iterations. And Genaral Loss: " << generalLoss_ << "\n");
@@ -896,6 +917,7 @@ namespace WhydahGally
 						}
 						else
 						{
+							//Populating the prediction matrix.
 							predictions_.resize(nodeList_.size());
 
 							for (int i = 0; i < predictions_.rows_; i++)
@@ -921,6 +943,7 @@ namespace WhydahGally
 
 		void LongShortTermMemory::test()
 		{
+			//Testing the parameters of the algorithm using default arguments.
 			test(0, 0);
 		}
 
@@ -933,11 +956,13 @@ namespace WhydahGally
 
 		void LongShortTermMemory::classify()
 		{
+			//Default classification.
 			classify(0);
 		}
 
 		void LongShortTermMemory::classify(const int& parall)
 		{
+			//Classifying the elements of a new time series using the Artificial Neural Network.
 			train(0, 1, 0, 0, 0, parall, 0);
 
 			float predict = 0.0;
@@ -961,6 +986,7 @@ namespace WhydahGally
 
 		void LongShortTermMemory::computeStatistics()
 		{
+			//Computing the statistics of the training or the test.
 			train(0, 1, 0, 1, 0, 0, 0);
 
 			Matrix y(historyLength_);
@@ -1027,6 +1053,7 @@ namespace WhydahGally
 
 		void LongShortTermMemory::exportWeights()
 		{
+			//Saving the parameters in a txt file.
 			std::ofstream file;
 
 			file.open("weightsG.txt");

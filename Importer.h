@@ -36,9 +36,11 @@ namespace WhydahGally
 			Matrix yMat_;
 
 		public:
+			//Unique constructor.
 			Importer(const int& historyLength, const float& bias, const std::string& fileName = "");
 			~Importer();
 
+			//Getter functions.
 			inline int getNumColumns() const { return numColumns_; }
 			inline int getNumRows() const { return numRows_; }
 			inline int getHistoryLength() const { return historyLength_; }
@@ -51,6 +53,7 @@ namespace WhydahGally
 			inline std::vector<std::vector<float>> getXX() const { return xx_; }
 			inline Matrix getYMat() const { return yMat_; }
 
+			//Setter function.
 			inline void setBias(const float& bias, const int& x) { bias_.at(x) = bias; }
 		};
 	}

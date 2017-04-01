@@ -7,6 +7,7 @@ namespace WhydahGally
 		MultiLayerPerceptron::MultiLayerPerceptron(Importer& importer, const float& limMin, const float& limMax, const float& seedNo, const int& numNeur1, const int& numNeur2, const int& numNeur3, const int& numNeur4, const int& numNeur5, const int& numNeur6, const int& numNeur7, const int& numNeur8, const int& numNeur9, const int& numNeur10, const int& numNeur11, const int& numNeur12)
 			: error_(10000000.1f), errorV_(10000000.1f), bestError_(10000000.1f), bestErrorExpl_(10000000.1f), importFileName_(""), start_(0), importer_(&importer), historyLength_(importer.getHistoryLength())
 		{
+			//Building the MLP.
 			if (numNeur1 == 0)
 			{
 				PRINT("A MLP needs at least one layer of neurons.\n");
@@ -103,6 +104,7 @@ namespace WhydahGally
 
 			srand(seedNo);
 
+			//Populating the weights with pseudo-random numbers.
 			for (short int i = 0; i < weights_.size(); i++)
 			{
 				for (int j = 0; j < weights_[i].size(); j++)
@@ -170,6 +172,7 @@ namespace WhydahGally
 				}
 			}
 
+			//Creating the results' vector.
 			results_.resize(importer_->getY().size(), std::vector<float>(3));
 
 			for (int i = 0; i < importer_->getY().size(); i++)
@@ -180,6 +183,7 @@ namespace WhydahGally
 
 		void MultiLayerPerceptron::importWeights()
 		{
+			//Import the weights stored in a txt file with a predefined name.
 			try
 			{
 				for (short int i = 0; i < numNeurLayers_ + 1; i++)
@@ -215,6 +219,7 @@ namespace WhydahGally
 
 		void MultiLayerPerceptron::importWeights(const short int& layer, const std::string& fileName)
 		{
+			//Import the weights stored in a txt file with a selected name.
 			std::ifstream file;
 
 			importFileName_ = fileName;
@@ -255,6 +260,7 @@ namespace WhydahGally
 
 		void MultiLayerPerceptron::exportWeights()
 		{
+			//Store the weights in a txt file with a pre-defined name.
 			for (short int i = 0; i < numNeurLayers_ + 1; i++)
 			{
 				std::ofstream file;
@@ -285,6 +291,7 @@ namespace WhydahGally
 
 		void MultiLayerPerceptron::exportWeights(const short int& layer, const std::string& fileName)
 		{
+			//Store the weights in a txt file with a selected name.
 			if (layer < weights_.size())
 			{
 				std::ofstream file;
@@ -327,11 +334,13 @@ namespace WhydahGally
 
 		void MultiLayerPerceptron::train()
 		{
+			//Training the MLP with default arguments.
 			train(-10.0f, 10.0f, 0, 1000, 1000, 25000, 100, 100, 100, 0.05f, 0.4f, 0.1f, LOSSFUNCTSIMPLE, 0, 1, 0);
 		}
 
 		void MultiLayerPerceptron::train(const float& mu, const float& sigma, const int& ranDistr, const int& range1, const int& range2, const int& range3, const int& checkPoint1, const int& checkPoint2, const int& checkPoint3, const float& epsilon, const float& muAlpha, const float& sigmaAlpha, const int& lossFunction, const bool& plot, const bool& print, const float& seedNo)
 		{
+			//Training the MLP with user defined parameters.
 			std::vector<std::vector<std::vector<float>>> results;
 
 			results.resize(weights_.size());
@@ -369,6 +378,7 @@ namespace WhydahGally
 				fase3 = 1;
 			}
 
+			//Populating randomly the weights and evaluating them.
 			for (int r = 0; r <= range1; r++)
 			{
 				backpropagation = 0;
@@ -418,6 +428,7 @@ namespace WhydahGally
 				weights_ = topWeights_;
 			}
 
+			//Modifying the weights going randomly around them; after it, evaluating them.
 			for (int r = 0; r <= range2; r++)
 			{
 				backpropagation = 0;
@@ -449,6 +460,7 @@ namespace WhydahGally
 
 			float alpha = 0.0;
 
+			//Backpropagation algorithm to train the MLP.
 			for (int r = 0; r <= range3; r++)
 			{
 				backpropagation = 1;
@@ -464,6 +476,7 @@ namespace WhydahGally
 
 				if (r != range3)
 				{
+					//Computing the deltas using the derivative of the sigmoid function.
 					for (int i = 0; i < layerDeltas_[layerDeltas_.size() - 1].size(); i++)
 					{
 						layerDeltas_[layerDeltas_.size() - 1][i][0] = layerErrors_[layerErrors_.size() - 1][i][0] * Maths::derivativeSigmoid(layers_[layers_.size() - 1][i][0]);
@@ -487,6 +500,7 @@ namespace WhydahGally
 						}
 					}
 
+					//Adjusting the weights.
 					for (short int i = weights_.size() - 1; i > -1; i--)
 					{
 						results[i] = Maths::matricesDotProduct(Maths::transposeMatrix(layers_[i]), layerDeltaUse_[i + 1]);
@@ -510,11 +524,13 @@ namespace WhydahGally
 
 		void MultiLayerPerceptron::test()
 		{
+			//Testing the parameters using a default argument.
 			test(0);
 		}
 
 		void MultiLayerPerceptron::test(const int& lossFunction)
 		{
+			//Testing the parameters of the MLP selecting a loss function.
 			buildWeights(-1, 1, 0);
 			importWeights();
 
@@ -528,6 +544,7 @@ namespace WhydahGally
 
 		void MultiLayerPerceptron::classify()
 		{
+			//Classifying selected data using the MLP.
 			buildWeights(-1, 1, 0);
 			importWeights();
 
@@ -555,6 +572,7 @@ namespace WhydahGally
 
 		void MultiLayerPerceptron::calculateLayers()
 		{
+			//Computing the layers.
 			for (short int i = 0; i < numNeurLayers_; i++)
 			{
 				for (int j = 0; j < layers_[i + 1].size(); j++)
@@ -573,6 +591,7 @@ namespace WhydahGally
 
 			results = Maths::matricesDotProduct(layers_[layers_.size() - 2], weights_[weights_.size() - 1]);
 
+			//Eliminating the extreme values like 1.0 and 0.0 .
 			for (int i = 0; i < layers_[layers_.size() - 1].size(); i++)
 			{
 				layers_.at(layers_.size() - 1).at(i).at(0) = Maths::sigmoid(results[i][0]);
@@ -594,6 +613,7 @@ namespace WhydahGally
 
 			if (backpropagation == 0)
 			{
+				//Steps executed if we are not using the backpropagation algorithm to train the ANN.
 				if (counter == 0 && start_ == 0)
 				{
 					bestErrorExpl_ = Maths::sum(Maths::abs(lastLayerErrorV_));
@@ -601,6 +621,7 @@ namespace WhydahGally
 
 				start_ = 1;
 
+				//Populating the errors' vector using a selected loss function.
 				if (lossFunction == 0)
 				{
 					lastLayerError_ = Maths::lossFunctSimple(layers_[layers_.size() - 1], importer_->getY());
@@ -622,6 +643,7 @@ namespace WhydahGally
 					lastLayerError_ = Maths::lossFunctPow3PLogPow3(layers_[layers_.size() - 1], importer_->getY());
 				}
 
+				//Populating the top weights and the best errors.
 				if (Maths::mean(Maths::abs(lastLayerError_)) < bestError_)
 				{
 					topWeights_ = weights_;
@@ -638,6 +660,7 @@ namespace WhydahGally
 			}
 			else
 			{
+				//Steps executed if we are using the backpropagation algorithm to train the ANN.
 				if (counter == 0 && start_ == 0)
 				{
 					bestErrorExpl_ = Maths::mean(Maths::abs(lastLayerErrorV_));
@@ -681,6 +704,7 @@ namespace WhydahGally
 					}
 				}
 
+				//Populating the errors' vectors we want to show.
 				error_ = Maths::mean(Maths::abs(layerErrors_[layerErrors_.size() - 1]));
 				errorV_ = Maths::mean(Maths::abs(lastLayerErrorV_));
 
@@ -694,6 +718,7 @@ namespace WhydahGally
 
 		void MultiLayerPerceptron::computeStatistics()
 		{
+			//Computing the statistics on the results of the training and the testing.
 			int right0to0 = 0;
 			int right1to1 = 0;
 			int errors0to1 = 0;
