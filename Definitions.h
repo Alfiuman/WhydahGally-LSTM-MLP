@@ -3,6 +3,10 @@
 //MACROS
 #define PRINT(x) std::cout << x
 
+//OPTIONS
+#define DEBUG	1
+#define CUDA	1
+
 //DEFINITIONS
 //Algorithms
 #define LSTM	1
