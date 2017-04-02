@@ -494,16 +494,16 @@ int main()
 		}
 		catch (const std::invalid_argument& e)
 		{
-			operation = 2;
+			operation = TRAIN;
 		}
 		catch (const std::out_of_range& e)
 		{
-			operation = 2;
+			operation = TRAIN;
 		}
 
 		if (operation > 3 || operation < 1)
 		{
-			operation = 2;
+			operation = TRAIN;
 		}
 
 		PRINT("You chose " << operation << ".\n");

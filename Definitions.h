@@ -4,12 +4,12 @@
 #define PRINT(x) std::cout << x
 
 //DEFINITIONS
-//Algorithm
+//Algorithms
 #define LSTM	1
 #define MLP		2
 #define MLPFAST	3
 
-//Task
+//Tasks
 #define TRAIN		1
 #define TEST		2
 #define CLASSIFY	3
@@ -17,14 +17,14 @@
 //History length
 #define TOTAL_HISTORY	0
 
-//Loss function
+//Loss functions
 #define LOSSFUNCTSIMPLE			0
 #define LOSSFUNCTLOG			1
 #define LOSSFUNCTLOGPOW3		2
 #define LOSSFUNCTPOW3			3
 #define LOSSFUNCTPOW3PLOGPOW3	4
 
-//Random distribution
+//Random distributions
 #define UNIFORM_DISTRIBUTION	0
 #define NORMAL_DISTRIBUTION		1	
 
