@@ -17,9 +17,8 @@ namespace WhydahGally
 				}
 
 				numNeurArr_[i] = numNeurArr[i];
-				PRINT(numNeurArr_[i] << '\n');
 			}
-			PRINT(numNeurLayers_ << '\n');
+			
 			if (numNeurLayers_ == 0)
 			{
 				numNeurLayers_ = MAX_NUM_LAYERS_MLP;

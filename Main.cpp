@@ -198,7 +198,7 @@ int main()
 
 	Printer printer;
 
-	if (algorithm == 1)
+	if (algorithm == LSTM)
 	{
 		// LSTM -------------------------------------------------------------------------------------------------
 		
@@ -267,7 +267,7 @@ int main()
 			}
 		}
 	}
-	else if (algorithm == 2 || algorithm == 3)
+	else if (algorithm == MLP || algorithm == MLPFAST)
 	{
 		// MLP --------------------------------------------------------------------------------------------------
 
@@ -275,7 +275,7 @@ int main()
 		float limMin = -10.0f;
 		float limMax = 10.0f;
 		float seedNo1 = 0.0f;
-		int numNeurArr[12]{ 18, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+		int numNeurArr[12]{ 18, 24 };
 
 		DistribParamForMLP distrParam;
 		distrParam.mu_ = -10.0f;
@@ -298,7 +298,7 @@ int main()
 		}
 
 		//Creating the MLP debug threads.
-		if (algorithm == 2)
+		if (algorithm == MLP)
 		{
 			if (diffThreads == 0)
 			{
@@ -347,7 +347,7 @@ int main()
 				}
 			}
 		}
-		else if (algorithm == 3)
+		else if (algorithm == MLPFAST)
 		{
 			if (diffThreads == 0)
 			{
@@ -470,16 +470,16 @@ int main()
 		}
 		catch (const std::invalid_argument& e)
 		{
-			algorithm = 1;
+			algorithm = LSTM;
 		}
 		catch (const std::out_of_range& e)
 		{
-			algorithm = 1;
+			algorithm = LSTM;
 		}
 
-		if (algorithm > 3 || algorithm < 1)
+		if (algorithm > 3 || algorithm < 1) //Change if there are more machine learning algorithms.
 		{
-			algorithm = 1;
+			algorithm = LSTM;
 		}
 
 		PRINT("You chose " << algorithm << ".\n");
@@ -711,7 +711,7 @@ int main()
 		PRINT("You chose " << parall << ".\n");
 		answer.clear();
 #endif
-		if (algorithm == 1)
+		if (algorithm == LSTM)
 		{
 			PRINT("\nHow many cells do you want?\n");
 			std::getline(std::cin, answer);
@@ -914,7 +914,7 @@ int main()
 			PRINT("You chose " << print << ".\n");
 			answer.clear();
 		}
-		else if (algorithm == 2 || algorithm == 3)
+		else if (algorithm == MLP || algorithm == MLPFAST)
 		{
 			PRINT("\nWhat is the MAX value you want for the random initialization?\n");
 			std::getline(std::cin, answer);
@@ -978,321 +978,35 @@ int main()
 			PRINT("You chose " << seedNo1 << ".\n");
 			answer.clear();
 
-			PRINT("\nHow many neurons do you want in the first layer?\n");
-			std::getline(std::cin, answer);
-
-			try
+			for (int n = 0; n < MAX_NUM_LAYERS_MLP; n++)
 			{
-				numNeurArr[0] = std::stoi(answer);
-			}
-			catch (const std::invalid_argument& e)
-			{
-				numNeurArr[0] = 10;
-			}
-			catch (const std::out_of_range& e)
-			{
-				numNeurArr[0] = 10;
-			}
-
-			if (numNeurArr[0] < 0)
-			{
-				numNeurArr[0] = 10;
-			}
-
-			PRINT("You chose " << numNeurArr[0] << ".\n");
-			answer.clear();
-
-			PRINT("\nHow many neurons do you want in the second layer?\n");
-			std::getline(std::cin, answer);
-
-			try
-			{
-				numNeurArr[1] = std::stoi(answer);
-			}
-			catch (const std::invalid_argument& e)
-			{
-				numNeurArr[1] = 10;
-			}
-			catch (const std::out_of_range& e)
-			{
-				numNeurArr[1] = 10;
-			}
-
-			if (numNeurArr[1] < 0)
-			{
-				numNeurArr[1] = 10;
-			}
-
-			PRINT("You chose " << numNeurArr[1] << ".\n");
-			answer.clear();
-
-			if (numNeurArr[1] != 0)
-			{
-				PRINT("\nHow many neurons do you want in the third layer?\n");
+				PRINT("\nHow many neurons do you want in the layer " << n + 1 << "?\n");
 				std::getline(std::cin, answer);
 
 				try
 				{
-					numNeurArr[2] = std::stoi(answer);
+					numNeurArr[n] = std::stoi(answer);
 				}
 				catch (const std::invalid_argument& e)
 				{
-					numNeurArr[2] = 10;
+					numNeurArr[n] = 10;
 				}
 				catch (const std::out_of_range& e)
 				{
-					numNeurArr[2] = 10;
+					numNeurArr[n] = 10;
 				}
 
-				if (numNeurArr[2] < 0)
+				if (numNeurArr[n] < 0)
 				{
-					numNeurArr[2] = 10;
+					numNeurArr[n] = 10;
 				}
 
-				PRINT("You chose " << numNeurArr[2] << ".\n");
+				PRINT("You chose " << numNeurArr[n] << ".\n");
 				answer.clear();
 
-				if (numNeurArr[2] != 0)
+				if (numNeurArr[n] == 0)
 				{
-					PRINT("\nHow many neurons do you want in the fourth layer?\n");
-					std::getline(std::cin, answer);
-
-					try
-					{
-						numNeurArr[3] = std::stoi(answer);
-					}
-					catch (const std::invalid_argument& e)
-					{
-						numNeurArr[3] = 10;
-					}
-					catch (const std::out_of_range& e)
-					{
-						numNeurArr[3] = 10;
-					}
-
-					if (numNeurArr[3] < 0)
-					{
-						numNeurArr[3] = 10;
-					}
-
-					PRINT("You chose " << numNeurArr[3] << ".\n");
-					answer.clear();
-
-					if (numNeurArr[3] != 0)
-					{
-						PRINT("\nHow many neurons do you want in the fifth layer?\n");
-						std::getline(std::cin, answer);
-
-						try
-						{
-							numNeurArr[4] = std::stoi(answer);
-						}
-						catch (const std::invalid_argument& e)
-						{
-							numNeurArr[4] = 10;
-						}
-						catch (const std::out_of_range& e)
-						{
-							numNeurArr[4] = 10;
-						}
-
-						if (numNeurArr[4] < 0)
-						{
-							numNeurArr[4] = 10;
-						}
-
-						PRINT("You chose " << numNeurArr[4] << ".\n");
-						answer.clear();
-
-						if (numNeurArr[4] != 0)
-						{
-							PRINT("\nHow many neurons do you want in the sixth layer?\n");
-							std::getline(std::cin, answer);
-
-							try
-							{
-								numNeurArr[5] = std::stoi(answer);
-							}
-							catch (const std::invalid_argument& e)
-							{
-								numNeurArr[5] = 10;
-							}
-							catch (const std::out_of_range& e)
-							{
-								numNeurArr[5] = 10;
-							}
-
-							if (numNeurArr[5] < 0)
-							{
-								numNeurArr[5] = 10;
-							}
-
-							PRINT("You chose " << numNeurArr[5] << ".\n");
-							answer.clear();
-
-							if (numNeurArr[5] != 0)
-							{
-								PRINT("\nHow many neurons do you want in the seventh layer?\n");
-								std::getline(std::cin, answer);
-
-								try
-								{
-									numNeurArr[6] = std::stoi(answer);
-								}
-								catch (const std::invalid_argument& e)
-								{
-									numNeurArr[6] = 10;
-								}
-								catch (const std::out_of_range& e)
-								{
-									numNeurArr[6] = 10;
-								}
-
-								if (numNeurArr[6] < 0)
-								{
-									numNeurArr[6] = 10;
-								}
-
-								PRINT("You chose " << numNeurArr[6] << ".\n");
-								answer.clear();
-
-								if (numNeurArr[6] != 0)
-								{
-									PRINT("\nHow many neurons do you want in the eighth layer?\n");
-									std::getline(std::cin, answer);
-
-									try
-									{
-										numNeurArr[7] = std::stoi(answer);
-									}
-									catch (const std::invalid_argument& e)
-									{
-										numNeurArr[7] = 10;
-									}
-									catch (const std::out_of_range& e)
-									{
-										numNeurArr[7] = 10;
-									}
-
-									if (numNeurArr[7] < 0)
-									{
-										numNeurArr[7] = 10;
-									}
-
-									PRINT("You chose " << numNeurArr[7] << ".\n");
-									answer.clear();
-
-									if (numNeurArr[7] != 0)
-									{
-										PRINT("\nHow many neurons do you want in the ninth layer?\n");
-										std::getline(std::cin, answer);
-
-										try
-										{
-											numNeurArr[8] = std::stoi(answer);
-										}
-										catch (const std::invalid_argument& e)
-										{
-											numNeurArr[8] = 10;
-										}
-										catch (const std::out_of_range& e)
-										{
-											numNeurArr[8] = 10;
-										}
-
-										if (numNeurArr[8] < 0)
-										{
-											numNeurArr[8] = 10;
-										}
-
-										PRINT("You chose " << numNeurArr[8] << ".\n");
-										answer.clear();
-
-										if (numNeurArr[8] != 0)
-										{
-											PRINT("\nHow many neurons do you want in the tenth layer?\n");
-											std::getline(std::cin, answer);
-
-											try
-											{
-												numNeurArr[9] = std::stoi(answer);
-											}
-											catch (const std::invalid_argument& e)
-											{
-												numNeurArr[9] = 10;
-											}
-											catch (const std::out_of_range& e)
-											{
-												numNeurArr[9] = 10;
-											}
-
-											if (numNeurArr[9] < 0)
-											{
-												numNeurArr[9] = 10;
-											}
-
-											PRINT("You chose " << numNeurArr[9] << ".\n");
-											answer.clear();
-
-											if (numNeurArr[9] != 0)
-											{
-												PRINT("\nHow many neurons do you want in the eleventh layer?\n");
-												std::getline(std::cin, answer);
-
-												try
-												{
-													numNeurArr[10] = std::stoi(answer);
-												}
-												catch (const std::invalid_argument& e)
-												{
-													numNeurArr[10] = 10;
-												}
-												catch (const std::out_of_range& e)
-												{
-													numNeurArr[10] = 10;
-												}
-
-												if (numNeurArr[10] < 0)
-												{
-													numNeurArr[10] = 10;
-												}
-
-												PRINT("You chose " << numNeurArr[10] << ".\n");
-												answer.clear();
-
-												if (numNeurArr[10] != 0)
-												{
-													PRINT("\nHow many neurons do you want in the twelfth layer?\n");
-													std::getline(std::cin, answer);
-
-													try
-													{
-														numNeurArr[11] = std::stoi(answer);
-													}
-													catch (const std::invalid_argument& e)
-													{
-														numNeurArr[11] = 10;
-													}
-													catch (const std::out_of_range& e)
-													{
-														numNeurArr[11] = 10;
-													}
-
-													if (numNeurArr[11] < 0)
-													{
-														numNeurArr[11] = 10;
-													}
-
-													PRINT("You chose " << numNeurArr[11] << ".\n");
-													answer.clear();
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
+					break;
 				}
 			}
 
@@ -1673,7 +1387,7 @@ int main()
 
 		Printer printer;
 
-		if (algorithm == 1)
+		if (algorithm == LSTM)
 		{
 			//Creating the LSTM threads.
 			if (diffThreads == 0)
@@ -1723,7 +1437,7 @@ int main()
 				}
 			}
 		}
-		else if (algorithm == 2)
+		else if (algorithm == MLP)
 		{
 			//Creating the MLP threads.
 			if (diffThreads == 0)
@@ -1773,7 +1487,7 @@ int main()
 				}
 			}
 		}
-		else if (algorithm == 3)
+		else if (algorithm == MLPFAST)
 		{
 			//Creating the MLPFast threads.
 			if (diffThreads == 0)
