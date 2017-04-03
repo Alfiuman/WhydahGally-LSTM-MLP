@@ -164,29 +164,29 @@ int main()
 
 	if (operation == TEST || operation == CLASSIFY)
 	{
-		importParam = 1;
-		exportParam = 0;
-		numThreads = 1;
+		importParam = 1;	//We test or use to classify pre-built parameters.
+		exportParam = 0;	//No export for non trained parameters.
+		numThreads = 1;		//No need multithreading for test and classify.
 	}
 
 	if (numThreads == 1)
 	{
-		diffThreads = 0;
+		diffThreads = 0;	//One thread cannot be different from itself.
 	}
 	
 	if (operation == CLASSIFY)
 	{
-		statistics = 0;
+		statistics = 0;		//It's not possible to have statistics for a classification.
 	}
 
 	if (numThreads > 1)
 	{
-		exportParam = 0;
+		exportParam = 0;	//No export if there are more than one thread because we don't know from the beginning the parameter of which tread we want to export.
 	}
 
 	if (numThreads > MAX_NUM_THREADS && diffThreads == 1)
 	{
-		numThreads = MAX_NUM_THREADS;
+		numThreads = MAX_NUM_THREADS;	//There is a max number of threads if they are different.
 	}
 
 	std::vector<std::thread> tt(numThreads);
@@ -211,7 +211,7 @@ int main()
 
 		if (numThreads != 1)
 		{
-			print = 0;
+			print = 0;	//The printing of the intermediate results is not thread safe at the moment.
 		}
 
 		//Creating the LSTM debug threads.
@@ -289,7 +289,7 @@ int main()
 
 		if (numThreads != 1)
 		{
-			print1 = 0;
+			print1 = 0;	//The printing of the intermediate results is not thread safe at the moment.
 		}
 
 		//Creating the MLP debug threads.
@@ -478,16 +478,16 @@ int main()
 		}
 		catch (const std::invalid_argument& e)
 		{
-			algorithm = LSTM;
+			algorithm = LSTM;	//Default option.
 		}
 		catch (const std::out_of_range& e)
 		{
-			algorithm = LSTM;
+			algorithm = LSTM;	//Default option.
 		}
 
 		if (algorithm > 3 || algorithm < 1) //Change if there are more machine learning algorithms.
 		{
-			algorithm = LSTM;
+			algorithm = LSTM;	//Default option.
 		}
 
 		PRINT("You chose " << algorithm << ".\n");
@@ -502,16 +502,16 @@ int main()
 		}
 		catch (const std::invalid_argument& e)
 		{
-			operation = TRAIN;
+			operation = TRAIN;	//Default option.
 		}
 		catch (const std::out_of_range& e)
 		{
-			operation = TRAIN;
+			operation = TRAIN;	//Default option.
 		}
 
 		if (operation > 3 || operation < 1)
 		{
-			operation = TRAIN;
+			operation = TRAIN;	//Default option.
 		}
 
 		PRINT("You chose " << operation << ".\n");
@@ -526,26 +526,26 @@ int main()
 		}
 		catch (const std::invalid_argument& e)
 		{
-			numThreads = 1;
+			numThreads = 1;	//Default option.
 		}
 		catch (const std::out_of_range& e)
 		{
-			numThreads = 1;
+			numThreads = 1;	//Default option.
 		}
 
 		if (numThreads < 1)
 		{
-			numThreads = 1;
+			numThreads = 1;	//Default option.
 		}
 
 		if (numThreads > MAX_NUM_THREADS)
 		{
-			numThreads = MAX_NUM_THREADS;
+			numThreads = MAX_NUM_THREADS;	//There is a Max.
 		}
 
 		if (operation == TEST || operation == CLASSIFY)
 		{
-			numThreads = 1;
+			numThreads = 1;	//No multithreads for tests or classifications.
 		}
 
 		PRINT("You chose " << numThreads << ".\n");
@@ -560,16 +560,16 @@ int main()
 		}
 		catch (const std::invalid_argument& e)
 		{
-			hist = 0;
+			hist = 0;	//Default option.
 		}
 		catch (const std::out_of_range& e)
 		{
-			hist = 0;
+			hist = 0;	//Default option.
 		}
 
 		if (hist < 0)
 		{
-			hist = 0;
+			hist = 0;	//History length cannot be less than 0.
 		}
 
 		PRINT("You chose " << hist << ".\n");
@@ -591,11 +591,11 @@ int main()
 		}
 		catch (const std::invalid_argument& e)
 		{
-			bias = DEFAULT_BIAS;
+			bias = DEFAULT_BIAS;	//Default option.
 		}
 		catch (const std::out_of_range& e)
 		{
-			bias = DEFAULT_BIAS;
+			bias = DEFAULT_BIAS;	//Default option.
 		}
 
 		PRINT("You chose " << bias << ".\n");
@@ -610,16 +610,16 @@ int main()
 		}
 		catch (const std::invalid_argument& e)
 		{
-			importParam = 0;
+			importParam = 0;	//Default option.
 		}
 		catch (const std::out_of_range& e)
 		{
-			importParam = 0;
+			importParam = 0;	//Default option.
 		}
 
 		if (operation == TEST || operation == CLASSIFY)
 		{
-			importParam = 1;
+			importParam = 1;	//You have to use pre-built parameters to test or classify.
 		}
 
 		PRINT("You chose " << importParam << ".\n");
@@ -634,16 +634,16 @@ int main()
 		}
 		catch (const std::invalid_argument& e)
 		{
-			exportParam = 0;
+			exportParam = 0;	//Default option.
 		}
 		catch (const std::out_of_range& e)
 		{
-			exportParam = 0;
+			exportParam = 0;	//Default option.
 		}
 
 		if (operation == TEST || operation == CLASSIFY || numThreads > 1)
 		{
-			exportParam = 0;
+			exportParam = 0;	//Tests or classifications don't export parameters and also multithreading. 
 		}
 
 		PRINT("You chose " << exportParam << ".\n");
@@ -658,21 +658,21 @@ int main()
 		}
 		catch (const std::invalid_argument& e)
 		{
-			statistics = 0;
+			statistics = 0;		//Default option.
 		}
 		catch (const std::out_of_range& e)
 		{
-			statistics = 0;
+			statistics = 0;		//Default option.
 		}
 
 		if (operation == CLASSIFY)
 		{
-			statistics = 0;
+			statistics = 0;		//No statistics if we classify data.
 		}
 
 		if (numThreads != 1)
 		{
-			statistics = 0;
+			statistics = 0;		//No statistics for multithreading (they are not thread safe at the moment).
 		}
 
 		PRINT("You chose " << statistics << ".\n");
@@ -689,11 +689,11 @@ int main()
 			}
 			catch (const std::invalid_argument& e)
 			{
-				diffThreads = 0;
+				diffThreads = 0;	//Default option.
 			}
 			catch (const std::out_of_range& e)
 			{
-				diffThreads = 0;
+				diffThreads = 0;	//Default option.
 			}
 
 			PRINT("You chose " << diffThreads << ".\n");
@@ -709,16 +709,16 @@ int main()
 		}
 		catch (const std::invalid_argument& e)
 		{
-			parall = 0;
+			parall = 0;		//Default option.
 		}
 		catch (const std::out_of_range& e)
 		{
-			parall = 0;
+			parall = 0;		//Default option.
 		}
 
 		if (parall < 0 || parall > 2)
 		{
-			parall = 0;
+			parall = 0;		//Default option.
 		}
 
 		PRINT("You chose " << parall << ".\n");
@@ -735,16 +735,16 @@ int main()
 			}
 			catch (const std::invalid_argument& e)
 			{
-				numCell = 20;
+				numCell = 20;	//Default option.
 			}
 			catch (const std::out_of_range& e)
 			{
-				numCell = 20;
+				numCell = 20;	//Default option.
 			}
 
 			if (numCell < 0)
 			{
-				numCell = 20;
+				numCell = 20;	//Default option.
 			}
 
 			PRINT("You chose " << numCell << ".\n");
@@ -759,11 +759,11 @@ int main()
 			}
 			catch (const std::invalid_argument& e)
 			{
-				max = 1.0f;
+				max = 1.0f;		//Default option.
 			}
 			catch (const std::out_of_range& e)
 			{
-				max = 1.0f;
+				max = 1.0f;		//Default option.
 			}
 
 			PRINT("You chose " << max << ".\n");
@@ -778,16 +778,16 @@ int main()
 			}
 			catch (const std::invalid_argument& e)
 			{
-				min = -1.0f;
+				min = -1.0f;	//Default option.
 			}
 			catch (const std::out_of_range& e)
 			{
-				min = -1.0f;
+				min = -1.0f;	//Default option.
 			}
 
 			if (min >= max)
 			{
-				min = max - 1.0f;
+				min = max - 1.0f;	//Min has to be less than Max.
 			}
 
 			PRINT("You chose " << min << ".\n");
@@ -802,11 +802,11 @@ int main()
 			}
 			catch (const std::invalid_argument& e)
 			{
-				seedNo = DEFAULT_SEEDNO;
+				seedNo = DEFAULT_SEEDNO;	//Default option.
 			}
 			catch (const std::out_of_range& e)
 			{
-				seedNo = DEFAULT_SEEDNO;
+				seedNo = DEFAULT_SEEDNO;	//Default option.
 			}
 
 			PRINT("You chose " << seedNo << ".\n");
@@ -821,16 +821,16 @@ int main()
 			}
 			catch (const std::invalid_argument& e)
 			{
-				lossFunct = 0;
+				lossFunct = 0;		//Default option.
 			}
 			catch (const std::out_of_range& e)
 			{
-				lossFunct = 0;
+				lossFunct = 0;		//Default option.
 			}
 
 			if (lossFunct < 0 || lossFunct > 4)
 			{
-				lossFunct = 0;
+				lossFunct = 0;		//Default option.
 			}
 
 			PRINT("You chose " << lossFunct << ".\n");
@@ -845,16 +845,16 @@ int main()
 			}
 			catch (const std::invalid_argument& e)
 			{
-				testTimes = 1000;
+				testTimes = 1000;	//Default option.
 			}
 			catch (const std::out_of_range& e)
 			{
-				testTimes = 1000;
+				testTimes = 1000;	//Default option.
 			}
 
 			if (testTimes < 0)
 			{
-				testTimes = 1000;
+				testTimes = 1000;	//Default option.
 			}
 
 			PRINT("You chose " << testTimes << ".\n");
@@ -869,16 +869,16 @@ int main()
 			}
 			catch (const std::invalid_argument& e)
 			{
-				viewsEach = 100;
+				viewsEach = 100;	//Default option.
 			}
 			catch (const std::out_of_range& e)
 			{
-				viewsEach = 100;
+				viewsEach = 100;	//Default option.
 			}
 
 			if (viewsEach < 0)
 			{
-				viewsEach = 100;
+				viewsEach = 100;	//Default option.
 			}
 
 			PRINT("You chose " << viewsEach << ".\n");
@@ -893,11 +893,11 @@ int main()
 			}
 			catch (const std::invalid_argument& e)
 			{
-				alpha = 0.11f;
+				alpha = 0.11f;	//Default option.
 			}
 			catch (const std::out_of_range& e)
 			{
-				alpha = 0.11f;
+				alpha = 0.11f;	//Default option.
 			}
 
 			PRINT("You chose " << alpha << ".\n");
@@ -912,16 +912,16 @@ int main()
 			}
 			catch (const std::invalid_argument& e)
 			{
-				print = 0;
+				print = 0;	//Default option.
 			}
 			catch (const std::out_of_range& e)
 			{
-				print = 0;
+				print = 0;	//Default option.
 			}
 
 			if (numThreads != 1)
 			{
-				print = 0;
+				print = 0;	//Printing the intermediate results is not thread safe at the moment.
 			}
 
 			PRINT("You chose " << print << ".\n");
@@ -938,11 +938,11 @@ int main()
 			}
 			catch (const std::invalid_argument& e)
 			{
-				limMax = 1.0f;
+				limMax = 1.0f;	//Default option.
 			}
 			catch (const std::out_of_range& e)
 			{
-				limMax = 1.0f;
+				limMax = 1.0f;	//Default option.
 			}
 
 			PRINT("You chose " << limMax << ".\n");
@@ -957,16 +957,16 @@ int main()
 			}
 			catch (const std::invalid_argument& e)
 			{
-				limMin = -1.0f;
+				limMin = -1.0f;	//Default option.
 			}
 			catch (const std::out_of_range& e)
 			{
-				limMin = -1.0f;
+				limMin = -1.0f;	//Default option.
 			}
 
 			if (limMin > limMax)
 			{
-				limMin = limMax - 1.0f;
+				limMin = limMax - 1.0f;	//Min has to be less or equal than Max.
 			}
 
 			PRINT("You chose " << limMin << ".\n");
@@ -981,11 +981,11 @@ int main()
 			}
 			catch (const std::invalid_argument& e)
 			{
-				seedNo1 = DEFAULT_SEEDNO;
+				seedNo1 = DEFAULT_SEEDNO;	//Default option.
 			}
 			catch (const std::out_of_range& e)
 			{
-				seedNo1 = DEFAULT_SEEDNO;
+				seedNo1 = DEFAULT_SEEDNO;	//Default option.
 			}
 
 			PRINT("You chose " << seedNo1 << ".\n");
@@ -1002,16 +1002,21 @@ int main()
 				}
 				catch (const std::invalid_argument& e)
 				{
-					numNeurArr[n] = 10;
+					numNeurArr[n] = 10;		//Default option.
 				}
 				catch (const std::out_of_range& e)
 				{
-					numNeurArr[n] = 10;
+					numNeurArr[n] = 10;		//Default option.
 				}
 
 				if (numNeurArr[n] < 0)
 				{
-					numNeurArr[n] = 10;
+					numNeurArr[n] = 10;		//Default option.
+				}
+
+				if (n == 0 && numNeurArr[n] == 0)
+				{
+					numNeurArr[n] = 1;		//The first layer should have at least one neuron.
 				}
 
 				PRINT("You chose " << numNeurArr[n] << ".\n");
@@ -1032,16 +1037,16 @@ int main()
 			}
 			catch (const std::invalid_argument& e)
 			{
-				distrParam.ranDistr_ = 0;
+				distrParam.ranDistr_ = 0;	//Default option.
 			}
 			catch (const std::out_of_range& e)
 			{
-				distrParam.ranDistr_ = 0;
+				distrParam.ranDistr_ = 0;	//Default option.
 			}
 
 			if (distrParam.ranDistr_ < 0 || distrParam.ranDistr_ > 1)
 			{
-				distrParam.ranDistr_ = 0;
+				distrParam.ranDistr_ = 0;	//Default option.
 			}
 
 			PRINT("You chose " << distrParam.ranDistr_ << ".\n");
@@ -1056,11 +1061,11 @@ int main()
 			}
 			catch (const std::invalid_argument& e)
 			{
-				distrParam.mu_ = -10.0f;
+				distrParam.mu_ = -10.0f;	//Default option.
 			}
 			catch (const std::out_of_range& e)
 			{
-				distrParam.mu_ = -10.0f;
+				distrParam.mu_ = -10.0f;	//Default option.
 			}
 
 			PRINT("You chose " << distrParam.mu_ << ".\n");
@@ -1075,16 +1080,16 @@ int main()
 			}
 			catch (const std::invalid_argument& e)
 			{
-				distrParam.sigma_ = 10.0f;
+				distrParam.sigma_ = 10.0f;	//Default option.
 			}
 			catch (const std::out_of_range& e)
 			{
-				distrParam.sigma_ = 10.0f;
+				distrParam.sigma_ = 10.0f;	//Default option.
 			}
 
 			if (distrParam.sigma_ < distrParam.mu_ && distrParam.ranDistr_ == 0)
 			{
-				distrParam.sigma_ = distrParam.mu_ + 1.0f;
+				distrParam.sigma_ = distrParam.mu_ + 1.0f;	//If ranDistr is uniform then Min has to be less or equal than Max.
 			}
 
 			PRINT("You chose " << distrParam.sigma_ << ".\n");
@@ -1099,16 +1104,16 @@ int main()
 			}
 			catch (const std::invalid_argument& e)
 			{
-				ranges[0] = 1000;
+				ranges[0] = 1000;	//Default option.
 			}
 			catch (const std::out_of_range& e)
 			{
-				ranges[0] = 1000;
+				ranges[0] = 1000;	//Default option.
 			}
 
 			if (ranges[0] < 0)
 			{
-				ranges[0] = 1000;
+				ranges[0] = 1000;	//Default option.
 			}
 
 			PRINT("You chose " << ranges[0] << ".\n");
@@ -1123,16 +1128,16 @@ int main()
 			}
 			catch (const std::invalid_argument& e)
 			{
-				ranges[1] = 1000;
+				ranges[1] = 1000;	//Default option.
 			}
 			catch (const std::out_of_range& e)
 			{
-				ranges[1] = 1000;
+				ranges[1] = 1000;	//Default option.
 			}
 
 			if (ranges[1] < 0)
 			{
-				ranges[1] = 1000;
+				ranges[1] = 1000;	//Default option.
 			}
 
 			PRINT("You chose " << ranges[1] << ".\n");
@@ -1147,16 +1152,16 @@ int main()
 			}
 			catch (const std::invalid_argument& e)
 			{
-				ranges[2] = 1000;
+				ranges[2] = 1000;	//Default option.
 			}
 			catch (const std::out_of_range& e)
 			{
-				ranges[2] = 1000;
+				ranges[2] = 1000;	//Default option.
 			}
 
 			if (ranges[2] < 0)
 			{
-				ranges[2] = 1000;
+				ranges[2] = 1000;	//Default option.
 			}
 
 			PRINT("You chose " << ranges[2] << ".\n");
@@ -1171,16 +1176,16 @@ int main()
 			}
 			catch (const std::invalid_argument& e)
 			{
-				checkPoints[0] = 100;
+				checkPoints[0] = 100;	//Default option.
 			}
 			catch (const std::out_of_range& e)
 			{
-				checkPoints[0] = 100;
+				checkPoints[0] = 100;	//Default option.
 			}
 
 			if (checkPoints[0] < 0)
 			{
-				checkPoints[0] = 100;
+				checkPoints[0] = 100;	//Default option.
 			}
 
 			PRINT("You chose " << checkPoints[0] << ".\n");
@@ -1195,16 +1200,16 @@ int main()
 			}
 			catch (const std::invalid_argument& e)
 			{
-				checkPoints[1] = 100;
+				checkPoints[1] = 100;	//Default option.
 			}
 			catch (const std::out_of_range& e)
 			{
-				checkPoints[1] = 100;
+				checkPoints[1] = 100;	//Default option.
 			}
 
 			if (checkPoints[1] < 0)
 			{
-				checkPoints[1] = 100;
+				checkPoints[1] = 100;	//Default option.
 			}
 
 			PRINT("You chose " << checkPoints[1] << ".\n");
@@ -1219,16 +1224,16 @@ int main()
 			}
 			catch (const std::invalid_argument& e)
 			{
-				checkPoints[2] = 100;
+				checkPoints[2] = 100;	//Default option.
 			}
 			catch (const std::out_of_range& e)
 			{
-				checkPoints[2] = 100;
+				checkPoints[2] = 100;	//Default option.
 			}
 
 			if (checkPoints[2] < 0)
 			{
-				checkPoints[2] = 100;
+				checkPoints[2] = 100;	//Default option.
 			}
 
 			PRINT("You chose " << checkPoints[2] << ".\n");
@@ -1243,16 +1248,16 @@ int main()
 			}
 			catch (const std::invalid_argument& e)
 			{
-				distrParam.epsilon_ = 0.05f;
+				distrParam.epsilon_ = 0.05f;	//Default option.
 			}
 			catch (const std::out_of_range& e)
 			{
-				distrParam.epsilon_ = 0.05f;
+				distrParam.epsilon_ = 0.05f;	//Default option.
 			}
 
 			if (distrParam.epsilon_ < 0)
 			{
-				distrParam.epsilon_ = 1.0f;
+				distrParam.epsilon_ = 1.0f;		//Other default option.
 			}
 
 			PRINT("You chose " << distrParam.epsilon_ << ".\n");
@@ -1267,11 +1272,11 @@ int main()
 			}
 			catch (const std::invalid_argument& e)
 			{
-				distrParam.muAlpha_ = 0.4f;
+				distrParam.muAlpha_ = 0.4f;	//Default option.
 			}
 			catch (const std::out_of_range& e)
 			{
-				distrParam.muAlpha_ = 0.4f;
+				distrParam.muAlpha_ = 0.4f;	//Default option.
 			}
 
 			PRINT("You chose " << distrParam.muAlpha_ << ".\n");
@@ -1286,16 +1291,16 @@ int main()
 			}
 			catch (const std::invalid_argument& e)
 			{
-				distrParam.sigmaAlpha_ = 0.1f;
+				distrParam.sigmaAlpha_ = 0.1f;	//Default option.
 			}
 			catch (const std::out_of_range& e)
 			{
-				distrParam.sigmaAlpha_ = 0.1f;
+				distrParam.sigmaAlpha_ = 0.1f;	//Default option.
 			}
 
 			if (distrParam.sigmaAlpha_ < 0)
 			{
-				distrParam.sigmaAlpha_ = 0.1f;
+				distrParam.sigmaAlpha_ = 0.1f;	//Default option.
 			}
 
 			PRINT("You chose " << distrParam.sigmaAlpha_ << ".\n");
@@ -1310,16 +1315,16 @@ int main()
 			}
 			catch (const std::invalid_argument& e)
 			{
-				lossFunction = 0;
+				lossFunction = 0;	//Default option.
 			}
 			catch (const std::out_of_range& e)
 			{
-				lossFunction = 0;
+				lossFunction = 0;	//Default option.
 			}
 
 			if (lossFunction < 0 || lossFunction > 4)
 			{
-				lossFunction = 0;
+				lossFunction = 0;	//Default option.
 			}
 
 			PRINT("You chose " << lossFunction << ".\n");
@@ -1334,16 +1339,16 @@ int main()
 			}
 			catch (const std::invalid_argument& e)
 			{
-				print1 = 0;
+				print1 = 0;		//Default option.
 			}
 			catch (const std::out_of_range& e)
 			{
-				print1 = 0;
+				print1 = 0;		//Default option.
 			}
 
 			if (numThreads != 1)
 			{
-				print1 = 0;
+				print1 = 0;		//Printing the intermediate results is not thread safe at the moment.
 			}
 
 			PRINT("You chose " << print1 << ".\n");
@@ -1378,11 +1383,11 @@ int main()
 			}
 			catch (const std::invalid_argument& e)
 			{
-				distrParam.seedNo_ = DEFAULT_SEEDNO;
+				distrParam.seedNo_ = DEFAULT_SEEDNO;	//Default option.
 			}
 			catch (const std::out_of_range& e)
 			{
-				distrParam.seedNo_ = DEFAULT_SEEDNO;
+				distrParam.seedNo_ = DEFAULT_SEEDNO;	//Default option.
 			}
 
 			PRINT("You chose " << distrParam.seedNo_ << ".\n");
@@ -1393,7 +1398,7 @@ int main()
 
 		if (numThreads > 8 && diffThreads == 1)
 		{
-			numThreads = 8;
+			numThreads = 8;		//Max number of different threads.
 		}
 
 		std::vector<std::thread> tt(numThreads);
@@ -1466,7 +1471,7 @@ int main()
 
 				if (numThreads > 1)
 				{
-					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ numNeurArr[1], numNeurArr[0] };
+					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ (numNeurArr[1] > 0) ? numNeurArr[1] : 1, numNeurArr[0] };
 					tt[1] = std::thread(taskMLP, 1, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
 				}
 
@@ -1490,13 +1495,13 @@ int main()
 
 				if (numThreads > 5)
 				{
-					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ numNeurArr[1], numNeurArr[0], numNeurArr[0] / 2 };
+					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ (numNeurArr[1] > 0) ? numNeurArr[1] : 1, numNeurArr[0], numNeurArr[0] / 2 };
 					tt[5] = std::thread(taskMLP, 5, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
 				}
 
 				if (numThreads > 6)
 				{
-					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ numNeurArr[1] * 2, numNeurArr[1], numNeurArr[1] / 2 };
+					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ ((numNeurArr[1] > 0) ? numNeurArr[1] : 1) * 2, numNeurArr[1], numNeurArr[1] / 2 };
 					tt[6] = std::thread(taskMLP, 6, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
 				}
 
@@ -1523,7 +1528,7 @@ int main()
 
 				if (numThreads > 1)
 				{
-					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ numNeurArr[1], numNeurArr[0] };
+					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ (numNeurArr[1] > 0) ? numNeurArr[1] : 1, numNeurArr[0] };
 					tt[1] = std::thread(taskMLPFst, 1, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
 				}
 
@@ -1547,13 +1552,13 @@ int main()
 
 				if (numThreads > 5)
 				{
-					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ numNeurArr[1], numNeurArr[0], numNeurArr[0] / 2 };
+					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ (numNeurArr[1] > 0) ? numNeurArr[1] : 1, numNeurArr[0], numNeurArr[0] / 2 };
 					tt[5] = std::thread(taskMLPFst, 5, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
 				}
 
 				if (numThreads > 6)
 				{
-					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ numNeurArr[1] * 2, numNeurArr[1], numNeurArr[1] / 2 };
+					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ ((numNeurArr[1] > 0) ? numNeurArr[1] : 1) * 2, numNeurArr[1], numNeurArr[1] / 2 };
 					tt[6] = std::thread(taskMLPFst, 6, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
 				}
 

@@ -12,8 +12,17 @@ namespace WhydahGally
 			{
 				if (numNeurArr[i] == 0)
 				{
-					numNeurLayers_ = i;
-					break;
+					if (i == 0)
+					{
+						numNeurLayers_ = 1;
+						numNeurArr_[i] = 1;		//To have at least one neuron.
+						break;
+					}
+					else
+					{
+						numNeurLayers_ = i;
+						break;
+					}
 				}
 
 				numNeurArr_[i] = numNeurArr[i];
@@ -22,12 +31,6 @@ namespace WhydahGally
 			if (numNeurLayers_ == 0)
 			{
 				numNeurLayers_ = MAX_NUM_LAYERS_MLP;
-			}
-
-			if (numNeurArr[0] == 0)
-			{
-				PRINT("A MLP needs at least one layer of neurons.\n");
-				numNeurArr_[0] = 1;
 			}
 
 			buildWeights(limMin, limMax, seedNo);

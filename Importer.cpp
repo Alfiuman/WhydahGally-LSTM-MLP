@@ -227,8 +227,12 @@ namespace WhydahGally
 			}
 			else
 			{
-				PRINT("Wrong file name.\n");
+				PRINT("\n\nWrong file name.\n");
 				this->~Importer();
+
+				PRINT("\nEND\nPress Enter to exit.\n");
+				std::cin.get();
+				exit(0);
 			}
 		}
 

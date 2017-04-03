@@ -4,6 +4,7 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <cstdlib>
 
 #include "Definitions.h"
 #include "Matrix.h"
