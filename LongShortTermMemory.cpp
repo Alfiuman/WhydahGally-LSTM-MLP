@@ -908,7 +908,7 @@ namespace WhydahGally
 						//Printing the losses.
 						if (v % view == 0 && print == 1)
 						{
-							PRINT("Loss: " << loss_ << " after " << v << " iterations. And Genaral Loss: " << generalLoss_ << "\n");
+							PRINT("Loss: " << loss_ << "\t after " << v << " iterations. And Genaral Loss: " << generalLoss_ << "\n");
 						}
 
 						if (v < times || h < sizeX_ - historyLength_)

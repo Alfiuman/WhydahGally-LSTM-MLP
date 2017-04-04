@@ -447,7 +447,7 @@ int main()
 	float limMax = 0.0f;
 	float limMin = 0.0f;
 	float seedNo1 = 0.0f;
-	int numNeurArr[12]{ 0 };
+	int numNeurArr[MAX_NUM_LAYERS_MLP]{ 0 };
 	DistribParamForMLP distrParam;
 	distrParam.mu_ = 0.0f;
 	distrParam.sigma_ = 0.0f;
@@ -1000,7 +1000,7 @@ int main()
 				{
 					numNeurArr[n] = std::stoi(answer);
 				}
-				catch (const std::invalid_argument& e)
+				catch (const std::invalid_argument& e)	//In Visual Studio 2015 with Release x64 it gives unexpected behaviour when we print it at row 1022. To avoid it, it needs to be catched by value.
 				{
 					numNeurArr[n] = 10;		//Default option.
 				}
