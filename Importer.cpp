@@ -223,7 +223,7 @@ namespace WhydahGally
 					}
 				}
 
-				PRINT("Data imported.\n");
+				PRINT("\nData imported.\n\n");
 			}
 			else
 			{

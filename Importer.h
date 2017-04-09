@@ -34,7 +34,7 @@ namespace WhydahGally
 			std::vector<std::vector<float>> xx_;
 			std::vector<std::string> headers_;
 
-			Matrix yMat_;
+			Matrix<float> yMat_;
 
 		public:
 			//Unique constructor.
@@ -52,7 +52,7 @@ namespace WhydahGally
 			inline std::vector<float> getYY() const { return yy_; }
 			inline std::vector<std::vector<float>> getX() const { return x_; }
 			inline std::vector<std::vector<float>> getXX() const { return xx_; }
-			inline Matrix getYMat() const { return yMat_; }
+			inline Matrix<float> getYMat() const { return yMat_; }
 
 			//Setter function.
 			inline void setBias(const float& bias, const int& x) { bias_.at(x) = bias; }

@@ -29,7 +29,6 @@ namespace WhydahGally
 		{
 		protected:
 			//Protected in order to be used by the MLPFast.
-			int numNeurLayers_;
 			float errorV_;
 			float error_;
 			float bestError_;
@@ -40,9 +39,9 @@ namespace WhydahGally
 			std::string importFileName_;
 			std::string exportFileName_;
 
-			int numNeurArr_[MAX_NUM_LAYERS_MLP];
 			Importer* importer_;
 
+			std::vector<int> numNeurArr_;
 			std::vector<float> lastLayerError_;
 			std::vector<float> lastLayerErrorV_;
 			std::vector<float> errorsToPlot_;
@@ -64,7 +63,7 @@ namespace WhydahGally
 			void computeErrors(const int& counter, const int& lossFunction, const bool& plot, const bool& backpropagation);
 
 		public:
-			MultiLayerPerceptron(Importer& importer, const float& limMin, const float& limMax, const float& seedNo, int numNeurArr[MAX_NUM_LAYERS_MLP]);
+			MultiLayerPerceptron(Importer& importer, const float& limMin, const float& limMax, const float& seedNo, const std::vector<int>& numNeurArr);
 			virtual ~MultiLayerPerceptron();
 
 			void importWeights() override;
@@ -83,6 +82,7 @@ namespace WhydahGally
 			inline std::vector<std::vector<std::vector<float>>> getLayers() const { return layers_; }
 			inline float getError() const { return error_; }
 			inline float getErrorV() const { return errorV_; }
+			inline std::vector<int> getNumNeur() const { return numNeurArr_; }
 		};
 	}
 }

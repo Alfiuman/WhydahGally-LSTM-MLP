@@ -21,25 +21,25 @@ namespace WhydahGally
 			int concatLen_;
 			bool problem_;
 
-			Matrix weightsG_;
-			Matrix weightsI_;
-			Matrix weightsF_;
-			Matrix weightsO_;
+			Matrix<float> weightsG_;
+			Matrix<float> weightsI_;
+			Matrix<float> weightsF_;
+			Matrix<float> weightsO_;
 
-			Matrix biasG_;
-			Matrix biasI_;
-			Matrix biasF_;
-			Matrix biasO_;
+			Matrix<float> biasG_;
+			Matrix<float> biasI_;
+			Matrix<float> biasF_;
+			Matrix<float> biasO_;
 
-			Matrix differWeightsG_;
-			Matrix differWeightsI_;
-			Matrix differWeightsF_;
-			Matrix differWeightsO_;
+			Matrix<float> differWeightsG_;
+			Matrix<float> differWeightsI_;
+			Matrix<float> differWeightsF_;
+			Matrix<float> differWeightsO_;
 
-			Matrix differBiasG_;
-			Matrix differBiasI_;
-			Matrix differBiasF_;
-			Matrix differBiasO_;
+			Matrix<float> differBiasG_;
+			Matrix<float> differBiasI_;
+			Matrix<float> differBiasF_;
+			Matrix<float> differBiasO_;
 
 			Parameters(const int& dimX, const int& numMemCell, const bool& importParam, const float& max, const float& min, const float& seedNo);
 			~Parameters();
@@ -53,15 +53,15 @@ namespace WhydahGally
 		{
 			int numMemCell_;
 
-			Matrix g_;
-			Matrix i_;
-			Matrix f_;
-			Matrix o_;
-			Matrix s_;
-			Matrix h_;
-			Matrix bottomDifferH_;
-			Matrix bottomDifferS_;
-			Matrix bottomDifferX_;
+			Matrix<float> g_;
+			Matrix<float> i_;
+			Matrix<float> f_;
+			Matrix<float> o_;
+			Matrix<float> s_;
+			Matrix<float> h_;
+			Matrix<float> bottomDifferH_;
+			Matrix<float> bottomDifferS_;
+			Matrix<float> bottomDifferX_;
 
 			State(const int& dimX, const int& numMemCell);
 			~State();
@@ -72,17 +72,17 @@ namespace WhydahGally
 		{
 			Parameters* param_;
 			State* state_;
-			Matrix previousS_;
-			Matrix previousH_;
-			Matrix x_;
-			Matrix xh_;
+			Matrix<float> previousS_;
+			Matrix<float> previousH_;
+			Matrix<float> x_;
+			Matrix<float> xh_;
 
 			Node(Parameters& parameters, State& state);
 			~Node();
 
-			void computeBottomData(const Matrix& x, const int& parall);
-			void computeBottomData(const Matrix& x, const Matrix& prevS, const Matrix& prevH, const int& parall);
-			void computeTopDiffer(const Matrix& topDiffH, const Matrix& topDiffS, const int& parall);
+			void computeBottomData(const Matrix<float>& x, const int& parall);
+			void computeBottomData(const Matrix<float>& x, const Matrix<float>& prevS, const Matrix<float>& prevH, const int& parall);
+			void computeTopDiffer(const Matrix<float>& topDiffH, const Matrix<float>& topDiffS, const int& parall);
 		};
 
 		//Artificial Neural Network for time series analysis.
@@ -98,13 +98,13 @@ namespace WhydahGally
 			float generalLoss_;
 			Parameters* param_;
 			Importer* importer_;
-			Matrix predictions_;
+			Matrix<float> predictions_;
 
 			std::vector<Node*> nodeList_;
 			std::vector<std::vector<float>> listX_;
 
 		private:
-			void computeLoss(const Matrix& listY, const int& lossFunct, const int& parall);
+			void computeLoss(const Matrix<float>& listY, const int& lossFunct, const int& parall);
 			void buildListX(const std::vector<float>& x, const int& parall);
 
 		public:
@@ -123,7 +123,7 @@ namespace WhydahGally
 
 			inline float getLoss() const { return loss_; }
 			inline float getGeneralLoss() const { return generalLoss_; }
-			inline Matrix getPredictions() const { return predictions_; }
+			inline Matrix<float> getPredictions() const { return predictions_; }
 		};
 	}
 }

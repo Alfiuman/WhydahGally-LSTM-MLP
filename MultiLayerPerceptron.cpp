@@ -4,33 +4,26 @@ namespace WhydahGally
 {
 	namespace Base
 	{
-		MultiLayerPerceptron::MultiLayerPerceptron(Importer& importer, const float& limMin, const float& limMax, const float& seedNo, int numNeurArr[MAX_NUM_LAYERS_MLP])
-			: error_(10000000.1f), errorV_(10000000.1f), bestError_(10000000.1f), bestErrorExpl_(10000000.1f), importFileName_(""), start_(0), importer_(&importer), historyLength_(importer.getHistoryLength()), numNeurLayers_(0), numNeurArr_{ 0 }
+		MultiLayerPerceptron::MultiLayerPerceptron(Importer& importer, const float& limMin, const float& limMax, const float& seedNo, const std::vector<int>& numNeurArr)
+			: error_(10000000.1f), errorV_(10000000.1f), bestError_(10000000.1f), bestErrorExpl_(10000000.1f), importFileName_(""), start_(0), importer_(&importer), historyLength_(importer.getHistoryLength())
 		{
 			//Building the MLP.
-			for (int i = 0; i < MAX_NUM_LAYERS_MLP; i++)
+			for (int i = 0; i < numNeurArr.size(); i++)
 			{
-				if (numNeurArr[i] == 0)
+				if (numNeurArr[i] <= 0)
 				{
 					if (i == 0)
 					{
-						numNeurLayers_ = 1;
-						numNeurArr_[i] = 1;		//To have at least one neuron.
+						numNeurArr_.push_back(1);		//To have at least one neuron.
 						break;
 					}
 					else
 					{
-						numNeurLayers_ = i;
 						break;
 					}
 				}
 
-				numNeurArr_[i] = numNeurArr[i];
-			}
-			
-			if (numNeurLayers_ == 0)
-			{
-				numNeurLayers_ = MAX_NUM_LAYERS_MLP;
+				numNeurArr_.push_back(numNeurArr[i]);
 			}
 
 			buildWeights(limMin, limMax, seedNo);
@@ -43,24 +36,24 @@ namespace WhydahGally
 
 		void MultiLayerPerceptron::buildWeights(const float& limMin, const float& limMax, const float& seedNo)
 		{
-			weights_.resize(numNeurLayers_ + 1);
-			topWeights_.resize(numNeurLayers_ + 1);
-			layers_.resize(numNeurLayers_ + 2);
+			weights_.resize(numNeurArr_.size() + 1);
+			topWeights_.resize(numNeurArr_.size() + 1);
+			layers_.resize(numNeurArr_.size() + 2);
 
 			weights_[0].resize(importer_->getX()[0].size() + 1, std::vector<float>(numNeurArr_[0]));
 			topWeights_[0].resize(importer_->getX()[0].size() + 1, std::vector<float>(numNeurArr_[0]));
 
-			if (numNeurLayers_ != 1)
+			if (numNeurArr_.size() != 1)
 			{
-				for (short int i = 0; i < numNeurLayers_ - 1; i++)
+				for (short int i = 0; i < numNeurArr_.size() - 1; i++)
 				{
 					weights_[i + 1].resize(numNeurArr_[i] + 1, std::vector<float>(numNeurArr_[i + 1]));
 					topWeights_[i + 1].resize(numNeurArr_[i] + 1, std::vector<float>(numNeurArr_[i + 1]));
 				}
 			}
 
-			weights_[numNeurLayers_].resize(numNeurArr_[numNeurLayers_ - 1] + 1, std::vector<float>(1));
-			topWeights_[numNeurLayers_].resize(numNeurArr_[numNeurLayers_ - 1] + 1, std::vector<float>(1));
+			weights_[numNeurArr_.size()].resize(numNeurArr_[numNeurArr_.size() - 1] + 1, std::vector<float>(1));
+			topWeights_[numNeurArr_.size()].resize(numNeurArr_[numNeurArr_.size() - 1] + 1, std::vector<float>(1));
 
 			srand(seedNo);
 
@@ -79,14 +72,14 @@ namespace WhydahGally
 
 			layers_[0].resize(importer_->getX().size(), std::vector<float>(importer_->getX()[0].size() + 1));
 
-			for (short int i = 1; i <= numNeurLayers_; i++)
+			for (short int i = 1; i <= numNeurArr_.size(); i++)
 			{
 				layers_[i].resize(importer_->getX().size(), std::vector<float>(numNeurArr_[i - 1] + 1));
 			}
 
 			layers_[layers_.size() - 1].resize(importer_->getX().size(), std::vector<float>(1));
 
-			for (short int i = 0; i <= numNeurLayers_; i++)
+			for (short int i = 0; i <= numNeurArr_.size(); i++)
 			{
 				for (int j = 0; j < importer_->getX().size(); j++)
 				{
@@ -146,7 +139,7 @@ namespace WhydahGally
 			//Import the weights stored in a txt file with a predefined name.
 			try
 			{
-				for (short int i = 0; i < numNeurLayers_ + 1; i++)
+				for (short int i = 0; i < numNeurArr_.size() + 1; i++)
 				{
 					std::ifstream file;
 
@@ -221,7 +214,7 @@ namespace WhydahGally
 		void MultiLayerPerceptron::exportWeights()
 		{
 			//Store the weights in a txt file with a pre-defined name.
-			for (short int i = 0; i < numNeurLayers_ + 1; i++)
+			for (short int i = 0; i < numNeurArr_.size() + 1; i++)
 			{
 				std::ofstream file;
 
@@ -544,7 +537,7 @@ namespace WhydahGally
 		void MultiLayerPerceptron::calculateLayers()
 		{
 			//Computing the layers.
-			for (short int i = 0; i < numNeurLayers_; i++)
+			for (short int i = 0; i < numNeurArr_.size(); i++)
 			{
 				for (int j = 0; j < layers_[i + 1].size(); j++)
 				{

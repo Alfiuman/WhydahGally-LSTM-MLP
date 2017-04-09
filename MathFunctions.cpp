@@ -32,18 +32,6 @@ namespace WhydahGally
 			return sum / counter;
 		}
 
-		float mean(const Matrix& x)
-		{
-			float sum = 0.0f;
-
-			for (int i = 0; i < (x.rows_ * x.cols_); i++)
-			{
-				sum += x.elements_[i];
-			}
-
-			return sum / (x.rows_ * x.cols_);
-		}
-
 		//Sum.
 		float sum(const std::vector<float>& x)
 		{
@@ -52,18 +40,6 @@ namespace WhydahGally
 			for (int i = 0; i < x.size(); i++)
 			{
 				sum += x[i];
-			}
-
-			return sum;
-		}
-
-		float sum(const Matrix& x)
-		{
-			float sum = 0.0f;
-
-			for (int i = 0; i < (x.rows_ * x.cols_); i++)
-			{
-				sum += x.elements_[i];
 			}
 
 			return sum;

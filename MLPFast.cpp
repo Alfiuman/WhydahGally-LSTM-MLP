@@ -4,7 +4,7 @@ namespace WhydahGally
 {
 	namespace Base
 	{
-		MLPFast::MLPFast(Importer& importer, const float& limMin, const float& limMax, const float& seedNo, int numNeurArr[12]) : MultiLayerPerceptron(importer, limMin, limMax, seedNo, numNeurArr)
+		MLPFast::MLPFast(Importer& importer, const float& limMin, const float& limMax, const float& seedNo, const std::vector<int>& numNeurArr) : MultiLayerPerceptron(importer, limMin, limMax, seedNo, numNeurArr)
 		{
 
 		}
@@ -16,12 +16,12 @@ namespace WhydahGally
 
 		void MLPFast::calculateLayers(const int& parall)
 		{
-			for (short int i = 0; i < numNeurLayers_; i++)
+			for (short int i = 0; i < numNeurArr_.size(); i++)
 			{
 				for (int j = 0; j < layersF_[i + 1].rows_; j++)
 				{
 					//Computing the layers using the sigmoid function.
-					Matrix results(1);
+					Matrix<float> results(1);
 					Maths::matricesDotProduct(layersF_[i], weightsF_[i], &results, parall);
 
 					for (int k = 0; k < layersF_[i + 1].cols_ - 1; k++)
@@ -31,7 +31,7 @@ namespace WhydahGally
 				}
 			}
 
-			Matrix results(1);
+			Matrix<float> results(1);
 
 			Maths::matricesDotProduct(layersF_[layersF_.size() - 2], weightsF_[weights_.size() - 1], &results, parall);
 
@@ -54,7 +54,7 @@ namespace WhydahGally
 		void MLPFast::computeErrors(const int& counter, const int& lossFunction, const bool& plot, const bool& backpropagation, const int& parall)
 		{
 			//Computing the last layer errors.
-			Matrix results(1);
+			Matrix<float> results(1);
 			Maths::matricesDifference(layersF_[layers_.size() - 1], importer_->getYMat(), &results, parall);
 
 			for (int i = 0; i < importer_->getYMat().rows_; i++)
@@ -218,17 +218,17 @@ namespace WhydahGally
 			//Building the vectors of matrices that store the weights.
 			for (int i = 0; i < weights_.size(); i++)
 			{
-				weightsF_.push_back(Matrix(weights_[i].size(), weights_[i][0].size()));
+				weightsF_.push_back(Matrix<float>(weights_[i].size(), weights_[i][0].size()));
 			}
 
 			for (int i = 0; i < layers_.size(); i++)
 			{
-				layersF_.push_back(Matrix(layers_[i].size(), layers_[i][0].size()));
+				layersF_.push_back(Matrix<float>(layers_[i].size(), layers_[i][0].size()));
 			}
 
 			for (int i = 0; i < layerDeltaUse_.size(); i++)
 			{
-				layerDeltaUseF_.push_back(Matrix(layerDeltaUse_[i].size(), layerDeltaUse_[i][0].size()));
+				layerDeltaUseF_.push_back(Matrix<float>(layerDeltaUse_[i].size(), layerDeltaUse_[i][0].size()));
 			}
 
 			for (int i = 0; i < weightsF_.size(); i++)
@@ -425,8 +425,8 @@ namespace WhydahGally
 
 					for (short int i = layerDeltas_.size() - 2; i > 0; i--)
 					{
-						Matrix resultTr(1);
-						Matrix resultProd(1);
+						Matrix<float> resultTr(1);
+						Matrix<float> resultProd(1);
 						Maths::transposeMatrix(weightsF_[i], &resultTr, parall);
 						Maths::matricesDotProduct(layerDeltaUseF_[i + 1], resultTr, &resultProd, parall);
 
@@ -454,8 +454,8 @@ namespace WhydahGally
 
 					for (short int i = weightsF_.size() - 1; i > -1; i--)
 					{
-						Matrix resultTr(1);
-						Matrix resultProd(1);
+						Matrix<float> resultTr(1);
+						Matrix<float> resultProd(1);
 						Maths::transposeMatrix(layersF_[i], &resultTr, parall);
 						Maths::matricesDotProduct(resultTr, layerDeltaUseF_[i + 1], &resultProd, parall);
 

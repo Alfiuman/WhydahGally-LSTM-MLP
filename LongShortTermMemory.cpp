@@ -441,20 +441,20 @@ namespace WhydahGally
 			delete state_;
 		}
 
-		void Node::computeBottomData(const Matrix& x, const int& parall)
+		void Node::computeBottomData(const Matrix<float>& x, const int& parall)
 		{
-			Matrix prevS(state_->s_.rows_);
-			Matrix prevH(state_->h_.rows_);
+			Matrix<float> prevS(state_->s_.rows_);
+			Matrix<float> prevH(state_->h_.rows_);
 
 			computeBottomData(x, prevS, prevH, parall);
 		}
 
-		void Node::computeBottomData(const Matrix& x, const Matrix& prevS, const Matrix& prevH, const int& parall)
+		void Node::computeBottomData(const Matrix<float>& x, const Matrix<float>& prevS, const Matrix<float>& prevH, const int& parall)
 		{
 			previousS_.copy(prevS);
 			previousH_.copy(prevH);
 			
-			Matrix xh(x.rows_ + previousH_.rows_);
+			Matrix<float> xh(x.rows_ + previousH_.rows_);
 
 			for (int i = 0; i < xh.rows_; i++)
 			{
@@ -470,7 +470,7 @@ namespace WhydahGally
 			}
 			
 			//Computing the State.
-			Matrix results(param_->weightsG_.rows_);
+			Matrix<float> results(param_->weightsG_.rows_);
 
 			Maths::matricesDotProduct(param_->weightsG_, xh, &results, parall);
 
@@ -514,13 +514,13 @@ namespace WhydahGally
 			xh_.copy(xh);
 		}
 
-		void Node::computeTopDiffer(const Matrix& topDiffH, const Matrix& topDiffS, const int& parall)
+		void Node::computeTopDiffer(const Matrix<float>& topDiffH, const Matrix<float>& topDiffS, const int& parall)
 		{
-			Matrix ds(state_->o_.rows_);
-			Matrix doo(ds.rows_);
-			Matrix di(doo.rows_);
-			Matrix dg(di.rows_);
-			Matrix df(previousS_.rows_);
+			Matrix<float> ds(state_->o_.rows_);
+			Matrix<float> doo(ds.rows_);
+			Matrix<float> di(doo.rows_);
+			Matrix<float> dg(di.rows_);
+			Matrix<float> df(previousS_.rows_);
 			
 			//Computing the differentials.
 			for (int i = 0; i < ds.rows_; i++)
@@ -548,10 +548,10 @@ namespace WhydahGally
 				df.elements_[i] = previousS_.elements_[i] * ds.elements_[i];
 			}
 
-			Matrix inputDi(di.rows_);
-			Matrix inputDf(df.rows_);
-			Matrix inputDoo(doo.rows_);
-			Matrix inputDg(dg.rows_);
+			Matrix<float> inputDi(di.rows_);
+			Matrix<float> inputDf(df.rows_);
+			Matrix<float> inputDoo(doo.rows_);
+			Matrix<float> inputDg(dg.rows_);
 
 			//Computing the inputs.
 			for (int i = 0; i < inputDi.rows_; i++)
@@ -575,7 +575,7 @@ namespace WhydahGally
 			}
 
 			//Computing the differentials of the various parameters.
-			Matrix results(inputDi.rows_, xh_.rows_);
+			Matrix<float> results(inputDi.rows_, xh_.rows_);
 
 			Maths::outerProduct(inputDi, xh_, &results, parall);
 
@@ -638,10 +638,10 @@ namespace WhydahGally
 			}
 
 			//Computing the bottom differential of the State.
-			Matrix differXH(xh_.rows_);
+			Matrix<float> differXH(xh_.rows_);
 
-			Matrix results1(differXH.rows_);
-			Matrix transpose(1);
+			Matrix<float> results1(differXH.rows_);
+			Matrix<float> transpose(1);
 
 			Maths::transposeMatrix(param_->weightsI_, &transpose, parall);
 			Maths::matricesDotProduct(transpose, inputDi, &results1, parall);
@@ -707,7 +707,7 @@ namespace WhydahGally
 			}
 		}
 
-		void LongShortTermMemory::computeLoss(const Matrix& listY, const int& lossFunct, const int& parall)
+		void LongShortTermMemory::computeLoss(const Matrix<float>& listY, const int& lossFunct, const int& parall)
 		{
 			if (listY.rows_ == listX_.size())
 			{
@@ -747,10 +747,10 @@ namespace WhydahGally
 				count++;
 
 				//Computing the differentials of H given the Ys.
-				Matrix diffH(nodeList_.at(idx)->state_->h_.rows_);
+				Matrix<float> diffH(nodeList_.at(idx)->state_->h_.rows_);
 				diffH.elements_[0] = 2 * (nodeList_.at(idx)->state_->h_.elements_[0] - listY.elements_[idx]);
 				
-				Matrix diffS(param_->numMemCell_);
+				Matrix<float> diffS(param_->numMemCell_);
 
 				nodeList_.at(idx)->computeTopDiffer(diffH, diffS, parall);
 
@@ -819,7 +819,7 @@ namespace WhydahGally
 		void LongShortTermMemory::buildListX(const std::vector<float>& x, const int& parall)
 		{
 			//Bulding the X list for time series analysis.
-			Matrix xx(x.size());
+			Matrix<float> xx(x.size());
 
 			for (int i = 0; i < xx.rows_; i++)
 			{
@@ -843,10 +843,10 @@ namespace WhydahGally
 			}
 			else
 			{
-				Matrix prevS(1);
+				Matrix<float> prevS(1);
 				prevS.copy(nodeList_.at(idx - 1)->state_->s_);
 
-				Matrix prevH(1);
+				Matrix<float> prevH(1);
 				prevH.copy(nodeList_.at(idx - 1)->state_->h_);
 
 				nodeList_.at(idx)->computeBottomData(xx, prevS, prevH, parall);
@@ -869,7 +869,7 @@ namespace WhydahGally
 			//Training the Artificial Neural Network.
 			if (param_->problem_ == 0)
 			{
-				Matrix y(historyLength_);
+				Matrix<float> y(historyLength_);
 
 				//Building the X 2D vector.
 				std::vector<std::vector<float>> x(historyLength_, std::vector<float>(dimX_));
@@ -989,7 +989,7 @@ namespace WhydahGally
 			//Computing the statistics of the training or the test.
 			train(0, 1, 0, 1, 0, 0, 0);
 
-			Matrix y(historyLength_);
+			Matrix<float> y(historyLength_);
 
 			for (int i = 0; i < historyLength_; i++)
 			{

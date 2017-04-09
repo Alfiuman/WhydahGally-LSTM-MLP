@@ -41,10 +41,7 @@
 #define SHARED	2
 
 //Default Numbers
-#define MAX_NUM_THREADS		8
 #define DEFAULT_BIAS		1.0f
 #define DEFAULT_SEEDNO		0.0f
-#define MAX_NUM_LAYERS_MLP	12
-
 
 

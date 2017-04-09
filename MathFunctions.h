@@ -36,10 +36,30 @@ namespace WhydahGally
 
 		float mean(const std::vector<float>& x);
 		float mean(const std::vector<std::vector<float>>& x);
-		float mean(const Matrix& x);
+		template<typename T> T mean(const Matrix<T>& x)
+		{
+			T sum = (T)0.0f;
+
+			for (int i = 0; i < (x.rows_ * x.cols_); i++)
+			{
+				sum += x.elements_[i];
+			}
+
+			return sum / ((T)(x.rows_ * x.cols_));
+		}
 
 		float sum(const std::vector<float>& x);
-		float sum(const Matrix& x);
+		template<typename T> T sum(const Matrix<T>& x)
+		{
+			T sum = (T)0.0f;
+
+			for (int i = 0; i < (x.rows_ * x.cols_); i++)
+			{
+				sum += x.elements_[i];
+			}
+
+			return sum;
+		}
 
 		template<typename T> T abs(const T& x)
 		{
@@ -90,7 +110,7 @@ namespace WhydahGally
 			{
 				nBool = 0;
 
-				return n * stdDev + mean;
+				return (T)(n * stdDev + mean);
 			}
 		}
 	}

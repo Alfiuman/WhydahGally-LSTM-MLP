@@ -5,6 +5,7 @@
 
 #include <thread>
 #include <mutex>
+#include <sstream>
 
 #include "Definitions.h"
 #include "LongShortTermMemory.h"
@@ -22,11 +23,11 @@ private:
 	std::mutex mu_;
 public:
 	Printer() { }
-	void printError(const float& loss, const float& generalLoss, const int& numThr)
+	void printError(const float& loss, const float& generalLoss, const int& numThr, const std::string& numNeurons, const float& alpha)
 	{
 		std::lock_guard<std::mutex> guard(mu_);
-	
-		PRINT("Final error for thread " << numThr << " is: "  << loss << " and generalLoss is: " << generalLoss) << "\n";
+		
+		PRINT("Final error for thread " << numThr << " is: "  << loss << " \tand generalLoss is: " << generalLoss << " \twith " << numNeurons << " neurons and " << ((alpha == 0) ? "N/A" : std::to_string(alpha)) << " alpha.\n");
 	}
 };
 
@@ -39,7 +40,7 @@ void taskLSTM(const int& numThr, Importer* imp, const int& numCell, const bool& 
 	{
 		k->train(testTimes, viewsEach, alpha, print, lossFunct, parall, exportParam);
 
-		printer.printError(k->getLoss(), k->getGeneralLoss(), numThr);
+		printer.printError(k->getLoss(), k->getGeneralLoss(), numThr, std::to_string(numCell), alpha);
 	}
 	else if (operation == 2)
 	{
@@ -58,7 +59,7 @@ void taskLSTM(const int& numThr, Importer* imp, const int& numCell, const bool& 
 	delete k;
 }
 
-void taskMLP(const int& numThr, Importer* imp, const float& limMin, const float& limMax, const float& seedNo1, int numNeurArr[12], DistribParamForMLP& distrParam, int ranges[3], int checkPoints[3], const int& lossFunction, const bool& plot, const bool& print, const bool& importParam, const bool& exportParam, const int& operation, const int& statistics, Printer& printer)
+void taskMLP(const int& numThr, Importer* imp, const float& limMin, const float& limMax, const float& seedNo1, const std::vector<int>& numNeurArr, DistribParamForMLP& distrParam, int ranges[3], int checkPoints[3], const int& lossFunction, const bool& plot, const bool& print, const bool& importParam, const bool& exportParam, const int& operation, const int& statistics, Printer& printer)
 {
 	MultiLayerPerceptron* b = new MultiLayerPerceptron(*imp, limMin, limMax, seedNo1, numNeurArr);
 
@@ -70,8 +71,15 @@ void taskMLP(const int& numThr, Importer* imp, const float& limMin, const float&
 	if (operation == 1)
 	{
 		b->train(distrParam, ranges, checkPoints, lossFunction, plot, print);
+		
+		std::string numNeur;
+		
+		for (int i = 0; i < b->getNumNeur().size(); i++)
+		{
+			numNeur = numNeur + "-" + std::to_string(b->getNumNeur().at(i));
+		}
 
-		printer.printError(b->getError(), b->getErrorV(), numThr);
+		printer.printError(b->getError(), b->getErrorV(), numThr, numNeur, 0.0f);
 	}
 	else if (operation == 2)
 	{
@@ -95,7 +103,7 @@ void taskMLP(const int& numThr, Importer* imp, const float& limMin, const float&
 	delete b;
 }
 
-void taskMLPFst(const int& numThr, Importer* imp, const float& limMin, const float& limMax, const float& seedNo1, int numNeurArr[12], DistribParamForMLP& distrParam, int ranges[3], int checkPoints[3], const int& lossFunction, const bool& plot, const bool& print, const bool& importParam, const bool& exportParam, const int& operation, const int& statistics, Printer& printer, const int& parall)
+void taskMLPFast(const int& numThr, Importer* imp, const float& limMin, const float& limMax, const float& seedNo1, const std::vector<int>& numNeurArr, DistribParamForMLP& distrParam, int ranges[3], int checkPoints[3], const int& lossFunction, const bool& plot, const bool& print, const bool& importParam, const bool& exportParam, const int& operation, const int& statistics, Printer& printer, const int& parall)
 {
 	MLPFast* c = new MLPFast(*imp, limMin, limMax, seedNo1, numNeurArr);
 
@@ -108,7 +116,14 @@ void taskMLPFst(const int& numThr, Importer* imp, const float& limMin, const flo
 	{
 		c->train(distrParam, ranges, checkPoints, lossFunction, plot, print, parall);
 
-		printer.printError(c->getError(), c->getErrorV(), numThr);
+		std::string numNeur;
+
+		for (int i = 0; i < c->getNumNeur().size(); i++)
+		{
+			numNeur = numNeur + "-" + std::to_string(c->getNumNeur().at(i));
+		}
+
+		printer.printError(c->getError(), c->getErrorV(), numThr, numNeur, 0.0f);
 	}
 	else if (operation == 2)
 	{
@@ -143,6 +158,8 @@ int main()
 		      "==============================================================================\n"
 																							"\n");
 
+	srand(DEFAULT_SEEDNO);
+
 #if DEBUG
 	//General debug parameters.
 	int numThreads = 1;
@@ -155,10 +172,13 @@ int main()
 
 	int algorithm = LSTM;
 	int operation = TRAIN;
-	bool statistics = 0;
-	bool diffThreads = 0;
+	bool statistics = 1;
+	bool diffThreads = 1;
+	int multiThreadCellStdDev = 30;
+	float multiThreadAlphaStdDev = 0.5f;
 	int parall = CPU;
 	float bias = DEFAULT_BIAS;
+	bool print = 1;
 
 	Importer* a = new Importer(hist, bias, nameFile);
 
@@ -184,9 +204,9 @@ int main()
 		exportParam = 0;	//No export if there are more than one thread because we don't know from the beginning the parameter of which tread we want to export.
 	}
 
-	if (numThreads > MAX_NUM_THREADS && diffThreads == 1)
+	if (numThreads != 1)
 	{
-		numThreads = MAX_NUM_THREADS;	//There is a max number of threads if they are different.
+		print = 0;	//The printing of the intermediate results is not thread safe at the moment.
 	}
 
 	std::vector<std::thread> tt(numThreads);
@@ -207,12 +227,6 @@ int main()
 		int testTimes = 5000;
 		int viewsEach = 1;
 		float alpha = 0.11f;
-		bool print = 1;
-
-		if (numThreads != 1)
-		{
-			print = 0;	//The printing of the intermediate results is not thread safe at the moment.
-		}
 
 		//Creating the LSTM debug threads.
 		if (diffThreads == 0)
@@ -224,53 +238,23 @@ int main()
 		}
 		else
 		{
-			tt[0] = std::thread(taskLSTM, 0, a, 20, importParam, max, min, 0, testTimes, viewsEach, 0.11, print, exportParam, operation, statistics, lossFunct, parall, std::ref(printer));
-			
-			if (numThreads > 1)
-			{
-				tt[1] = std::thread(taskLSTM, 1, a, 20, importParam, max, min, 1, testTimes, viewsEach, 0.11, print, exportParam, operation, statistics, lossFunct, parall, std::ref(printer));
-			}
+			tt[0] = std::thread(taskLSTM, 0, a, numCell, importParam, max, min, seedNo, testTimes, viewsEach, alpha, print, exportParam, operation, statistics, lossFunct, parall, std::ref(printer));
 
-			if (numThreads > 2)
+			for (int i = 1; i < numThreads; i++)
 			{
-				tt[2] = std::thread(taskLSTM, 2, a, 20, importParam, max, min, 0, testTimes, viewsEach, 0.5, print, exportParam, operation, statistics, lossFunct, parall, std::ref(printer));
-			}
-			
-			if (numThreads > 3)
-			{
-				tt[3] = std::thread(taskLSTM, 3, a, 20, importParam, max, min, 1, testTimes, viewsEach, 0.5, print, exportParam, operation, statistics, lossFunct, parall, std::ref(printer));
-			}
-
-			if (numThreads > 4)
-			{
-				tt[4] = std::thread(taskLSTM, 4, a, 20, importParam, max, min, 0, testTimes, viewsEach, 0.9, print, exportParam, operation, statistics, lossFunct, parall, std::ref(printer));
-			}
-			
-			if (numThreads > 5)
-			{
-				tt[5] = std::thread(taskLSTM, 5, a, 20, importParam, max, min, 1, testTimes, viewsEach, 0.9, print, exportParam, operation, statistics, lossFunct, parall, std::ref(printer));
-			}
-			
-			if (numThreads > 6)
-			{
-				tt[6] = std::thread(taskLSTM, 6, a, 40, importParam, max, min, 0, testTimes, viewsEach, 0.11, print, exportParam, operation, statistics, lossFunct, parall, std::ref(printer));
-			}
-			
-			if (numThreads > 7)
-			{
-				tt[7] = std::thread(taskLSTM, 7, a, 40, importParam, max, min, 1, testTimes, viewsEach, 0.11, print, exportParam, operation, statistics, lossFunct, parall, std::ref(printer));
+				tt[i] = std::thread(taskLSTM, i, a, abs(numCell + randNormalDistrib(0, multiThreadCellStdDev)), importParam, max, min, seedNo, testTimes, viewsEach, abs(alpha + randNormalDistrib(0.0f, multiThreadAlphaStdDev)), print, exportParam, operation, statistics, lossFunct, parall, std::ref(printer));
 			}
 		}
 	}
 	else if (algorithm == MLP || algorithm == MLPFAST)
 	{
-		// MLP --------------------------------------------------------------------------------------------------
+		// MLPs --------------------------------------------------------------------------------------------------
 
-		//MLP debug parameters.
+		//MLPs debug parameters.
 		float limMin = -10.0f;
 		float limMax = 10.0f;
 		float seedNo1 = 0.0f;
-		int numNeurArr[MAX_NUM_LAYERS_MLP]{ 18, 24 };
+		std::vector<int> numNeurArr{ 18, 24 };
 
 		DistribParamForMLP distrParam;
 		distrParam.mu_ = -10.0f;
@@ -284,13 +268,7 @@ int main()
 		int ranges[3]{ 1000, 1000, 5000 };
 		int checkPoints[3]{ 100, 100, 100 };
 		int lossFunction = LOSSFUNCTSIMPLE;
-		bool print1 = 1;
 		bool plot = 1;
-
-		if (numThreads != 1)
-		{
-			print1 = 0;	//The printing of the intermediate results is not thread safe at the moment.
-		}
 
 		//Creating the MLP debug threads.
 		if (algorithm == MLP)
@@ -299,53 +277,27 @@ int main()
 			{
 				for (int i = 0; i < numThreads; i++)
 				{
-					tt[i] = std::thread(taskMLP, i, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
+					tt[i] = std::thread(taskMLP, i, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print, importParam, exportParam, operation, statistics, std::ref(printer));
 				}
 			}
 			else
 			{
-				tt[0] = std::thread(taskMLP, 0, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
+				tt[0] = std::thread(taskMLP, 0, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print, importParam, exportParam, operation, statistics, std::ref(printer));
 
-				if (numThreads > 1)
+				for (int i = 1; i < numThreads; i++)
 				{
-					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ 24, 18 };
-					tt[1] = std::thread(taskMLP, 1, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
-				}
+					std::vector<int> numNeurArrAlt;
 
-				if (numThreads > 2)
-				{
-					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ 18, 18 };
-					tt[2] = std::thread(taskMLP, 2, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
-				}
+					for (int j = 0; j < numNeurArr.size(); j++)
+					{
+						numNeurArrAlt.push_back((rand() % 100 > (100 / (numNeurArr.size() + 2)) + 1) ? abs(numNeurArr.at(j) + randNormalDistrib(0, multiThreadCellStdDev)) : ((j == 0) ? rand() % (numNeurArr.at(0) * 3) : 0));
+					}
 
-				if (numThreads > 3)
-				{
-					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ 32, 22, 12 };
-					tt[3] = std::thread(taskMLP, 3, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
-				}
+					//Other two eventual layers more.
+					numNeurArrAlt.push_back((rand() % 100 > 65) ? abs(randNormalDistrib(0, multiThreadCellStdDev)) : 0);
+					numNeurArrAlt.push_back((rand() % 100 > 79) ? abs(randNormalDistrib(0, multiThreadCellStdDev / 2)) : 0);
 
-				if (numThreads > 4)
-				{
-					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ 18, 24, 12 };
-					tt[4] = std::thread(taskMLP, 4, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
-				}
-
-				if (numThreads > 5)
-				{
-					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ 24, 18, 6 };
-					tt[5] = std::thread(taskMLP, 5, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
-				}
-
-				if (numThreads > 6)
-				{
-					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ 32, 16, 8 };
-					tt[6] = std::thread(taskMLP, 6, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
-				}
-
-				if (numThreads > 7)
-				{
-					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ 16 };
-					tt[7] = std::thread(taskMLP, 7, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
+					tt[i] = std::thread(taskMLP, i, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print, importParam, exportParam, operation, statistics, std::ref(printer));
 				}
 			}
 		}
@@ -355,53 +307,27 @@ int main()
 			{
 				for (int i = 0; i < numThreads; i++)
 				{
-					tt[i] = std::thread(taskMLPFst, i, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
+					tt[i] = std::thread(taskMLPFast, i, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print, importParam, exportParam, operation, statistics, std::ref(printer), parall);
 				}
 			}
 			else
 			{
-				tt[0] = std::thread(taskMLPFst, 0, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
+				tt[0] = std::thread(taskMLPFast, 0, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print, importParam, exportParam, operation, statistics, std::ref(printer), parall);
 
-				if (numThreads > 1)
+				for (int i = 1; i < numThreads; i++)
 				{
-					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ 24, 18 };
-					tt[1] = std::thread(taskMLPFst, 1, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
-				}
+					std::vector<int> numNeurArrAlt;
 
-				if (numThreads > 2)
-				{
-					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ 18, 18 };
-					tt[2] = std::thread(taskMLPFst, 2, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
-				}
+					for (int j = 0; j < numNeurArr.size(); j++)
+					{
+						numNeurArrAlt.push_back((rand() % 100 > (100 / (numNeurArr.size() + 2)) + 1) ? abs(numNeurArr.at(j) + randNormalDistrib(0, multiThreadCellStdDev)) : ((j == 0) ? rand() % (numNeurArr.at(0) * 3) : 0));
+					}
+					
+					//Other two eventual layers more.
+					numNeurArrAlt.push_back((rand() % 100 > 65) ? abs(randNormalDistrib(0, multiThreadCellStdDev)) : 0);
+					numNeurArrAlt.push_back((rand() % 100 > 79) ? abs(randNormalDistrib(0, multiThreadCellStdDev / 2)) : 0);
 
-				if (numThreads > 3)
-				{
-					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ 32, 22, 12 };
-					tt[3] = std::thread(taskMLPFst, 3, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
-				}
-
-				if (numThreads > 4)
-				{
-					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ 18, 24, 12 };
-					tt[4] = std::thread(taskMLPFst, 4, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
-				}
-
-				if (numThreads > 5)
-				{
-					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ 24, 18, 6 };
-					tt[5] = std::thread(taskMLPFst, 5, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
-				}
-
-				if (numThreads > 6)
-				{
-					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ 32, 16, 8 };
-					tt[6] = std::thread(taskMLPFst, 6, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
-				}
-
-				if (numThreads > 7)
-				{
-					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ 16 };
-					tt[7] = std::thread(taskMLPFst, 7, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
+					tt[i] = std::thread(taskMLPFast, i, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print, importParam, exportParam, operation, statistics, std::ref(printer), parall);
 				}
 			}
 		}
@@ -431,6 +357,7 @@ int main()
 	bool diffThreads = 0;
 	int parall = 0;
 	float bias = 0.0f;
+	int multiThreadCellStdDev = 0;
 
 	//LSTM variables.
 	int numCell = 0;
@@ -442,12 +369,13 @@ int main()
 	int viewsEach = 0;
 	float alpha = 0.0f;
 	bool print = 0;
+	float multiThreadAlphaStdDev = 0.0f;
 
 	//MLP variables.
 	float limMax = 0.0f;
 	float limMin = 0.0f;
 	float seedNo1 = 0.0f;
-	int numNeurArr[MAX_NUM_LAYERS_MLP]{ 0 };
+	std::vector<int> numNeurArr;
 	DistribParamForMLP distrParam;
 	distrParam.mu_ = 0.0f;
 	distrParam.sigma_ = 0.0f;
@@ -459,13 +387,12 @@ int main()
 	int ranges[3]{ 0 };
 	int checkPoints[3]{ 0 };
 	int lossFunction = LOSSFUNCTSIMPLE;
-	bool print1 = 0;
 	bool plot = 0;
 
 	//Asking to the user the various parameters.
 	std::string answer;
 
-	while (active == 1)
+	while (active)
 	{
 		PRINT("\nDIGIT THE ANSWERS AND PRESS ENTER:\n\n");
 
@@ -536,11 +463,6 @@ int main()
 		if (numThreads < 1)
 		{
 			numThreads = 1;	//Default option.
-		}
-
-		if (numThreads > MAX_NUM_THREADS)
-		{
-			numThreads = MAX_NUM_THREADS;	//There is a Max.
 		}
 
 		if (operation == TEST || operation == CLASSIFY)
@@ -698,6 +620,28 @@ int main()
 
 			PRINT("You chose " << diffThreads << ".\n");
 			answer.clear();
+
+			if (diffThreads)
+			{
+				PRINT("\nWhich value for the multi-thread number of neurons standard deviation do you want?\n");
+				std::getline(std::cin, answer);
+
+				try
+				{
+					multiThreadCellStdDev = std::stoi(answer);
+				}
+				catch (const std::invalid_argument& e)
+				{
+					multiThreadCellStdDev = 30;	//Default option.
+				}
+				catch (const std::out_of_range& e)
+				{
+					multiThreadCellStdDev = 30;	//Default option.
+				}
+
+				PRINT("You chose " << multiThreadCellStdDev << ".\n");
+				answer.clear();
+			}
 		}
 #if CUDA
 		PRINT("\nWhich kind of computation do you want? (0 for CPU, 1 Global GPU, 2 Shared GPU)\n");
@@ -926,6 +870,28 @@ int main()
 
 			PRINT("You chose " << print << ".\n");
 			answer.clear();
+
+			if (numThreads > 1 && diffThreads == 1)
+			{
+				PRINT("\nWhich value for the multi-thread alpha standard deviation do you want?\n");
+				std::getline(std::cin, answer);
+
+				try
+				{
+					multiThreadAlphaStdDev = std::stof(answer);
+				}
+				catch (const std::invalid_argument& e)
+				{
+					multiThreadAlphaStdDev = 0.5f;	//Default option.
+				}
+				catch (const std::out_of_range& e)
+				{
+					multiThreadAlphaStdDev = 0.5f;	//Default option.
+				}
+
+				PRINT("You chose " << multiThreadAlphaStdDev << ".\n");
+				answer.clear();
+			}
 		}
 		else if (algorithm == MLP || algorithm == MLPFAST)
 		{
@@ -991,41 +957,47 @@ int main()
 			PRINT("You chose " << seedNo1 << ".\n");
 			answer.clear();
 
-			for (int n = 0; n < MAX_NUM_LAYERS_MLP; n++)
+			bool endOfLayers = 0;
+			int counterLayers = 0;
+
+			while (!endOfLayers)
 			{
-				PRINT("\nHow many neurons do you want in the layer " << n + 1 << "?\n");
+				PRINT("\nHow many neurons do you want in the layer " << counterLayers + 1 << "?\n");
 				std::getline(std::cin, answer);
 
 				try
 				{
-					numNeurArr[n] = std::stoi(answer);
+					numNeurArr.push_back(std::stoi(answer));
 				}
 				catch (const std::invalid_argument& e)	//In Visual Studio 2015 with Release x64 it gives unexpected behaviour when we print it at row 1022. To avoid it, it needs to be catched by value.
 				{
-					numNeurArr[n] = 10;		//Default option.
+					numNeurArr.push_back(10);		//Default option.
 				}
 				catch (const std::out_of_range& e)
 				{
-					numNeurArr[n] = 10;		//Default option.
+					numNeurArr.push_back(10);		//Default option.
 				}
 
-				if (numNeurArr[n] < 0)
+				if (numNeurArr[counterLayers] < 0)
 				{
-					numNeurArr[n] = 10;		//Default option.
+					numNeurArr[counterLayers] = 10;		//Default option.
 				}
 
-				if (n == 0 && numNeurArr[n] == 0)
+				if (counterLayers == 0 && numNeurArr[counterLayers] == 0)
 				{
-					numNeurArr[n] = 1;		//The first layer should have at least one neuron.
+					numNeurArr[counterLayers] = 1;		//The first layer should have at least one neuron.
 				}
 
-				PRINT("You chose " << numNeurArr[n] << ".\n");
+				PRINT("You chose " << numNeurArr[counterLayers] << ".\n");
 				answer.clear();
 
-				if (numNeurArr[n] == 0)
+				if (numNeurArr[counterLayers] == 0)
 				{
+					endOfLayers = 1;
 					break;
 				}
+				
+				counterLayers++;
 			}
 
 			PRINT("\nWhich random distribution do you want? (0 uniform, 1 normal)\n");
@@ -1330,30 +1302,6 @@ int main()
 			PRINT("You chose " << lossFunction << ".\n");
 			answer.clear();
 
-			PRINT("\nDo you want to print the results? (1 yes, 0 no)\n");
-			std::getline(std::cin, answer);
-
-			try
-			{
-				print1 = (bool)std::stoi(answer);
-			}
-			catch (const std::invalid_argument& e)
-			{
-				print1 = 0;		//Default option.
-			}
-			catch (const std::out_of_range& e)
-			{
-				print1 = 0;		//Default option.
-			}
-
-			if (numThreads != 1)
-			{
-				print1 = 0;		//Printing the intermediate results is not thread safe at the moment.
-			}
-
-			PRINT("You chose " << print1 << ".\n");
-			answer.clear();
-
 			//Plot not implemented yet.
 			/*PRINT("\nDo you want to plot the results? (1 yes, 0 no)\n");
 			std::getline(std::cin, answer);
@@ -1396,11 +1344,6 @@ int main()
 
 		Importer* a = new Importer(hist, bias, nameFile);
 
-		if (numThreads > 8 && diffThreads == 1)
-		{
-			numThreads = 8;		//Max number of different threads.
-		}
-
 		std::vector<std::thread> tt(numThreads);
 
 		Printer printer;
@@ -1417,41 +1360,11 @@ int main()
 			}
 			else
 			{
-				tt[0] = std::thread(taskLSTM, 0, a, 20, importParam, max, min, DEFAULT_SEEDNO, testTimes, viewsEach, 0.11, print, exportParam, operation, statistics, lossFunct, parall, std::ref(printer));
+				tt[0] = std::thread(taskLSTM, 0, a, numCell, importParam, max, min, seedNo, testTimes, viewsEach, alpha, print, exportParam, operation, statistics, lossFunct, parall, std::ref(printer));
 
-				if (numThreads > 1)
+				for (int i = 1; i < numThreads; i++)
 				{
-					tt[1] = std::thread(taskLSTM, 1, a, 20, importParam, max, min, 1.0f, testTimes, viewsEach, 0.11, print, exportParam, operation, statistics, lossFunct, parall, std::ref(printer));
-				}
-
-				if (numThreads > 2)
-				{
-					tt[2] = std::thread(taskLSTM, 2, a, 20, importParam, max, min, DEFAULT_SEEDNO, testTimes, viewsEach, 0.5, print, exportParam, operation, statistics, lossFunct, parall, std::ref(printer));
-				}
-
-				if (numThreads > 3)
-				{
-					tt[3] = std::thread(taskLSTM, 3, a, 20, importParam, max, min, 1.0f, testTimes, viewsEach, 0.5, print, exportParam, operation, statistics, lossFunct, parall, std::ref(printer));
-				}
-
-				if (numThreads > 4)
-				{
-					tt[4] = std::thread(taskLSTM, 4, a, 20, importParam, max, min, DEFAULT_SEEDNO, testTimes, viewsEach, 0.9, print, exportParam, operation, statistics, lossFunct, parall, std::ref(printer));
-				}
-
-				if (numThreads > 5)
-				{
-					tt[5] = std::thread(taskLSTM, 5, a, 20, importParam, max, min, 1.0f, testTimes, viewsEach, 0.9, print, exportParam, operation, statistics, lossFunct, parall, std::ref(printer));
-				}
-
-				if (numThreads > 6)
-				{
-					tt[6] = std::thread(taskLSTM, 6, a, 40, importParam, max, min, DEFAULT_SEEDNO, testTimes, viewsEach, 0.11, print, exportParam, operation, statistics, lossFunct, parall, std::ref(printer));
-				}
-
-				if (numThreads > 7)
-				{
-					tt[7] = std::thread(taskLSTM, 7, a, 40, importParam, max, min, 1.0f, testTimes, viewsEach, 0.11, print, exportParam, operation, statistics, lossFunct, parall, std::ref(printer));
+					tt[i] = std::thread(taskLSTM, i, a, abs(numCell + randNormalDistrib(0, multiThreadCellStdDev)), importParam, max, min, seedNo, testTimes, viewsEach, abs(alpha + randNormalDistrib(0.0f, multiThreadAlphaStdDev)), print, exportParam, operation, statistics, lossFunct, parall, std::ref(printer));
 				}
 			}
 		}
@@ -1462,53 +1375,27 @@ int main()
 			{
 				for (int i = 0; i < numThreads; i++)
 				{
-					tt[i] = std::thread(taskMLP, i, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
+					tt[i] = std::thread(taskMLP, i, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print, importParam, exportParam, operation, statistics, std::ref(printer));
 				}
 			}
 			else
 			{
-				tt[0] = std::thread(taskMLP, 0, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
+				tt[0] = std::thread(taskMLP, 0, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print, importParam, exportParam, operation, statistics, std::ref(printer));
 
-				if (numThreads > 1)
+				for (int i = 1; i < numThreads; i++)
 				{
-					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ (numNeurArr[1] > 0) ? numNeurArr[1] : 1, numNeurArr[0] };
-					tt[1] = std::thread(taskMLP, 1, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
-				}
+					std::vector<int> numNeurArrAlt;
 
-				if (numThreads > 2)
-				{
-					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ numNeurArr[0], numNeurArr[0] };
-					tt[2] = std::thread(taskMLP, 2, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
-				}
+					for (int j = 0; j < numNeurArr.size(); j++)
+					{
+						numNeurArrAlt.push_back((rand() % 100 > (100 / (numNeurArr.size() + 2)) + 1) ? abs(numNeurArr.at(j) + randNormalDistrib(0, multiThreadCellStdDev)) : ((j == 0) ? rand() % (numNeurArr.at(0) * 3) : 0));
+					}
 
-				if (numThreads > 3)
-				{
-					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ numNeurArr[0] * 2, numNeurArr[0], numNeurArr[0] / 2 };
-					tt[3] = std::thread(taskMLP, 3, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
-				}
+					//Other two eventual layers more.
+					numNeurArrAlt.push_back((rand() % 100 > 65) ? abs(randNormalDistrib(0, multiThreadCellStdDev)) : 0);
+					numNeurArrAlt.push_back((rand() % 100 > 79) ? abs(randNormalDistrib(0, multiThreadCellStdDev / 2)) : 0);
 
-				if (numThreads > 4)
-				{
-					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ numNeurArr[0], numNeurArr[1], numNeurArr[1] / 2 };
-					tt[4] = std::thread(taskMLP, 4, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
-				}
-
-				if (numThreads > 5)
-				{
-					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ (numNeurArr[1] > 0) ? numNeurArr[1] : 1, numNeurArr[0], numNeurArr[0] / 2 };
-					tt[5] = std::thread(taskMLP, 5, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
-				}
-
-				if (numThreads > 6)
-				{
-					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ ((numNeurArr[1] > 0) ? numNeurArr[1] : 1) * 2, numNeurArr[1], numNeurArr[1] / 2 };
-					tt[6] = std::thread(taskMLP, 6, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
-				}
-
-				if (numThreads > 7)
-				{
-					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ numNeurArr[0] };
-					tt[7] = std::thread(taskMLP, 7, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer));
+					tt[i] = std::thread(taskMLP, i, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print, importParam, exportParam, operation, statistics, std::ref(printer));
 				}
 			}
 		}
@@ -1519,53 +1406,30 @@ int main()
 			{
 				for (int i = 0; i < numThreads; i++)
 				{
-					tt[i] = std::thread(taskMLPFst, i, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
+					tt[i] = std::thread(taskMLPFast, i, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print, importParam, exportParam, operation, statistics, std::ref(printer), parall);
 				}
 			}
 			else
 			{
-				tt[0] = std::thread(taskMLPFst, 0, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
+				tt[0] = std::thread(taskMLPFast, 0, a, limMin, limMax, seedNo1, numNeurArr, distrParam, ranges, checkPoints, lossFunction, plot, print, importParam, exportParam, operation, statistics, std::ref(printer), parall);
 
-				if (numThreads > 1)
+				for (int i = 1; i < numThreads; i++)
 				{
-					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ (numNeurArr[1] > 0) ? numNeurArr[1] : 1, numNeurArr[0] };
-					tt[1] = std::thread(taskMLPFst, 1, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
-				}
+					std::vector<int> numNeurArrAlt;
 
-				if (numThreads > 2)
-				{
-					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ numNeurArr[0], numNeurArr[0] };
-					tt[2] = std::thread(taskMLPFst, 2, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
-				}
+					for (int j = 0; j < numNeurArr.size(); j++)
+					{
+						if (numNeurArr[j] != 0)
+						{
+							numNeurArrAlt.push_back((rand() % 100 >(100 / (numNeurArr.size() + 2)) + 1) ? abs(numNeurArr.at(j) + randNormalDistrib(0, multiThreadCellStdDev)) : ((j == 0) ? rand() % (numNeurArr.at(0) * 3) : 0));
+						}
+					}
 
-				if (numThreads > 3)
-				{
-					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ numNeurArr[0] * 2, numNeurArr[0], numNeurArr[0] / 2 };
-					tt[3] = std::thread(taskMLPFst, 3, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
-				}
+					//Other two eventual layers more.
+					numNeurArrAlt.push_back((rand() % 100 > 65) ? abs(randNormalDistrib(0, multiThreadCellStdDev)) : 0);
+					numNeurArrAlt.push_back((rand() % 100 > 79) ? abs(randNormalDistrib(0, multiThreadCellStdDev / 2)) : 0);
 
-				if (numThreads > 4)
-				{
-					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ numNeurArr[0], numNeurArr[1], numNeurArr[1] / 2 };
-					tt[4] = std::thread(taskMLPFst, 4, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
-				}
-
-				if (numThreads > 5)
-				{
-					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ (numNeurArr[1] > 0) ? numNeurArr[1] : 1, numNeurArr[0], numNeurArr[0] / 2 };
-					tt[5] = std::thread(taskMLPFst, 5, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
-				}
-
-				if (numThreads > 6)
-				{
-					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ ((numNeurArr[1] > 0) ? numNeurArr[1] : 1) * 2, numNeurArr[1], numNeurArr[1] / 2 };
-					tt[6] = std::thread(taskMLPFst, 6, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
-				}
-
-				if (numThreads > 7)
-				{
-					int numNeurArrAlt[MAX_NUM_LAYERS_MLP]{ numNeurArr[0] };
-					tt[7] = std::thread(taskMLPFst, 7, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print1, importParam, exportParam, operation, statistics, std::ref(printer), parall);
+					tt[i] = std::thread(taskMLPFast, i, a, limMin, limMax, seedNo1, numNeurArrAlt, distrParam, ranges, checkPoints, lossFunction, plot, print, importParam, exportParam, operation, statistics, std::ref(printer), parall);
 				}
 			}
 		}
