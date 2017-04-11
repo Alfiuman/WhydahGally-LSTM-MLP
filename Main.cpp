@@ -6,6 +6,7 @@
 #include <thread>
 #include <mutex>
 #include <sstream>
+#include <Windows.h>
 
 #include "Definitions.h"
 #include "LongShortTermMemory.h"
@@ -212,6 +213,7 @@ int main()
 	std::vector<std::thread> tt(numThreads);
 
 	Printer printer;
+	long int start = GetTickCount();
 
 	if (algorithm == LSTM)
 	{
@@ -339,6 +341,10 @@ int main()
 	{
 		tt[i].join();
 	}
+
+	long int end = GetTickCount();
+
+	std::cout << "\n\nTicks needed: " << end - start << "\n\n";
 
 	delete a;
 
