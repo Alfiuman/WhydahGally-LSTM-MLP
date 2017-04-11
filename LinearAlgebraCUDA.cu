@@ -98,6 +98,8 @@ namespace WhydahGally
 
 			shTile[threadIdx.y * BLOCK_SIZE + threadIdx.x] = d_inMatrix[row * colMatrix + col];
 
+			__syncthreads();
+
 			d_out[col * rowMatrix + row] = shTile[threadIdx.y * BLOCK_SIZE + threadIdx.x];
 		}
 
@@ -355,7 +357,7 @@ namespace WhydahGally
 			cudaMemcpy(d_inFirst, h_first, BYFIRST, cudaMemcpyHostToDevice);
 			cudaMemcpy(d_inSecond, h_second, BYSECOND, cudaMemcpyHostToDevice);
 
-			dim3 dimBlock(BLOCK_SIZE);
+			dim3 dimBlock(BLOCK_SIZE * BLOCK_SIZE);
 			dim3 dimGrid((rows + dimBlock.x - 1) / dimBlock.x);
 
 			VecDiff <<<dimGrid, dimBlock>>>(d_inFirst, d_inSecond, d_out, rows);
@@ -384,7 +386,7 @@ namespace WhydahGally
 			cudaMemcpy(d_inFirst, h_first, BYFIRST, cudaMemcpyHostToDevice);
 			cudaMemcpy(d_inSecond, h_second, BYSECOND, cudaMemcpyHostToDevice);
 
-			dim3 dimBlock(BLOCK_SIZE);
+			dim3 dimBlock(BLOCK_SIZE * BLOCK_SIZE);
 			dim3 dimGrid((rows + dimBlock.x - 1) / dimBlock.x);
 
 			VecDiffSH <<<dimGrid, dimBlock>>>(d_inFirst, d_inSecond, d_out, rows);

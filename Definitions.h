@@ -33,7 +33,7 @@
 #define NORMAL_DISTRIBUTION		1	
 
 //CUDA block size
-#define BLOCK_SIZE 16
+#define BLOCK_SIZE 32
 
 //CPU or GPU
 #define CPU		0
