@@ -39,6 +39,7 @@
 #define CPU		0
 #define GLOBAL	1
 #define SHARED	2
+#define CONFIG1	11
 
 //Default Numbers
 #define DEFAULT_BIAS		1.0f

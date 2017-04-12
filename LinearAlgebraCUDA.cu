@@ -162,13 +162,13 @@ namespace WhydahGally
 
 			T diff = 0.0f;
 
-			if (blockIdx.x * blockDim.x + threadIdx.x >= rows)
+			if (row >= rows)
 			{
 				return;
 			}
 
-			shFirst[blockIdx.x * BLOCK_SIZE + threadIdx.x] = d_inFirst[blockIdx.x * blockDim.x + threadIdx.x];
-			shSecond[blockIdx.x * BLOCK_SIZE + threadIdx.x] = d_inSecond[blockIdx.x * blockDim.x + threadIdx.x];
+			shFirst[blockIdx.x * BLOCK_SIZE + threadIdx.x] = d_inFirst[row];
+			shSecond[blockIdx.x * BLOCK_SIZE + threadIdx.x] = d_inSecond[row];
 
 			__syncthreads();
 

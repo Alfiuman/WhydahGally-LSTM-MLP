@@ -93,7 +93,7 @@ namespace WhydahGally
 			{
 				matricesDotProductGPU(x.elements_, x.rows_, x.cols_, y.elements_, y.rows_, y.cols_, out->elements_);
 			}
-			else if (parall == 2)
+			else if (parall == 2 || parall == 11)
 			{
 				matricesDotProductGPUSH(x.elements_, x.rows_, x.cols_, y.elements_, y.rows_, y.cols_, out->elements_);
 			}
@@ -110,7 +110,7 @@ namespace WhydahGally
 				out->resize(x.rows_, x.cols_);
 			}
 #if CUDA
-			if (parall == 0)
+			if (parall == 0 || parall == 11)
 			{
 #endif
 				for (int i = 0; i < (out->rows_ * out->cols_); i++)
@@ -139,7 +139,7 @@ namespace WhydahGally
 				out->resize(x.rows_, y.rows_);
 			}
 #if CUDA
-			if (parall == 0)
+			if (parall == 0 || parall == 11)
 			{
 #endif
 				for (int w = 0; w < out->rows_; w++)
@@ -171,7 +171,7 @@ namespace WhydahGally
 				out->resize(x.cols_, x.rows_);
 			}
 #if CUDA
-			if (parall == 0)
+			if (parall == 0 || parall == 11)
 			{
 #endif
 				for (int w = 0; w < x.rows_; w++)
