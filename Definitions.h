@@ -39,7 +39,7 @@
 #define CPU		0
 #define GLOBAL	1
 #define SHARED	2
-#define CONFIG1	11
+#define CONFIG1	11	//Mixed configuration. It's possible to create more combinations.
 
 //Default Numbers
 #define DEFAULT_BIAS		1.0f

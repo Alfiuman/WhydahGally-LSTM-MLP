@@ -577,6 +577,30 @@ int main()
 		PRINT("You chose " << exportParam << ".\n");
 		answer.clear();
 
+		PRINT("\nDo you want to print the intermediate results? (1 yes, 0 no)\n");
+		std::getline(std::cin, answer);
+
+		try
+		{
+			print = (bool)std::stoi(answer);
+		}
+		catch (const std::invalid_argument& e)
+		{
+			print = 1;	//Default option.
+		}
+		catch (const std::out_of_range& e)
+		{
+			print = 1;	//Default option.
+		}
+
+		if (numThreads != 1)
+		{
+			print = 0;	//Printing the intermediate results is not thread safe at the moment.
+		}
+
+		PRINT("You chose " << print << ".\n");
+		answer.clear();
+
 		PRINT("\nDo you want to show the statistics? (1 yes, 0 no)\n");
 		std::getline(std::cin, answer);
 
@@ -650,7 +674,7 @@ int main()
 			}
 		}
 #if CUDA
-		PRINT("\nWhich kind of computation do you want? (0 for CPU, 1 Global GPU, 2 Shared GPU)\n");
+		PRINT("\nWhich kind of computation do you want? (0 for CPU, 1 Global GPU, 2 Shared GPU, 11 Config1.)\n");
 		std::getline(std::cin, answer);
 
 		try
@@ -666,7 +690,7 @@ int main()
 			parall = 0;		//Default option.
 		}
 
-		if (parall < 0 || parall > 2)
+		if (parall < 0 || (parall > 2 && parall != 11))
 		{
 			parall = 0;		//Default option.
 		}
@@ -810,30 +834,37 @@ int main()
 			PRINT("You chose " << testTimes << ".\n");
 			answer.clear();
 
-			PRINT("\nHow often do you want to see the intermediate result? (put the number of the iteration)\n");
-			std::getline(std::cin, answer);
-
-			try
+			if (print == 1)
 			{
-				viewsEach = std::stoi(answer);
-			}
-			catch (const std::invalid_argument& e)
-			{
-				viewsEach = 100;	//Default option.
-			}
-			catch (const std::out_of_range& e)
-			{
-				viewsEach = 100;	//Default option.
-			}
+				PRINT("\nHow often do you want to see the intermediate result? (put the number of the iteration)\n");
+				std::getline(std::cin, answer);
 
-			if (viewsEach < 0)
-			{
-				viewsEach = 100;	//Default option.
+				try
+				{
+					viewsEach = std::stoi(answer);
+				}
+				catch (const std::invalid_argument& e)
+				{
+					viewsEach = 100;	//Default option.
+				}
+				catch (const std::out_of_range& e)
+				{
+					viewsEach = 100;	//Default option.
+				}
+
+				if (viewsEach < 0)
+				{
+					viewsEach = 100;	//Default option.
+				}
+
+				PRINT("You chose " << viewsEach << ".\n");
+				answer.clear();
 			}
-
-			PRINT("You chose " << viewsEach << ".\n");
-			answer.clear();
-
+			else
+			{
+				viewsEach = testTimes + 1;
+			}
+			
 			PRINT("\nPlease select the alpha.\n");
 			std::getline(std::cin, answer);
 
@@ -851,30 +882,6 @@ int main()
 			}
 
 			PRINT("You chose " << alpha << ".\n");
-			answer.clear();
-
-			PRINT("\nDo you want to print the results? (1 yes, 0 no)\n");
-			std::getline(std::cin, answer);
-
-			try
-			{
-				print = (bool)std::stoi(answer);
-			}
-			catch (const std::invalid_argument& e)
-			{
-				print = 0;	//Default option.
-			}
-			catch (const std::out_of_range& e)
-			{
-				print = 0;	//Default option.
-			}
-
-			if (numThreads != 1)
-			{
-				print = 0;	//Printing the intermediate results is not thread safe at the moment.
-			}
-
-			PRINT("You chose " << print << ".\n");
 			answer.clear();
 
 			if (numThreads > 1 && diffThreads == 1)
@@ -1145,77 +1152,86 @@ int main()
 			PRINT("You chose " << ranges[2] << ".\n");
 			answer.clear();
 
-			PRINT("\nAt the multiple of which iteration number do you want the checkpoint for the first phase?\n");
-			std::getline(std::cin, answer);
+			if (print == 1)
+			{
+				PRINT("\nAt the multiple of which iteration number do you want the checkpoint for the first phase?\n");
+				std::getline(std::cin, answer);
 
-			try
-			{
-				checkPoints[0] = std::stoi(answer);
-			}
-			catch (const std::invalid_argument& e)
-			{
-				checkPoints[0] = 100;	//Default option.
-			}
-			catch (const std::out_of_range& e)
-			{
-				checkPoints[0] = 100;	//Default option.
-			}
+				try
+				{
+					checkPoints[0] = std::stoi(answer);
+				}
+				catch (const std::invalid_argument& e)
+				{
+					checkPoints[0] = 100;	//Default option.
+				}
+				catch (const std::out_of_range& e)
+				{
+					checkPoints[0] = 100;	//Default option.
+				}
 
-			if (checkPoints[0] < 0)
-			{
-				checkPoints[0] = 100;	//Default option.
-			}
+				if (checkPoints[0] < 0)
+				{
+					checkPoints[0] = 100;	//Default option.
+				}
 
-			PRINT("You chose " << checkPoints[0] << ".\n");
-			answer.clear();
+				PRINT("You chose " << checkPoints[0] << ".\n");
+				answer.clear();
 
-			PRINT("\nAt the multiple of which iteration number do you want the checkpoint for the second phase?\n");
-			std::getline(std::cin, answer);
+				PRINT("\nAt the multiple of which iteration number do you want the checkpoint for the second phase?\n");
+				std::getline(std::cin, answer);
 
-			try
-			{
-				checkPoints[1] = std::stoi(answer);
-			}
-			catch (const std::invalid_argument& e)
-			{
-				checkPoints[1] = 100;	//Default option.
-			}
-			catch (const std::out_of_range& e)
-			{
-				checkPoints[1] = 100;	//Default option.
-			}
+				try
+				{
+					checkPoints[1] = std::stoi(answer);
+				}
+				catch (const std::invalid_argument& e)
+				{
+					checkPoints[1] = 100;	//Default option.
+				}
+				catch (const std::out_of_range& e)
+				{
+					checkPoints[1] = 100;	//Default option.
+				}
 
-			if (checkPoints[1] < 0)
-			{
-				checkPoints[1] = 100;	//Default option.
-			}
+				if (checkPoints[1] < 0)
+				{
+					checkPoints[1] = 100;	//Default option.
+				}
 
-			PRINT("You chose " << checkPoints[1] << ".\n");
-			answer.clear();
+				PRINT("You chose " << checkPoints[1] << ".\n");
+				answer.clear();
 
-			PRINT("\nAt the multiple of which iteration number do you want the checkpoint for the third phase?\n");
-			std::getline(std::cin, answer);
+				PRINT("\nAt the multiple of which iteration number do you want the checkpoint for the third phase?\n");
+				std::getline(std::cin, answer);
 
-			try
-			{
-				checkPoints[2] = std::stoi(answer);
-			}
-			catch (const std::invalid_argument& e)
-			{
-				checkPoints[2] = 100;	//Default option.
-			}
-			catch (const std::out_of_range& e)
-			{
-				checkPoints[2] = 100;	//Default option.
-			}
+				try
+				{
+					checkPoints[2] = std::stoi(answer);
+				}
+				catch (const std::invalid_argument& e)
+				{
+					checkPoints[2] = 100;	//Default option.
+				}
+				catch (const std::out_of_range& e)
+				{
+					checkPoints[2] = 100;	//Default option.
+				}
 
-			if (checkPoints[2] < 0)
-			{
-				checkPoints[2] = 100;	//Default option.
-			}
+				if (checkPoints[2] < 0)
+				{
+					checkPoints[2] = 100;	//Default option.
+				}
 
-			PRINT("You chose " << checkPoints[2] << ".\n");
-			answer.clear();
+				PRINT("You chose " << checkPoints[2] << ".\n");
+				answer.clear();
+			}
+			else
+			{
+				checkPoints[0] = ranges[0] + 1;
+				checkPoints[1] = ranges[1] + 1;
+				checkPoints[2] = ranges[2] + 1;
+			}
 
 			PRINT("\nWhich value of Epsilon do you want?\n");
 			std::getline(std::cin, answer);
