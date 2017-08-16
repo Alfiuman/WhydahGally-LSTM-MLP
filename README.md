@@ -12,5 +12,6 @@ But it is important to know that also the CUDA code for dot products for matrice
 The LSTM is mainly based on the design of nicodjimenez. Here the explanation: http://nicodjimenez.github.io/2014/08/08/lstm.html
 
 This code wants to be a basic starting point for ANNs and CUDA, for who wants to learn more about them.
+
 This code is not optimized for performance.
 
