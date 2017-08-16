@@ -38,7 +38,7 @@ namespace WhydahGally
 
 		public:
 			//Unique constructor.
-			Importer(const int& historyLength, const float& bias, const std::string& fileName = "");
+			Importer(int historyLength, float bias, const std::string& fileName = "");
 			~Importer();
 
 			//Getter functions.
@@ -55,7 +55,7 @@ namespace WhydahGally
 			inline Matrix<float> getYMat() const { return yMat_; }
 
 			//Setter function.
-			inline void setBias(const float& bias, const int& x) { bias_.at(x) = bias; }
+			inline void setBias(float bias, int x) { bias_.at(x) = bias; }
 		};
 	}
 }

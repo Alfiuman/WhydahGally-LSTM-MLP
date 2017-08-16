@@ -29,17 +29,17 @@ namespace WhydahGally
 		template<typename T> __global__ void VecDiffSH(T* d_inFirst, T* d_inSecond, T* d_out, int rows);
 
 		//CUDA Functions that invoke the kernels. 
-		template<typename T> void matricesDotProductGPU(T* h_first, const int& rowFirst, const int& colFirst, T* h_second, const int& rowSecond, const int& colSecond, T* h_result);
-		template<typename T> void matricesDotProductGPUSH(T* h_first, const int& rowFirst, const int& colFirst, T* h_second, const int& rowSecond, const int& colSecond, T* h_result);
+		template<typename T> void matricesDotProductGPU(T* h_first, int rowFirst, int colFirst, T* h_second, int rowSecond, int colSecond, T* h_result);
+		template<typename T> void matricesDotProductGPUSH(T* h_first, int rowFirst, int colFirst, T* h_second, int rowSecond, int colSecond, T* h_result);
 
-		template<typename T> void transposeGPU(T* h_matrix, const int& rowMatrix, const int& colMatrix, T* h_result);
-		template<typename T> void transposeGPUSH(T* h_matrix, const int& rowMatrix, const int& colMatrix, T* h_result);
+		template<typename T> void transposeGPU(T* h_matrix, int rowMatrix, int colMatrix, T* h_result);
+		template<typename T> void transposeGPUSH(T* h_matrix, int rowMatrix, int colMatrix, T* h_result);
 
-		template<typename T> void outerProdGPU(T* h_first, const int& rowFirst, T* h_second, const int& rowSecond, T* h_result);
-		template<typename T> void outerProdGPUSH(T* h_first, const int& rowFirst, T* h_second, const int& rowSecond, T* h_result);
+		template<typename T> void outerProdGPU(T* h_first, int rowFirst, T* h_second, int rowSecond, T* h_result);
+		template<typename T> void outerProdGPUSH(T* h_first, int rowFirst, T* h_second, int rowSecond, T* h_result);
 
-		template<typename T> void vectorsDiffGPU(T* h_first, T* h_second, const int& rows, T* h_result);
-		template<typename T> void vectorsDiffGPUSH(T* h_first, T* h_second, const int& rows, T* h_result);
+		template<typename T> void vectorsDiffGPU(T* h_first, T* h_second, int rows, T* h_result);
+		template<typename T> void vectorsDiffGPUSH(T* h_first, T* h_second, int rows, T* h_result);
 	}
 }
 

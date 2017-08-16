@@ -41,10 +41,10 @@ namespace WhydahGally
 			Matrix<float> differBiasF_;
 			Matrix<float> differBiasO_;
 
-			Parameters(const int& dimX, const int& numMemCell, const bool& importParam, const float& max, const float& min, const float& seedNo);
+			Parameters(int dimX, int numMemCell, bool importParam, float max, float min, float seedNo);
 			~Parameters();
 
-			void recomputeWeightsBias(const float& alpha);
+			void recomputeWeightsBias(float alpha);
 			void importParameters();
 		};
 
@@ -63,7 +63,7 @@ namespace WhydahGally
 			Matrix<float> bottomDifferS_;
 			Matrix<float> bottomDifferX_;
 
-			State(const int& dimX, const int& numMemCell);
+			State(int dimX, int numMemCell);
 			~State();
 		};
 
@@ -80,9 +80,9 @@ namespace WhydahGally
 			Node(Parameters& parameters, State& state);
 			~Node();
 
-			void computeBottomData(const Matrix<float>& x, const int& parall);
-			void computeBottomData(const Matrix<float>& x, const Matrix<float>& prevS, const Matrix<float>& prevH, const int& parall);
-			void computeTopDiffer(const Matrix<float>& topDiffH, const Matrix<float>& topDiffS, const int& parall);
+			void computeBottomData(const Matrix<float>& x, int parall);
+			void computeBottomData(const Matrix<float>& x, const Matrix<float>& prevS, const Matrix<float>& prevH, int parall);
+			void computeTopDiffer(const Matrix<float>& topDiffH, const Matrix<float>& topDiffS, int parall);
 		};
 
 		//Artificial Neural Network for time series analysis.
@@ -104,21 +104,21 @@ namespace WhydahGally
 			std::vector<std::vector<float>> listX_;
 
 		private:
-			void computeLoss(const Matrix<float>& listY, const int& lossFunct, const int& parall);
-			void buildListX(const std::vector<float>& x, const int& parall);
+			void computeLoss(const Matrix<float>& listY, int lossFunct, int parall);
+			void buildListX(const std::vector<float>& x, int parall);
 
 		public:
-			LongShortTermMemory(Importer& importer, const int& numMemCell, const bool& importParam, const float& max, const float& min, const int& seedNo);
+			LongShortTermMemory(Importer& importer, int numMemCell, bool importParam, float max, float min, int seedNo);
 			~LongShortTermMemory();
 
 			void importWeights() override;
 			void train() override;
-			void train(const int& times, const int& view, const float& alpha, const bool& print, const int& lossFunct, const int& parall, const bool& exportParam);
+			void train(int times, int view, float alpha, bool print, int lossFunct, int parall, bool exportParam);
 			void exportWeights() override;
 			void test() override;
-			void test(const int& lossFunct, const int& parall);
+			void test(int lossFunct, int parall);
 			void classify() override;
-			void classify(const int& parall);
+			void classify(int parall);
 			void computeStatistics() override;
 
 			inline float getLoss() const { return loss_; }

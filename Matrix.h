@@ -37,10 +37,7 @@ namespace WhydahGally
 
 			elements_ = new T[rows_ * cols_];
 
-			for (int i = 0; i < (rows_ * cols_); i++)
-			{
-				elements_[i] = 0.0f;
-			}
+			std::fill(elements_, elements_ + (rows_ * cols_), 0.0f);
 		}
 
 		Matrix<T>(const Matrix& x)
@@ -66,9 +63,9 @@ namespace WhydahGally
 
 			elements_ = new T[rows_ * cols_];
 
-			for (int i = 0; i < rows_; i++)
+			for (int i = 0; i < rows_; ++i)
 			{
-				for (int j = 0; j < cols_; j++)
+				for (int j = 0; j < cols_; ++j)
 				{
 					elements_[i * cols_ + j] = x.elements_[i * x.cols_ + j];
 				}
@@ -104,19 +101,13 @@ namespace WhydahGally
 			delete[] elements_;
 			elements_ = new T[rows_ * cols_];
 
-			for (int i = 0; i < (rows_ * cols_); i++)
-			{
-				elements_[i] = 0.0f;
-			}
+			std::fill(elements_, elements_ + (rows_ * cols_), 0.0f);;
 		}
 
-		void assign(const T& x)
+		void assign(T x)
 		{
 			//Populating the entire matix with a value.
-			for (int i = 0; i < (rows_ * cols_); i++)
-			{
-				elements_[i] = x;
-			}
+			std::fill(elements_, elements_ + (rows_ * cols_), x);;
 		}
 
 		Matrix& copy(const Matrix& right)
@@ -143,9 +134,9 @@ namespace WhydahGally
 			delete[] elements_;
 			elements_ = new T[rows_ * cols_];
 
-			for (int i = 0; i < rows_; i++)
+			for (int i = 0; i < rows_; ++i)
 			{
-				for (int j = 0; j < cols_; j++)
+				for (int j = 0; j < cols_; ++j)
 				{
 					elements_[i * cols_ + j] = right.elements_[i * right.cols_ + j];
 				}

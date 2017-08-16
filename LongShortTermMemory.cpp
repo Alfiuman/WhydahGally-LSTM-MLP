@@ -4,7 +4,7 @@ namespace WhydahGally
 {
 	namespace Base
 	{
-		Parameters::Parameters(const int& dimX, const int& numMemCell, const bool& importParam, const float& max, const float& min, const float& seedNo)
+		Parameters::Parameters(int dimX, int numMemCell, bool importParam, float max, float min, float seedNo)
 			: numMemCell_(numMemCell), concatLen_(dimX + numMemCell), problem_(0), weightsG_(numMemCell_, concatLen_), weightsI_(numMemCell_, concatLen_), weightsF_(numMemCell_, concatLen_), weightsO_(numMemCell_, concatLen_), biasG_(numMemCell_), biasI_(numMemCell_), biasF_(numMemCell_), biasO_(numMemCell_), differWeightsG_(numMemCell_, concatLen_), differWeightsI_(numMemCell_, concatLen_), differWeightsF_(numMemCell_, concatLen_), differWeightsO_(numMemCell_, concatLen_), differBiasG_(numMemCell_), differBiasI_(numMemCell_), differBiasF_(numMemCell_), differBiasO_(numMemCell_)
 		{
 			if (importParam == 0)
@@ -12,55 +12,55 @@ namespace WhydahGally
 				srand(seedNo);
 
 				//Populating the weights with random numbers.
-				for (int i = 0; i < weightsG_.rows_; i++)
+				for (int i = 0; i < weightsG_.rows_; ++i)
 				{
-					for (int j = 0; j < weightsG_.cols_; j++)
+					for (int j = 0; j < weightsG_.cols_; ++j)
 					{
 						weightsG_.elements_[i * weightsG_.cols_ + j] = ((max - min) * static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) + min;
 					}
 				}
 
-				for (int i = 0; i < weightsI_.rows_; i++)
+				for (int i = 0; i < weightsI_.rows_; ++i)
 				{
-					for (int j = 0; j < weightsI_.cols_; j++)
+					for (int j = 0; j < weightsI_.cols_; ++j)
 					{
 						weightsI_.elements_[i * weightsI_.cols_ + j] = ((max - min) * static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) + min;
 					}
 				}
 
-				for (int i = 0; i < weightsF_.rows_; i++)
+				for (int i = 0; i < weightsF_.rows_; ++i)
 				{
-					for (int j = 0; j < weightsF_.cols_; j++)
+					for (int j = 0; j < weightsF_.cols_; ++j)
 					{
 						weightsF_.elements_[i * weightsF_.cols_ + j] = ((max - min) * static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) + min;
 					}
 				}
 
-				for (int i = 0; i < weightsO_.rows_; i++)
+				for (int i = 0; i < weightsO_.rows_; ++i)
 				{
-					for (int j = 0; j < weightsO_.cols_; j++)
+					for (int j = 0; j < weightsO_.cols_; ++j)
 					{
 						weightsO_.elements_[i * weightsO_.cols_ + j] = ((max - min) * static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) + min;
 					}
 				}
 
 				//Populating the bias matrices with random numbers.
-				for (int i = 0; i < biasG_.rows_; i++)
+				for (int i = 0; i < biasG_.rows_; ++i)
 				{
 					biasG_.elements_[i] = ((max - min) * static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) + min;
 				}
 
-				for (int i = 0; i < biasI_.rows_; i++)
+				for (int i = 0; i < biasI_.rows_; ++i)
 				{
 					biasI_.elements_[i] = ((max - min) * static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) + min;
 				}
 
-				for (int i = 0; i < biasF_.rows_; i++)
+				for (int i = 0; i < biasF_.rows_; ++i)
 				{
 					biasF_.elements_[i] = ((max - min) * static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) + min;
 				}
 
-				for (int i = 0; i < biasO_.rows_; i++)
+				for (int i = 0; i < biasO_.rows_; ++i)
 				{
 					biasO_.elements_[i] = ((max - min) * static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) + min;
 				}
@@ -87,9 +87,9 @@ namespace WhydahGally
 
 				if (file)
 				{
-					for (int i = 0; i < weightsG_.rows_; i++)
+					for (int i = 0; i < weightsG_.rows_; ++i)
 					{
-						for (int j = 0; j < weightsG_.cols_; j++)
+						for (int j = 0; j < weightsG_.cols_; ++j)
 						{
 							file >> weightsG_.elements_[i * weightsG_.cols_ + j];
 						}
@@ -117,9 +117,9 @@ namespace WhydahGally
 
 				if (file)
 				{
-					for (int i = 0; i < weightsI_.rows_; i++)
+					for (int i = 0; i < weightsI_.rows_; ++i)
 					{
-						for (int j = 0; j < weightsI_.cols_; j++)
+						for (int j = 0; j < weightsI_.cols_; ++j)
 						{
 							file >> weightsI_.elements_[i * weightsI_.cols_ + j];
 						}
@@ -147,9 +147,9 @@ namespace WhydahGally
 
 				if (file)
 				{
-					for (int i = 0; i < weightsF_.rows_; i++)
+					for (int i = 0; i < weightsF_.rows_; ++i)
 					{
-						for (int j = 0; j < weightsF_.cols_; j++)
+						for (int j = 0; j < weightsF_.cols_; ++j)
 						{
 							file >> weightsF_.elements_[i * weightsF_.cols_ + j];
 						}
@@ -177,9 +177,9 @@ namespace WhydahGally
 
 				if (file)
 				{
-					for (int i = 0; i < weightsO_.rows_; i++)
+					for (int i = 0; i < weightsO_.rows_; ++i)
 					{
-						for (int j = 0; j < weightsO_.cols_; j++)
+						for (int j = 0; j < weightsO_.cols_; ++j)
 						{
 							file >> weightsO_.elements_[i * weightsO_.cols_ + j];
 						}
@@ -207,7 +207,7 @@ namespace WhydahGally
 
 				if (file)
 				{
-					for (int i = 0; i < biasG_.rows_; i++)
+					for (int i = 0; i < biasG_.rows_; ++i)
 					{
 						file >> biasG_.elements_[i];
 					}
@@ -234,7 +234,7 @@ namespace WhydahGally
 
 				if (file)
 				{
-					for (int i = 0; i < biasI_.rows_; i++)
+					for (int i = 0; i < biasI_.rows_; ++i)
 					{
 						file >> biasI_.elements_[i];
 					}
@@ -261,7 +261,7 @@ namespace WhydahGally
 
 				if (file)
 				{
-					for (int i = 0; i < biasF_.rows_; i++)
+					for (int i = 0; i < biasF_.rows_; ++i)
 					{
 						file >> biasF_.elements_[i];
 					}
@@ -288,7 +288,7 @@ namespace WhydahGally
 
 				if (file)
 				{
-					for (int i = 0; i < biasO_.rows_; i++)
+					for (int i = 0; i < biasO_.rows_; ++i)
 					{
 						file >> biasO_.elements_[i];
 					}
@@ -308,118 +308,118 @@ namespace WhydahGally
 			}
 		}
 
-		void Parameters::recomputeWeightsBias(const float& alpha)
+		void Parameters::recomputeWeightsBias(float alpha)
 		{
 			//Recomputing the weights given an alpha and the differentials.
-			for (int i = 0; i < weightsG_.rows_; i++)
+			for (int i = 0; i < weightsG_.rows_; ++i)
 			{
-				for (int j = 0; j < weightsG_.cols_; j++)
+				for (int j = 0; j < weightsG_.cols_; ++j)
 				{
 					weightsG_.elements_[i * weightsG_.cols_ + j] -= alpha * differWeightsG_.elements_[i * differWeightsG_.cols_ + j];
 				}
 			}
 			
 
-			for (int i = 0; i < weightsI_.rows_; i++)
+			for (int i = 0; i < weightsI_.rows_; ++i)
 			{
-				for (int j = 0; j < weightsI_.cols_; j++)
+				for (int j = 0; j < weightsI_.cols_; ++j)
 				{
 					weightsI_.elements_[i * weightsI_.cols_ + j] -= alpha * differWeightsI_.elements_[i * differWeightsI_.cols_ + j];
 				}
 			}
 
-			for (int i = 0; i < weightsF_.rows_; i++)
+			for (int i = 0; i < weightsF_.rows_; ++i)
 			{
-				for (int j = 0; j < weightsF_.cols_; j++)
+				for (int j = 0; j < weightsF_.cols_; ++j)
 				{
 					weightsF_.elements_[i * weightsF_.cols_ + j] -= alpha * differWeightsF_.elements_[i * differWeightsF_.cols_ + j];
 				}
 			}
 
-			for (int i = 0; i < weightsO_.rows_; i++)
+			for (int i = 0; i < weightsO_.rows_; ++i)
 			{
-				for (int j = 0; j < weightsO_.cols_; j++)
+				for (int j = 0; j < weightsO_.cols_; ++j)
 				{
 					weightsO_.elements_[i * weightsO_.cols_ + j] -= alpha * differWeightsO_.elements_[i * differWeightsO_.cols_ + j];
 				}
 			}
 
 			//Recomputing the bias matrices given an alpha and the differentials.
-			for (int i = 0; i < biasG_.rows_; i++)
+			for (int i = 0; i < biasG_.rows_; ++i)
 			{
 				biasG_.elements_[i] -= alpha * differBiasG_.elements_[i];
 			}
 
-			for (int i = 0; i < biasI_.rows_; i++)
+			for (int i = 0; i < biasI_.rows_; ++i)
 			{
 				biasI_.elements_[i] -= alpha * differBiasI_.elements_[i];
 			}
 
-			for (int i = 0; i < biasF_.rows_; i++)
+			for (int i = 0; i < biasF_.rows_; ++i)
 			{
 				biasF_.elements_[i] -= alpha * differBiasF_.elements_[i];
 			}
 
-			for (int i = 0; i < biasO_.rows_; i++)
+			for (int i = 0; i < biasO_.rows_; ++i)
 			{
 				biasO_.elements_[i] -= alpha * differBiasO_.elements_[i];
 			}
 
 			//Zeroing the differentials.
-			for (int i = 0; i < differWeightsG_.rows_; i++)
+			for (int i = 0; i < differWeightsG_.rows_; ++i)
 			{
-				for (int j = 0; j < differWeightsG_.cols_; j++)
+				for (int j = 0; j < differWeightsG_.cols_; ++j)
 				{
 					differWeightsG_.elements_[i * differWeightsG_.cols_ + j] = 0.0f;
 				}
 			}
 
-			for (int i = 0; i < differWeightsI_.rows_; i++)
+			for (int i = 0; i < differWeightsI_.rows_; ++i)
 			{
-				for (int j = 0; j < differWeightsI_.cols_; j++)
+				for (int j = 0; j < differWeightsI_.cols_; ++j)
 				{
 					differWeightsI_.elements_[i * differWeightsI_.cols_ + j] = 0.0f;
 				}
 			}
 
-			for (int i = 0; i < differWeightsF_.rows_; i++)
+			for (int i = 0; i < differWeightsF_.rows_; ++i)
 			{
-				for (int j = 0; j < differWeightsF_.cols_; j++)
+				for (int j = 0; j < differWeightsF_.cols_; ++j)
 				{
 					differWeightsF_.elements_[i * differWeightsF_.cols_ + j] = 0.0f;
 				}
 			}
 
-			for (int i = 0; i < differWeightsO_.rows_; i++)
+			for (int i = 0; i < differWeightsO_.rows_; ++i)
 			{
-				for (int j = 0; j < differWeightsO_.cols_; j++)
+				for (int j = 0; j < differWeightsO_.cols_; ++j)
 				{
 					differWeightsO_.elements_[i * differWeightsO_.cols_ + j] = 0.0f;
 				}
 			}
 
-			for (int i = 0; i < differBiasG_.rows_; i++)
+			for (int i = 0; i < differBiasG_.rows_; ++i)
 			{
 				differBiasG_.elements_[i] = 0.0f;
 			}
 
-			for (int i = 0; i < differBiasI_.rows_; i++)
+			for (int i = 0; i < differBiasI_.rows_; ++i)
 			{
 				differBiasI_.elements_[i] = 0.0f;
 			}
 
-			for (int i = 0; i < differBiasF_.rows_; i++)
+			for (int i = 0; i < differBiasF_.rows_; ++i)
 			{
 				differBiasF_.elements_[i] = 0.0f;
 			}
 
-			for (int i = 0; i < differBiasO_.rows_; i++)
+			for (int i = 0; i < differBiasO_.rows_; ++i)
 			{
 				differBiasO_.elements_[i] = 0.0f;
 			}
 		}
 
-		State::State(const int& dimX, const int& numMemCell)
+		State::State(int dimX, int numMemCell)
 			: numMemCell_(numMemCell), g_(numMemCell_), i_(numMemCell_), f_(numMemCell_), o_(numMemCell_), s_(numMemCell_), h_(numMemCell_), bottomDifferH_(numMemCell_), bottomDifferS_(numMemCell_), bottomDifferX_(dimX)
 		{
 			
@@ -441,7 +441,7 @@ namespace WhydahGally
 			delete state_;
 		}
 
-		void Node::computeBottomData(const Matrix<float>& x, const int& parall)
+		void Node::computeBottomData(const Matrix<float>& x, int parall)
 		{
 			Matrix<float> prevS(state_->s_.rows_);
 			Matrix<float> prevH(state_->h_.rows_);
@@ -449,14 +449,14 @@ namespace WhydahGally
 			computeBottomData(x, prevS, prevH, parall);
 		}
 
-		void Node::computeBottomData(const Matrix<float>& x, const Matrix<float>& prevS, const Matrix<float>& prevH, const int& parall)
+		void Node::computeBottomData(const Matrix<float>& x, const Matrix<float>& prevS, const Matrix<float>& prevH, int parall)
 		{
 			previousS_.copy(prevS);
 			previousH_.copy(prevH);
 			
 			Matrix<float> xh(x.rows_ + previousH_.rows_);
 
-			for (int i = 0; i < xh.rows_; i++)
+			for (int i = 0; i < xh.rows_; ++i)
 			{
 				if (i < x.rows_)
 				{
@@ -474,38 +474,38 @@ namespace WhydahGally
 
 			Maths::matricesDotProduct(param_->weightsG_, xh, &results, parall);
 
-			for (int i = 0; i < state_->g_.rows_; i++)
+			for (int i = 0; i < state_->g_.rows_; ++i)
 			{
 				state_->g_.elements_[i] = tanh(results.elements_[i] + param_->biasG_.elements_[i]);
 			}
 			
 			Maths::matricesDotProduct(param_->weightsI_, xh, &results, parall);
 
-			for (int i = 0; i < state_->i_.rows_; i++)
+			for (int i = 0; i < state_->i_.rows_; ++i)
 			{
 				state_->i_.elements_[i] = Maths::sigmoid(results.elements_[i] + param_->biasI_.elements_[i]);
 			}
 
 			Maths::matricesDotProduct(param_->weightsF_, xh, &results, parall);
 
-			for (int i = 0; i < state_->f_.rows_; i++)
+			for (int i = 0; i < state_->f_.rows_; ++i)
 			{
 				state_->f_.elements_[i] = Maths::sigmoid(results.elements_[i] + param_->biasF_.elements_[i]);
 			}
 			
 			Maths::matricesDotProduct(param_->weightsO_, xh, &results, parall);
 
-			for (int i = 0; i < state_->o_.rows_; i++)
+			for (int i = 0; i < state_->o_.rows_; ++i)
 			{
 				state_->o_.elements_[i] = Maths::sigmoid(results.elements_[i] + param_->biasO_.elements_[i]);
 			}
 
-			for (int i = 0; i < state_->s_.rows_; i++)
+			for (int i = 0; i < state_->s_.rows_; ++i)
 			{
 				state_->s_.elements_[i] = (state_->g_.elements_[i] * state_->i_.elements_[i]) + (previousS_.elements_[i] * state_->f_.elements_[i]);
 			}
 
-			for (int i = 0; i < state_->h_.rows_; i++)
+			for (int i = 0; i < state_->h_.rows_; ++i)
 			{
 				state_->h_.elements_[i] = tanh(state_->s_.elements_[i]) * state_->o_.elements_[i];
 			}
@@ -514,7 +514,7 @@ namespace WhydahGally
 			xh_.copy(xh);
 		}
 
-		void Node::computeTopDiffer(const Matrix<float>& topDiffH, const Matrix<float>& topDiffS, const int& parall)
+		void Node::computeTopDiffer(const Matrix<float>& topDiffH, const Matrix<float>& topDiffS, int parall)
 		{
 			Matrix<float> ds(state_->o_.rows_);
 			Matrix<float> doo(ds.rows_);
@@ -523,27 +523,27 @@ namespace WhydahGally
 			Matrix<float> df(previousS_.rows_);
 			
 			//Computing the differentials.
-			for (int i = 0; i < ds.rows_; i++)
+			for (int i = 0; i < ds.rows_; ++i)
 			{
 				ds.elements_[i] = state_->o_.elements_[i] * (1.0f - pow(tanh(state_->s_.elements_[i]), 2.0f)) * topDiffH.elements_[i] + topDiffS.elements_[i];
 			}
 
-			for (int i = 0; i < doo.rows_; i++)
+			for (int i = 0; i < doo.rows_; ++i)
 			{
 				doo.elements_[i] = state_->s_.elements_[i] * topDiffH.elements_[i];
 			}
 
-			for (int i = 0; i < di.rows_; i++)
+			for (int i = 0; i < di.rows_; ++i)
 			{
 				di.elements_[i] = state_->g_.elements_[i] * ds.elements_[i];
 			}
 
-			for (int i = 0; i < dg.rows_; i++)
+			for (int i = 0; i < dg.rows_; ++i)
 			{
 				dg.elements_[i] = state_->i_.elements_[i] * ds.elements_[i];
 			}
 
-			for (int i = 0; i < df.rows_; i++)
+			for (int i = 0; i < df.rows_; ++i)
 			{
 				df.elements_[i] = previousS_.elements_[i] * ds.elements_[i];
 			}
@@ -554,22 +554,22 @@ namespace WhydahGally
 			Matrix<float> inputDg(dg.rows_);
 
 			//Computing the inputs.
-			for (int i = 0; i < inputDi.rows_; i++)
+			for (int i = 0; i < inputDi.rows_; ++i)
 			{
 				inputDi.elements_[i] = (1.0f - state_->i_.elements_[i]) * state_->i_.elements_[i] * di.elements_[i];
 			}
 
-			for (int i = 0; i < inputDf.rows_; i++)
+			for (int i = 0; i < inputDf.rows_; ++i)
 			{
 				inputDf.elements_[i] = (1.0f - state_->f_.elements_[i]) * state_->f_.elements_[i] * df.elements_[i];
 			}
 
-			for (int i = 0; i < inputDoo.rows_; i++)
+			for (int i = 0; i < inputDoo.rows_; ++i)
 			{
 				inputDoo.elements_[i] = (1.0f - state_->o_.elements_[i]) * state_->o_.elements_[i] * doo.elements_[i];
 			}
 
-			for (int i = 0; i < inputDg.rows_; i++)
+			for (int i = 0; i < inputDg.rows_; ++i)
 			{
 				inputDg.elements_[i] = (1.0f - pow(state_->g_.elements_[i], 2.0f)) * dg.elements_[i];
 			}
@@ -579,9 +579,9 @@ namespace WhydahGally
 
 			Maths::outerProduct(inputDi, xh_, &results, parall);
 
-			for (int i = 0; i < param_->differWeightsI_.rows_; i++)
+			for (int i = 0; i < param_->differWeightsI_.rows_; ++i)
 			{
-				for (int j = 0; j < param_->differWeightsI_.cols_; j++)
+				for (int j = 0; j < param_->differWeightsI_.cols_; ++j)
 				{
 					param_->differWeightsI_.elements_[i * param_->differWeightsI_.cols_ + j] += results.elements_[i * results.cols_ + j];
 				}
@@ -589,9 +589,9 @@ namespace WhydahGally
 
 			Maths::outerProduct(inputDf, xh_, &results, parall);
 
-			for (int i = 0; i < param_->differWeightsF_.rows_; i++)
+			for (int i = 0; i < param_->differWeightsF_.rows_; ++i)
 			{
-				for (int j = 0; j < param_->differWeightsF_.cols_; j++)
+				for (int j = 0; j < param_->differWeightsF_.cols_; ++j)
 				{
 					param_->differWeightsF_.elements_[i * param_->differWeightsF_.cols_ + j] += results.elements_[i * results.cols_ + j];
 				}
@@ -599,9 +599,9 @@ namespace WhydahGally
 
 			Maths::outerProduct(inputDoo, xh_, &results, parall);
 
-			for (int i = 0; i < param_->differWeightsO_.rows_; i++)
+			for (int i = 0; i < param_->differWeightsO_.rows_; ++i)
 			{
-				for (int j = 0; j < param_->differWeightsO_.cols_; j++)
+				for (int j = 0; j < param_->differWeightsO_.cols_; ++j)
 				{
 					param_->differWeightsO_.elements_[i * param_->differWeightsO_.cols_ + j] += results.elements_[i * results.cols_ + j];
 				}
@@ -609,30 +609,30 @@ namespace WhydahGally
 
 			Maths::outerProduct(inputDg, xh_, &results, parall);
 
-			for (int i = 0; i < param_->differWeightsG_.rows_; i++)
+			for (int i = 0; i < param_->differWeightsG_.rows_; ++i)
 			{
-				for (int j = 0; j < param_->differWeightsG_.cols_; j++)
+				for (int j = 0; j < param_->differWeightsG_.cols_; ++j)
 				{
 					param_->differWeightsG_.elements_[i * param_->differWeightsG_.cols_ + j] += results.elements_[i * results.cols_ + j];
 				}
 			}
 
-			for (int i = 0; i < param_->differBiasI_.rows_; i++)
+			for (int i = 0; i < param_->differBiasI_.rows_; ++i)
 			{
 				param_->differBiasI_.elements_[i] += inputDi.elements_[i];
 			}
 
-			for (int i = 0; i < param_->differBiasF_.rows_; i++)
+			for (int i = 0; i < param_->differBiasF_.rows_; ++i)
 			{
 				param_->differBiasF_.elements_[i] += inputDf.elements_[i];
 			}
 
-			for (int i = 0; i < param_->differBiasO_.rows_; i++)
+			for (int i = 0; i < param_->differBiasO_.rows_; ++i)
 			{
 				param_->differBiasO_.elements_[i] += inputDoo.elements_[i];
 			}
 
-			for (int i = 0; i < param_->differBiasG_.rows_; i++)
+			for (int i = 0; i < param_->differBiasG_.rows_; ++i)
 			{
 				param_->differBiasG_.elements_[i] += inputDg.elements_[i];
 			}
@@ -646,7 +646,7 @@ namespace WhydahGally
 			Maths::transposeMatrix(param_->weightsI_, &transpose, parall);
 			Maths::matricesDotProduct(transpose, inputDi, &results1, parall);
 
-			for (int i = 0; i < differXH.rows_; i++)
+			for (int i = 0; i < differXH.rows_; ++i)
 			{
 				differXH.elements_[i] += results1.elements_[i];
 			}
@@ -654,7 +654,7 @@ namespace WhydahGally
 			Maths::transposeMatrix(param_->weightsF_, &transpose, parall);
 			Maths::matricesDotProduct(transpose, inputDf, &results1, parall);
 
-			for (int i = 0; i < differXH.rows_; i++)
+			for (int i = 0; i < differXH.rows_; ++i)
 			{
 				differXH.elements_[i] += results1.elements_[i];
 			}
@@ -662,7 +662,7 @@ namespace WhydahGally
 			Maths::transposeMatrix(param_->weightsO_, &transpose, parall);
 			Maths::matricesDotProduct(transpose, inputDoo, &results1, parall);
 
-			for (int i = 0; i < differXH.rows_; i++)
+			for (int i = 0; i < differXH.rows_; ++i)
 			{
 				differXH.elements_[i] += results1.elements_[i];
 			}
@@ -670,28 +670,28 @@ namespace WhydahGally
 			Maths::transposeMatrix(param_->weightsG_, &transpose, parall);
 			Maths::matricesDotProduct(transpose, inputDg, &results1, parall);
 
-			for (int i = 0; i < differXH.rows_; i++)
+			for (int i = 0; i < differXH.rows_; ++i)
 			{
 				differXH.elements_[i] += results1.elements_[i];
 			}
 
-			for (int i = 0; i < state_->bottomDifferS_.rows_; i++)
+			for (int i = 0; i < state_->bottomDifferS_.rows_; ++i)
 			{
 				state_->bottomDifferS_.elements_[i] = ds.elements_[i] * state_->f_.elements_[i];
 			}
 
-			for (int i = 0; i < state_->bottomDifferX_.rows_; i++)
+			for (int i = 0; i < state_->bottomDifferX_.rows_; ++i)
 			{
 				state_->bottomDifferX_.elements_[i] = differXH.elements_[i];
 			}
 
-			for (int i = 0; i < state_->bottomDifferH_.rows_; i++)
+			for (int i = 0; i < state_->bottomDifferH_.rows_; ++i)
 			{
 				state_->bottomDifferH_.elements_[i] = differXH.elements_[i + state_->bottomDifferX_.rows_];
 			}
 		}
 
-		LongShortTermMemory::LongShortTermMemory(Importer& importer, const int& numMemCell, const bool& importParam, const float& max, const float& min, const int& seedNo)
+		LongShortTermMemory::LongShortTermMemory(Importer& importer, int numMemCell, bool importParam, float max, float min, int seedNo)
 			: importer_(&importer), dimX_(importer.getXX()[0].size()), sizeX_(importer.getXX().size()), historyLength_(importer.getHistoryLength()), numMemCell_(numMemCell), predictions_(1), loss_(0.0f), generalLoss_(0.0f), changedImporter_(0)
 		{
 			param_ = new Parameters(dimX_, numMemCell_, importParam, max, min, seedNo);
@@ -701,13 +701,13 @@ namespace WhydahGally
 		{
 			delete param_;
 
-			for (int i = 0; i < nodeList_.size(); i++)
+			for (int i = 0; i < nodeList_.size(); ++i)
 			{
 				delete nodeList_[i];
 			}
 		}
 
-		void LongShortTermMemory::computeLoss(const Matrix<float>& listY, const int& lossFunct, const int& parall)
+		void LongShortTermMemory::computeLoss(const Matrix<float>& listY, int lossFunct, int parall)
 		{
 			if (listY.rows_ == listX_.size())
 			{
@@ -787,19 +787,19 @@ namespace WhydahGally
 
 					count++;
 
-					for (int i = 0; i < diffH.rows_; i++)
+					for (int i = 0; i < diffH.rows_; ++i)
 					{
 						diffH.elements_[i] = 0.0f;
 					}
 
 					diffH.elements_[0] = 2 * (nodeList_.at(idx)->state_->h_.elements_[0] - listY.elements_[idx]);
 
-					for (int i = 0; i < diffH.rows_; i++)
+					for (int i = 0; i < diffH.rows_; ++i)
 					{
 						diffH.elements_[i] += nodeList_.at(idx + 1)->state_->bottomDifferH_.elements_[i];
 					}
 
-					for (int i = 0; i < diffS.rows_; i++)
+					for (int i = 0; i < diffS.rows_; ++i)
 					{
 						diffS.elements_[i] = nodeList_.at(idx + 1)->state_->bottomDifferS_.elements_[i];
 					}
@@ -816,12 +816,12 @@ namespace WhydahGally
 			}
 		}
 
-		void LongShortTermMemory::buildListX(const std::vector<float>& x, const int& parall)
+		void LongShortTermMemory::buildListX(const std::vector<float>& x, int parall)
 		{
 			//Bulding the X list for time series analysis.
 			Matrix<float> xx(x.size());
 
-			for (int i = 0; i < xx.rows_; i++)
+			for (int i = 0; i < xx.rows_; ++i)
 			{
 				xx.elements_[i] = x.at(i);
 			}
@@ -864,7 +864,7 @@ namespace WhydahGally
 			train(10000, 10, 0.11f, 1, 0, 0, 0);
 		}
 
-		void LongShortTermMemory::train(const int& times, const int& view, const float& alpha, const bool& print, const int& lossFunct, const int& parall, const bool& exportParam)
+		void LongShortTermMemory::train(int times, int view, float alpha, bool print, int lossFunct, int parall, bool exportParam)
 		{
 			//Training the Artificial Neural Network.
 			if (param_->problem_ == 0)
@@ -881,16 +881,16 @@ namespace WhydahGally
 						PRINT(h + 1 << "\n");
 					}
 
-					for (int i = 0; i < x.size(); i++)
+					for (int i = 0; i < x.size(); ++i)
 					{
-						for (int j = 0; j < x.at(i).size(); j++)
+						for (int j = 0; j < x.at(i).size(); ++j)
 						{
 							x.at(i).at(j) = importer_->getXX().at(i + h).at(j);
 						}
 					}
 
 					//Building the Y matrix.
-					for (int i = 0; i < y.rows_; i++)
+					for (int i = 0; i < y.rows_; ++i)
 					{
 						y.elements_[i] = importer_->getYY().at(i + h);
 					}
@@ -920,7 +920,7 @@ namespace WhydahGally
 							//Populating the prediction matrix.
 							predictions_.resize(nodeList_.size());
 
-							for (int i = 0; i < predictions_.rows_; i++)
+							for (int i = 0; i < predictions_.rows_; ++i)
 							{
 								predictions_.elements_[i] = nodeList_.at(i)->state_->h_.elements_[0];
 							}
@@ -947,7 +947,7 @@ namespace WhydahGally
 			test(0, 0);
 		}
 
-		void LongShortTermMemory::test(const int& lossFunct, const int& parall)
+		void LongShortTermMemory::test(int lossFunct, int parall)
 		{
 			PRINT("The result of the test is: ") << "\n";
 
@@ -960,14 +960,14 @@ namespace WhydahGally
 			classify(0);
 		}
 
-		void LongShortTermMemory::classify(const int& parall)
+		void LongShortTermMemory::classify(int parall)
 		{
 			//Classifying the elements of a new time series using the Artificial Neural Network.
 			train(0, 1, 0, 0, 0, parall, 0);
 
 			float predict = 0.0;
 
-			for (int i = 0; i < nodeList_.size(); i++)
+			for (int i = 0; i < nodeList_.size(); ++i)
 			{
 				if (nodeList_.at(i)->state_->h_.elements_[0] > 0.5)
 				{
@@ -991,7 +991,7 @@ namespace WhydahGally
 
 			Matrix<float> y(historyLength_);
 
-			for (int i = 0; i < historyLength_; i++)
+			for (int i = 0; i < historyLength_; ++i)
 			{
 				y.elements_[i] = importer_->getYY().at(i + importer_->getYY().size() - historyLength_);
 			}
@@ -1004,7 +1004,7 @@ namespace WhydahGally
 			int errors0to1 = 0;
 			int errors1to0 = 0;
 
-			for (int i = 0; i < nodeList_.size(); i++)
+			for (int i = 0; i < nodeList_.size(); ++i)
 			{
 				if (nodeList_.at(i)->state_->h_.elements_[0] > 0.5)
 				{
@@ -1060,9 +1060,9 @@ namespace WhydahGally
 
 			if (file)
 			{
-				for (int i = 0; i < param_->weightsG_.rows_; i++)
+				for (int i = 0; i < param_->weightsG_.rows_; ++i)
 				{
-					for (int j = 0; j < param_->weightsG_.cols_; j++)
+					for (int j = 0; j < param_->weightsG_.cols_; ++j)
 					{
 						file << param_->weightsG_.elements_[i * param_->weightsG_.cols_ + j];
 						file << "\t";
@@ -1082,9 +1082,9 @@ namespace WhydahGally
 
 			if (file)
 			{
-				for (int i = 0; i < param_->weightsI_.rows_; i++)
+				for (int i = 0; i < param_->weightsI_.rows_; ++i)
 				{
-					for (int j = 0; j < param_->weightsI_.cols_; j++)
+					for (int j = 0; j < param_->weightsI_.cols_; ++j)
 					{
 						file << param_->weightsI_.elements_[i * param_->weightsI_.cols_ + j];
 						file << "\t";
@@ -1104,9 +1104,9 @@ namespace WhydahGally
 
 			if (file)
 			{
-				for (int i = 0; i < param_->weightsF_.rows_; i++)
+				for (int i = 0; i < param_->weightsF_.rows_; ++i)
 				{
-					for (int j = 0; j < param_->weightsF_.cols_; j++)
+					for (int j = 0; j < param_->weightsF_.cols_; ++j)
 					{
 						file << param_->weightsF_.elements_[i * param_->weightsF_.cols_ + j];
 						file << "\t";
@@ -1126,9 +1126,9 @@ namespace WhydahGally
 
 			if (file)
 			{
-				for (int i = 0; i < param_->weightsO_.rows_; i++)
+				for (int i = 0; i < param_->weightsO_.rows_; ++i)
 				{
-					for (int j = 0; j < param_->weightsO_.cols_; j++)
+					for (int j = 0; j < param_->weightsO_.cols_; ++j)
 					{
 						file << param_->weightsO_.elements_[i * param_->weightsO_.cols_ + j];
 						file << "\t";
@@ -1148,7 +1148,7 @@ namespace WhydahGally
 
 			if (file)
 			{
-				for (int i = 0; i < param_->biasG_.rows_; i++)
+				for (int i = 0; i < param_->biasG_.rows_; ++i)
 				{
 					file << param_->biasG_.elements_[i];
 					file << "\t";
@@ -1165,7 +1165,7 @@ namespace WhydahGally
 
 			if (file)
 			{
-				for (int i = 0; i < param_->biasI_.rows_; i++)
+				for (int i = 0; i < param_->biasI_.rows_; ++i)
 				{
 					file << param_->biasI_.elements_[i];
 					file << "\t";
@@ -1182,7 +1182,7 @@ namespace WhydahGally
 
 			if (file)
 			{
-				for (int i = 0; i < param_->biasF_.rows_; i++)
+				for (int i = 0; i < param_->biasF_.rows_; ++i)
 				{
 					file << param_->biasF_.elements_[i];
 					file << "\t";
@@ -1199,7 +1199,7 @@ namespace WhydahGally
 
 			if (file)
 			{
-				for (int i = 0; i < param_->biasO_.rows_; i++)
+				for (int i = 0; i < param_->biasO_.rows_; ++i)
 				{
 					file << param_->biasO_.elements_[i];
 					file << "\t";

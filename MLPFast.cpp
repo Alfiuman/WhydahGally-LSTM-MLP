@@ -4,7 +4,7 @@ namespace WhydahGally
 {
 	namespace Base
 	{
-		MLPFast::MLPFast(Importer& importer, const float& limMin, const float& limMax, const float& seedNo, const std::vector<int>& numNeurArr) : MultiLayerPerceptron(importer, limMin, limMax, seedNo, numNeurArr)
+		MLPFast::MLPFast(Importer& importer, float limMin, float limMax, float seedNo, const std::vector<int>& numNeurArr) : MultiLayerPerceptron(importer, limMin, limMax, seedNo, numNeurArr)
 		{
 
 		}
@@ -14,17 +14,17 @@ namespace WhydahGally
 			
 		}
 
-		void MLPFast::calculateLayers(const int& parall)
+		void MLPFast::calculateLayers(int parall)
 		{
-			for (short int i = 0; i < numNeurArr_.size(); i++)
+			for (short int i = 0; i < numNeurArr_.size(); ++i)
 			{
-				for (int j = 0; j < layersF_[i + 1].rows_; j++)
+				for (int j = 0; j < layersF_[i + 1].rows_; ++j)
 				{
 					//Computing the layers using the sigmoid function.
 					Matrix<float> results(1);
 					Maths::matricesDotProduct(layersF_[i], weightsF_[i], &results, parall);
 
-					for (int k = 0; k < layersF_[i + 1].cols_ - 1; k++)
+					for (int k = 0; k < layersF_[i + 1].cols_ - 1; ++k)
 					{
 						layersF_[i + 1].elements_[j * layersF_[i + 1].cols_ + k] = Maths::sigmoid(results.elements_[j * results.cols_ + k]);
 					}
@@ -36,7 +36,7 @@ namespace WhydahGally
 			Maths::matricesDotProduct(layersF_[layersF_.size() - 2], weightsF_[weights_.size() - 1], &results, parall);
 
 			//Avoiding extreme values such as 1.0 and 0.0 .
-			for (int i = 0; i < layersF_[layersF_.size() - 1].rows_; i++)
+			for (int i = 0; i < layersF_[layersF_.size() - 1].rows_; ++i)
 			{
 				layersF_[layersF_.size() - 1].elements_[i * layersF_[layersF_.size() - 1].cols_ + 0] = Maths::sigmoid(results.elements_[i * results.cols_ + 0]);
 
@@ -51,13 +51,13 @@ namespace WhydahGally
 			}
 		}
 
-		void MLPFast::computeErrors(const int& counter, const int& lossFunction, const bool& plot, const bool& backpropagation, const int& parall)
+		void MLPFast::computeErrors(int counter, int lossFunction, bool plot, bool backpropagation, int parall)
 		{
 			//Computing the last layer errors.
 			Matrix<float> results(1);
 			Maths::matricesDifference(layersF_[layers_.size() - 1], importer_->getYMat(), &results, parall);
 
-			for (int i = 0; i < importer_->getYMat().rows_; i++)
+			for (int i = 0; i < importer_->getYMat().rows_; ++i)
 			{
 				lastLayerErrorV_[i] = results.elements_[i];
 			}
@@ -75,35 +75,35 @@ namespace WhydahGally
 				//Computing the last layer errors given a particular loss function.
 				if (lossFunction == LOSSFUNCTSIMPLE)
 				{
-					for (int i = 0; i < importer_->getYMat().rows_; i++)
+					for (int i = 0; i < importer_->getYMat().rows_; ++i)
 					{
 						lastLayerError_[i] = Maths::lossFunctSimple(layersF_[layers_.size() - 1].elements_[i], importer_->getYMat().elements_[i]);
 					}
 				}
 				else if (lossFunction == LOSSFUNCTLOG)
 				{
-					for (int i = 0; i < importer_->getYMat().rows_; i++)
+					for (int i = 0; i < importer_->getYMat().rows_; ++i)
 					{
 						lastLayerError_[i] = Maths::lossFunctLog(layersF_[layers_.size() - 1].elements_[i], importer_->getYMat().elements_[i]);
 					}
 				}
 				else if (lossFunction == LOSSFUNCTLOGPOW3)
 				{
-					for (int i = 0; i < importer_->getYMat().rows_; i++)
+					for (int i = 0; i < importer_->getYMat().rows_; ++i)
 					{
 						lastLayerError_[i] = Maths::lossFunctLogPow3(layersF_[layers_.size() - 1].elements_[i], importer_->getYMat().elements_[i]);
 					}
 				}
 				else if (lossFunction == LOSSFUNCTPOW3)
 				{
-					for (int i = 0; i < importer_->getYMat().rows_; i++)
+					for (int i = 0; i < importer_->getYMat().rows_; ++i)
 					{
 						lastLayerError_[i] = Maths::lossFunctPow3(layersF_[layers_.size() - 1].elements_[i], importer_->getYMat().elements_[i]);
 					}
 				}
 				else if (lossFunction == LOSSFUNCTPOW3PLOGPOW3)
 				{
-					for (int i = 0; i < importer_->getYMat().rows_; i++)
+					for (int i = 0; i < importer_->getYMat().rows_; ++i)
 					{
 						lastLayerError_[i] = Maths::lossFunctPow3PLogPow3(layersF_[layers_.size() - 1].elements_[i], importer_->getYMat().elements_[i]);
 					}
@@ -112,11 +112,11 @@ namespace WhydahGally
 				//Storing the best weights and errors found so far.
 				if (Maths::mean(Maths::abs(lastLayerError_)) < bestError_)
 				{
-					for (int i = 0; i < weightsF_.size(); i++)
+					for (int i = 0; i < weightsF_.size(); ++i)
 					{
-						for (int j = 0; j < weightsF_[i].rows_; j++)
+						for (int j = 0; j < weightsF_[i].rows_; ++j)
 						{
-							for (int k = 0; k < weightsF_[i].cols_; k++)
+							for (int k = 0; k < weightsF_[i].cols_; ++k)
 							{
 								topWeights_[i][j][k] = weightsF_[i].elements_[j * weightsF_[i].cols_ + k];
 							}
@@ -148,35 +148,35 @@ namespace WhydahGally
 				//Computing the errors.
 				if (lossFunction == LOSSFUNCTSIMPLE)
 				{
-					for (int i = 0; i < layerErrors_[layerErrors_.size() - 1].size(); i++)
+					for (int i = 0; i < layerErrors_[layerErrors_.size() - 1].size(); ++i)
 					{
 						layerErrors_[layerErrors_.size() - 1][i][0] = Maths::lossFunctSimple(layersF_[layers_.size() - 1].elements_[i], importer_->getYMat().elements_[i]);
 					}
 				}
 				else if (lossFunction == LOSSFUNCTLOG)
 				{
-					for (int i = 0; i < layerErrors_[layerErrors_.size() - 1].size(); i++)
+					for (int i = 0; i < layerErrors_[layerErrors_.size() - 1].size(); ++i)
 					{
 						layerErrors_[layerErrors_.size() - 1][i][0] = Maths::lossFunctLog(layersF_[layers_.size() - 1].elements_[i], importer_->getYMat().elements_[i]);
 					}
 				}
 				else if (lossFunction == LOSSFUNCTLOGPOW3)
 				{
-					for (int i = 0; i < layerErrors_[layerErrors_.size() - 1].size(); i++)
+					for (int i = 0; i < layerErrors_[layerErrors_.size() - 1].size(); ++i)
 					{
 						layerErrors_[layerErrors_.size() - 1][i][0] = Maths::lossFunctLogPow3(layersF_[layers_.size() - 1].elements_[i], importer_->getYMat().elements_[i]);
 					}
 				}
 				else if (lossFunction == LOSSFUNCTPOW3)
 				{
-					for (int i = 0; i < layerErrors_[layerErrors_.size() - 1].size(); i++)
+					for (int i = 0; i < layerErrors_[layerErrors_.size() - 1].size(); ++i)
 					{
 						layerErrors_[layerErrors_.size() - 1][i][0] = Maths::lossFunctPow3(layersF_[layers_.size() - 1].elements_[i], importer_->getYMat().elements_[i]);
 					}
 				}
 				else if (lossFunction == LOSSFUNCTPOW3PLOGPOW3)
 				{
-					for (int i = 0; i < layerErrors_[layerErrors_.size() - 1].size(); i++)
+					for (int i = 0; i < layerErrors_[layerErrors_.size() - 1].size(); ++i)
 					{
 						layerErrors_[layerErrors_.size() - 1][i][0] = Maths::lossFunctPow3PLogPow3(layersF_[layers_.size() - 1].elements_[i], importer_->getYMat().elements_[i]);
 					}
@@ -212,52 +212,52 @@ namespace WhydahGally
 			train(distrParam, ranges, checkPoints, LOSSFUNCTSIMPLE, 0, 1, 0);
 		}
 
-		void MLPFast::train(DistribParamForMLP& distrParam, int ranges[3], int checkPoints[3], const int& lossFunction, const bool& plot, const bool& print, const int& parall)
+		void MLPFast::train(DistribParamForMLP& distrParam, int ranges[3], int checkPoints[3], int lossFunction, bool plot, bool print, int parall)
 		{
 			//Proper training for the MLP.
 			//Building the vectors of matrices that store the weights.
-			for (int i = 0; i < weights_.size(); i++)
+			for (int i = 0; i < weights_.size(); ++i)
 			{
 				weightsF_.push_back(Matrix<float>(weights_[i].size(), weights_[i][0].size()));
 			}
 
-			for (int i = 0; i < layers_.size(); i++)
+			for (int i = 0; i < layers_.size(); ++i)
 			{
 				layersF_.push_back(Matrix<float>(layers_[i].size(), layers_[i][0].size()));
 			}
 
-			for (int i = 0; i < layerDeltaUse_.size(); i++)
+			for (int i = 0; i < layerDeltaUse_.size(); ++i)
 			{
 				layerDeltaUseF_.push_back(Matrix<float>(layerDeltaUse_[i].size(), layerDeltaUse_[i][0].size()));
 			}
 
-			for (int i = 0; i < weightsF_.size(); i++)
+			for (int i = 0; i < weightsF_.size(); ++i)
 			{
-				for (int j = 0; j < weightsF_[i].rows_; j++)
+				for (int j = 0; j < weightsF_[i].rows_; ++j)
 				{
-					for (int k = 0; k < weightsF_[i].cols_; k++)
+					for (int k = 0; k < weightsF_[i].cols_; ++k)
 					{
 						weightsF_[i].elements_[j * weightsF_[i].cols_ + k] = weights_[i][j][k];
 					}
 				}
 			}
 
-			for (int i = 0; i < layersF_.size(); i++)
+			for (int i = 0; i < layersF_.size(); ++i)
 			{
-				for (int j = 0; j < layersF_[i].rows_; j++)
+				for (int j = 0; j < layersF_[i].rows_; ++j)
 				{
-					for (int k = 0; k < layersF_[i].cols_; k++)
+					for (int k = 0; k < layersF_[i].cols_; ++k)
 					{
 						layersF_[i].elements_[j * layersF_[i].cols_ + k] = layers_[i][j][k];
 					}
 				}
 			}
 
-			for (int i = 0; i < layerDeltaUseF_.size(); i++)
+			for (int i = 0; i < layerDeltaUseF_.size(); ++i)
 			{
-				for (int j = 0; j < layerDeltaUseF_[i].rows_; j++)
+				for (int j = 0; j < layerDeltaUseF_[i].rows_; ++j)
 				{
-					for (int k = 0; k < layerDeltaUseF_[i].cols_; k++)
+					for (int k = 0; k < layerDeltaUseF_[i].cols_; ++k)
 					{
 						layerDeltaUseF_[i].elements_[j * layerDeltaUseF_[i].cols_ + k] = layerDeltaUse_[i][j][k];
 					}
@@ -268,11 +268,11 @@ namespace WhydahGally
 
 			results.resize(weightsF_.size());
 
-			for (short int i = 0; i < weightsF_.size(); i++)
+			for (short int i = 0; i < weightsF_.size(); ++i)
 			{
 				results[i].resize(weightsF_[i].rows_);
 
-				for (int j = 0; j < weightsF_[i].rows_; j++)
+				for (int j = 0; j < weightsF_[i].rows_; ++j)
 				{
 					results[i][j].resize(weightsF_[i].cols_);
 				}
@@ -316,11 +316,11 @@ namespace WhydahGally
 
 				if (distrParam.ranDistr_ == 0)
 				{
-					for (int i = 0; i < weightsF_.size(); i++)
+					for (int i = 0; i < weightsF_.size(); ++i)
 					{
-						for (int j = 0; j < weightsF_[i].rows_; j++)
+						for (int j = 0; j < weightsF_[i].rows_; ++j)
 						{
-							for (int k = 0; k < weightsF_[i].cols_; k++)
+							for (int k = 0; k < weightsF_[i].cols_; ++k)
 							{
 								weightsF_[i].elements_[j * weightsF_[i].cols_ + k] = ((distrParam.sigma_ - distrParam.mu_) * static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) + distrParam.mu_; //sigma = limMax; mu = limMin;
 							}
@@ -329,11 +329,11 @@ namespace WhydahGally
 				}
 				else if (distrParam.ranDistr_ == 1)
 				{
-					for (int i = 0; i < weightsF_.size(); i++)
+					for (int i = 0; i < weightsF_.size(); ++i)
 					{
-						for (int j = 0; j < weightsF_[i].rows_; j++)
+						for (int j = 0; j < weightsF_[i].rows_; ++j)
 						{
-							for (int k = 0; k < weightsF_[i].cols_; k++)
+							for (int k = 0; k < weightsF_[i].cols_; ++k)
 							{
 								weightsF_[i].elements_[j * weightsF_[i].cols_ + k] = Maths::randNormalDistrib(distrParam.mu_, distrParam.sigma_);
 							}
@@ -348,11 +348,11 @@ namespace WhydahGally
 
 			if (fase1 == 1)
 			{
-				for (int i = 0; i < weightsF_.size(); i++)
+				for (int i = 0; i < weightsF_.size(); ++i)
 				{
-					for (int j = 0; j < weightsF_[i].rows_; j++)
+					for (int j = 0; j < weightsF_[i].rows_; ++j)
 					{
-						for (int k = 0; k < weightsF_[i].cols_; k++)
+						for (int k = 0; k < weightsF_[i].cols_; ++k)
 						{
 							weightsF_[i].elements_[j * weightsF_[i].cols_ + k] = topWeights_[i][j][k];
 						}
@@ -373,11 +373,11 @@ namespace WhydahGally
 					PRINT("Error after " + std::to_string(r) + " 2nd iterations: " + std::to_string(bestErrorExpl_) + " or FunctErr: " + std::to_string(bestError_) << "\n");
 				}
 
-				for (int i = 0; i < weightsF_.size(); i++)
+				for (int i = 0; i < weightsF_.size(); ++i)
 				{
-					for (int j = 0; j < weightsF_[i].rows_; j++)
+					for (int j = 0; j < weightsF_[i].rows_; ++j)
 					{
-						for (int k = 0; k < weightsF_[i].cols_; k++)
+						for (int k = 0; k < weightsF_[i].cols_; ++k)
 						{
 							weightsF_[i].elements_[j * weightsF_[i].cols_ + k] = ((distrParam.epsilon_ - (1 - (distrParam.epsilon_ - 1))) * static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) + (1 - (distrParam.epsilon_ - 1)) * topWeights_.at(i).at(j).at(k);
 						}
@@ -387,11 +387,11 @@ namespace WhydahGally
 
 			if (fase2 == 1)
 			{
-				for (int i = 0; i < weightsF_.size(); i++)
+				for (int i = 0; i < weightsF_.size(); ++i)
 				{
-					for (int j = 0; j < weightsF_[i].rows_; j++)
+					for (int j = 0; j < weightsF_[i].rows_; ++j)
 					{
-						for (int k = 0; k < weightsF_[i].cols_; k++)
+						for (int k = 0; k < weightsF_[i].cols_; ++k)
 						{
 							weightsF_[i].elements_[j * weightsF_[i].cols_ + k] = topWeights_[i][j][k];
 						}
@@ -417,7 +417,7 @@ namespace WhydahGally
 
 				if (r != ranges[2])
 				{
-					for (int i = 0; i < layerDeltas_[layerDeltas_.size() - 1].size(); i++)
+					for (int i = 0; i < layerDeltas_[layerDeltas_.size() - 1].size(); ++i)
 					{
 						layerDeltas_[layerDeltas_.size() - 1][i][0] = layerErrors_[layerErrors_.size() - 1][i][0] * Maths::derivativeSigmoid(layersF_[layersF_.size() - 1].elements_[i * layersF_[layersF_.size() - 1].cols_ + 0]);
 						layerDeltaUseF_[layerDeltaUseF_.size() - 1].elements_[i * layerDeltaUseF_[layerDeltaUseF_.size() - 1].cols_ + 0] = layerDeltas_[layerDeltas_.size() - 1][i][0];
@@ -430,18 +430,18 @@ namespace WhydahGally
 						Maths::transposeMatrix(weightsF_[i], &resultTr, parall);
 						Maths::matricesDotProduct(layerDeltaUseF_[i + 1], resultTr, &resultProd, parall);
 
-						for (int j = 0; j < resultProd.rows_; j++)
+						for (int j = 0; j < resultProd.rows_; ++j)
 						{
-							for (int k = 0; k < resultProd.cols_; k++)
+							for (int k = 0; k < resultProd.cols_; ++k)
 							{
 								layerErrors_[i][j][k] = resultProd.elements_[j * resultProd.cols_ + k];
 							}
 						}
 
 						//Computing the deltas using the derivative of the sigmoid function.
-						for (int j = 0; j < layersF_[i].rows_; j++)
+						for (int j = 0; j < layersF_[i].rows_; ++j)
 						{
-							for (int k = 0; k < layersF_[i].cols_; k++)
+							for (int k = 0; k < layersF_[i].cols_; ++k)
 							{
 								layerDeltas_[i][j][k] = layerErrors_[i][j][k] * Maths::derivativeSigmoid(layersF_[i].elements_[j * layersF_[i].cols_ + k]);
 								if (k != layersF_[i].cols_ - 1)
@@ -459,18 +459,18 @@ namespace WhydahGally
 						Maths::transposeMatrix(layersF_[i], &resultTr, parall);
 						Maths::matricesDotProduct(resultTr, layerDeltaUseF_[i + 1], &resultProd, parall);
 
-						for (int j = 0; j < resultProd.rows_; j++)
+						for (int j = 0; j < resultProd.rows_; ++j)
 						{
-							for (int k = 0; k < resultProd.cols_; k++)
+							for (int k = 0; k < resultProd.cols_; ++k)
 							{
 								results[i][j][k] = resultProd.elements_[j * resultProd.cols_ + k];
 							}
 						}
 						
 						//Adjusting the weights.
-						for (int j = 0; j < weightsF_[i].rows_; j++)
+						for (int j = 0; j < weightsF_[i].rows_; ++j)
 						{
-							for (int k = 0; k < weightsF_[i].cols_; k++)
+							for (int k = 0; k < weightsF_[i].cols_; ++k)
 							{
 								weightsF_[i].elements_[j * weightsF_[i].cols_ + k] -= alpha * results[i][j][k];
 							}
@@ -482,11 +482,11 @@ namespace WhydahGally
 			if (fase3 == 1)
 			{
 				//Repopulating the top weights.
-				for (int i = 0; i < weightsF_.size(); i++)
+				for (int i = 0; i < weightsF_.size(); ++i)
 				{
-					for (int j = 0; j < weightsF_[i].rows_; j++)
+					for (int j = 0; j < weightsF_[i].rows_; ++j)
 					{
-						for (int k = 0; k < weightsF_[i].cols_; k++)
+						for (int k = 0; k < weightsF_[i].cols_; ++k)
 						{
 							topWeights_[i][j][k] = weightsF_[i].elements_[j * weightsF_[i].cols_ + k];
 						}
@@ -495,11 +495,11 @@ namespace WhydahGally
 			}
 
 			//Copying the layers.
-			for (int i = 0; i < layersF_.size(); i++)
+			for (int i = 0; i < layersF_.size(); ++i)
 			{
-				for (int j = 0; j < layersF_[i].rows_; j++)
+				for (int j = 0; j < layersF_[i].rows_; ++j)
 				{
-					for (int k = 0; k < layersF_[i].cols_; k++)
+					for (int k = 0; k < layersF_[i].cols_; ++k)
 					{
 						layers_[i][j][k] = layersF_[i].elements_[j * layersF_[i].cols_ + k];
 					}

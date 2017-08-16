@@ -15,15 +15,15 @@ namespace WhydahGally
 			std::vector<Matrix<float>> layerDeltaUseF_;
 
 		private:
-			void calculateLayers(const int& parall);
-			void computeErrors(const int& counter, const int& lossFunction, const bool& plot, const bool& backpropagation, const int& parall);
+			void calculateLayers(int parall);
+			void computeErrors(int counter, int lossFunction, bool plot, bool backpropagation, int parall);
 			
 		public:
-			MLPFast(Importer& importer, const float& limMin, const float& limMax, const float& seedNo, const std::vector<int>& numNeurArr);
+			MLPFast(Importer& importer, float limMin, float limMax, float seedNo, const std::vector<int>& numNeurArr);
 			~MLPFast();
 
 			void train() override;
-			void train(DistribParamForMLP& distrParam, int ranges[3], int checkPoints[3], const int& lossFunction, const bool& plot, const bool& print, const int& parall);
+			void train(DistribParamForMLP& distrParam, int ranges[3], int checkPoints[3], int lossFunction, bool plot, bool print, int parall);
 		};
 	}
 }

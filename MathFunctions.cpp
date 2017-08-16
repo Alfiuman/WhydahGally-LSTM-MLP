@@ -8,7 +8,7 @@ namespace WhydahGally
 		float mean(const std::vector<float>& x)
 		{
 			float sum = 0.0f;
-			for (int i = 0; i < x.size(); i++)
+			for (int i = 0; i < x.size(); ++i)
 			{
 				sum += x[i];
 			}
@@ -20,9 +20,9 @@ namespace WhydahGally
 		{
 			float sum = 0.0f;
 			int counter = 0;
-			for (int i = 0; i < x.size(); i++)
+			for (int i = 0; i < x.size(); ++i)
 			{
-				for (int j = 0; j < x[i].size(); j++)
+				for (int j = 0; j < x[i].size(); ++j)
 				{
 					sum += x[i][j];
 					counter++;
@@ -37,7 +37,7 @@ namespace WhydahGally
 		{
 			float sum = 0.0f;
 
-			for (int i = 0; i < x.size(); i++)
+			for (int i = 0; i < x.size(); ++i)
 			{
 				sum += x[i];
 			}
@@ -51,7 +51,7 @@ namespace WhydahGally
 			std::vector<float> results;
 			results.resize(x.size());
 
-			for (int i = 0; i < x.size(); i++)
+			for (int i = 0; i < x.size(); ++i)
 			{
 				results.at(i) = abs(x[i]);
 			}
@@ -64,14 +64,14 @@ namespace WhydahGally
 			std::vector<std::vector<float>> results;
 			results.resize(x.size());
 
-			for (int i = 0; i < x.size(); i++)
+			for (int i = 0; i < x.size(); ++i)
 			{
 				results[i].resize(x[i].size());
 			}
 
-			for (int i = 0; i < x.size(); i++)
+			for (int i = 0; i < x.size(); ++i)
 			{
-				for (int j = 0; j < x[i].size(); j++)
+				for (int j = 0; j < x[i].size(); ++j)
 				{
 					results.at(i).at(j) = abs(x[i][j]);
 				}

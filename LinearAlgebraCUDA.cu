@@ -17,7 +17,7 @@ namespace WhydahGally
 				return;
 			}
 
-			for (int i = 0; i < colFirst; i++)
+			for (int i = 0; i < colFirst; ++i)
 			{
 				sum += d_inFirst[row * colFirst + i] * d_inSecond[i * colSecond + col];
 			}
@@ -35,7 +35,7 @@ namespace WhydahGally
 
 			T sum = 0.0f;
 
-			for (int i = 0; i < (BLOCK_SIZE + colFirst - 1) / BLOCK_SIZE; i++)
+			for (int i = 0; i < (BLOCK_SIZE + colFirst - 1) / BLOCK_SIZE; ++i)
 			{
 				if (i * BLOCK_SIZE + threadIdx.x < colFirst && row < rowFirst)
 				{
@@ -57,7 +57,7 @@ namespace WhydahGally
 
 				__syncthreads();
 
-				for (int j = 0; j < BLOCK_SIZE; j++)
+				for (int j = 0; j < BLOCK_SIZE; ++j)
 				{
 					sum += shFirst[threadIdx.y * BLOCK_SIZE + j] * shSecond[j * BLOCK_SIZE + threadIdx.x];
 				}
@@ -178,7 +178,7 @@ namespace WhydahGally
 		}
 
 		//Functions.
-		template<typename T> void matricesDotProductGPU(T* h_first, const int& rowFirst, const int& colFirst, T* h_second, const int& rowSecond, const int& colSecond, T* h_result)
+		template<typename T> void matricesDotProductGPU(T* h_first, int rowFirst, int colFirst, T* h_second, int rowSecond, int colSecond, T* h_result)
 		{
 			T* d_inFirst;
 			T* d_inSecond;
@@ -207,7 +207,7 @@ namespace WhydahGally
 			cudaFree(d_out);
 		}
 
-		template<typename T> void matricesDotProductGPUSH(T* h_first, const int& rowFirst, const int& colFirst, T* h_second, const int& rowSecond, const int& colSecond, T* h_result)
+		template<typename T> void matricesDotProductGPUSH(T* h_first, int rowFirst, int colFirst, T* h_second, int rowSecond, int colSecond, T* h_result)
 		{
 			T* d_inFirst;
 			T* d_inSecond;
@@ -236,7 +236,7 @@ namespace WhydahGally
 			cudaFree(d_out);
 		}
 
-		template<typename T> void transposeGPU(T* h_matrix, const int& rowMatrix, const int& colMatrix, T* h_result)
+		template<typename T> void transposeGPU(T* h_matrix, int rowMatrix, int colMatrix, T* h_result)
 		{
 			T* d_inMatrix;
 			T* d_out;
@@ -259,7 +259,7 @@ namespace WhydahGally
 			cudaFree(d_out);
 		}
 
-		template<typename T> void transposeGPUSH(T* h_matrix, const int& rowMatrix, const int& colMatrix, T* h_result)
+		template<typename T> void transposeGPUSH(T* h_matrix, int rowMatrix, int colMatrix, T* h_result)
 		{
 			T* d_inMatrix;
 			T* d_out;
@@ -282,7 +282,7 @@ namespace WhydahGally
 			cudaFree(d_out);
 		}
 
-		template<typename T> void outerProdGPU(T* h_first, const int& rowFirst, T* h_second, const int& rowSecond, T* h_result)
+		template<typename T> void outerProdGPU(T* h_first, int rowFirst, T* h_second, int rowSecond, T* h_result)
 		{
 			T* d_inFirst;
 			T* d_inSecond;
@@ -311,7 +311,7 @@ namespace WhydahGally
 			cudaFree(d_out);
 		}
 
-		template<typename T> void outerProdGPUSH(T* h_first, const int& rowFirst, T* h_second, const int& rowSecond, T* h_result)
+		template<typename T> void outerProdGPUSH(T* h_first, int rowFirst, T* h_second, int rowSecond, T* h_result)
 		{
 			T* d_inFirst;
 			T* d_inSecond;
@@ -340,7 +340,7 @@ namespace WhydahGally
 			cudaFree(d_out);
 		}
 
-		template<typename T> void vectorsDiffGPU(T* h_first, T* h_second, const int& rows, T* h_result)
+		template<typename T> void vectorsDiffGPU(T* h_first, T* h_second, int rows, T* h_result)
 		{
 			T* d_inFirst;
 			T* d_inSecond;
@@ -369,7 +369,7 @@ namespace WhydahGally
 			cudaFree(d_out);
 		}
 
-		template<typename T> void vectorsDiffGPUSH(T* h_first, T* h_second, const int& rows, T* h_result)
+		template<typename T> void vectorsDiffGPUSH(T* h_first, T* h_second, int rows, T* h_result)
 		{
 			T* d_inFirst;
 			T* d_inSecond;
@@ -412,17 +412,17 @@ namespace WhydahGally
 		template __global__ void VecDiff(float* d_inFirst, float* d_inSecond, float* d_out, int rows);
 		template __global__ void VecDiffSH(float* d_inFirst, float* d_inSecond, float* d_out, int rows);
 
-		template void matricesDotProductGPU(float* h_first, const int& rowFirst, const int& colFirst, float* h_second, const int& rowSecond, const int& colSecond, float* h_result);
-		template void matricesDotProductGPUSH(float* h_first, const int& rowFirst, const int& colFirst, float* h_second, const int& rowSecond, const int& colSecond, float* h_result);
+		template void matricesDotProductGPU(float* h_first, int rowFirst, int colFirst, float* h_second, int rowSecond, int colSecond, float* h_result);
+		template void matricesDotProductGPUSH(float* h_first, int rowFirst, int colFirst, float* h_second, int rowSecond, int colSecond, float* h_result);
 
-		template void transposeGPU(float* h_matrix, const int& rowMatrix, const int& colMatrix, float* h_result);
-		template void transposeGPUSH(float* h_matrix, const int& rowMatrix, const int& colMatrix, float* h_result);
+		template void transposeGPU(float* h_matrix, int rowMatrix, int colMatrix, float* h_result);
+		template void transposeGPUSH(float* h_matrix, int rowMatrix, int colMatrix, float* h_result);
 
-		template void outerProdGPU(float* h_first, const int& rowFirst, float* h_second, const int& rowSecond, float* h_result);
-		template void outerProdGPUSH(float* h_first, const int& rowFirst, float* h_second, const int& rowSecond, float* h_result);
+		template void outerProdGPU(float* h_first, int rowFirst, float* h_second, int rowSecond, float* h_result);
+		template void outerProdGPUSH(float* h_first, int rowFirst, float* h_second, int rowSecond, float* h_result);
 
-		template void vectorsDiffGPU(float* h_first, float* h_second, const int& rows, float* h_result);
-		template void vectorsDiffGPUSH(float* h_first, float* h_second, const int& rows, float* h_result);
+		template void vectorsDiffGPU(float* h_first, float* h_second, int rows, float* h_result);
+		template void vectorsDiffGPUSH(float* h_first, float* h_second, int rows, float* h_result);
 
 		//double
 		template __global__ void MultipMatrices(double* d_inFirst, double* d_inSecond, double* d_out, int rowFirst, int colFirst, int colSecond);
@@ -437,17 +437,17 @@ namespace WhydahGally
 		template __global__ void VecDiff(double* d_inFirst, double* d_inSecond, double* d_out, int rows);
 		template __global__ void VecDiffSH(double* d_inFirst, double* d_inSecond, double* d_out, int rows);
 
-		template void matricesDotProductGPU(double* h_first, const int& rowFirst, const int& colFirst, double* h_second, const int& rowSecond, const int& colSecond, double* h_result);
-		template void matricesDotProductGPUSH(double* h_first, const int& rowFirst, const int& colFirst, double* h_second, const int& rowSecond, const int& colSecond, double* h_result);
+		template void matricesDotProductGPU(double* h_first, int rowFirst, int colFirst, double* h_second, int rowSecond, int colSecond, double* h_result);
+		template void matricesDotProductGPUSH(double* h_first, int rowFirst, int colFirst, double* h_second, int rowSecond, int colSecond, double* h_result);
 
-		template void transposeGPU(double* h_matrix, const int& rowMatrix, const int& colMatrix, double* h_result);
-		template void transposeGPUSH(double* h_matrix, const int& rowMatrix, const int& colMatrix, double* h_result);
+		template void transposeGPU(double* h_matrix, int rowMatrix, int colMatrix, double* h_result);
+		template void transposeGPUSH(double* h_matrix, int rowMatrix, int colMatrix, double* h_result);
 
-		template void outerProdGPU(double* h_first, const int& rowFirst, double* h_second, const int& rowSecond, double* h_result);
-		template void outerProdGPUSH(double* h_first, const int& rowFirst, double* h_second, const int& rowSecond, double* h_result);
+		template void outerProdGPU(double* h_first, int rowFirst, double* h_second, int rowSecond, double* h_result);
+		template void outerProdGPUSH(double* h_first, int rowFirst, double* h_second, int rowSecond, double* h_result);
 
-		template void vectorsDiffGPU(double* h_first, double* h_second, const int& rows, double* h_result);
-		template void vectorsDiffGPUSH(double* h_first, double* h_second, const int& rows, double* h_result);
+		template void vectorsDiffGPU(double* h_first, double* h_second, int rows, double* h_result);
+		template void vectorsDiffGPUSH(double* h_first, double* h_second, int rows, double* h_result);
 
 		//int
 		template __global__ void MultipMatrices(int* d_inFirst, int* d_inSecond, int* d_out, int rowFirst, int colFirst, int colSecond);
@@ -462,17 +462,17 @@ namespace WhydahGally
 		template __global__ void VecDiff(int* d_inFirst, int* d_inSecond, int* d_out, int rows);
 		template __global__ void VecDiffSH(int* d_inFirst, int* d_inSecond, int* d_out, int rows);
 
-		template void matricesDotProductGPU(int* h_first, const int& rowFirst, const int& colFirst, int* h_second, const int& rowSecond, const int& colSecond, int* h_result);
-		template void matricesDotProductGPUSH(int* h_first, const int& rowFirst, const int& colFirst, int* h_second, const int& rowSecond, const int& colSecond, int* h_result);
+		template void matricesDotProductGPU(int* h_first, int rowFirst, int colFirst, int* h_second, int rowSecond, int colSecond, int* h_result);
+		template void matricesDotProductGPUSH(int* h_first, int rowFirst, int colFirst, int* h_second, int rowSecond, int colSecond, int* h_result);
 
-		template void transposeGPU(int* h_matrix, const int& rowMatrix, const int& colMatrix, int* h_result);
-		template void transposeGPUSH(int* h_matrix, const int& rowMatrix, const int& colMatrix, int* h_result);
+		template void transposeGPU(int* h_matrix, int rowMatrix, int colMatrix, int* h_result);
+		template void transposeGPUSH(int* h_matrix, int rowMatrix, int colMatrix, int* h_result);
 
-		template void outerProdGPU(int* h_first, const int& rowFirst, int* h_second, const int& rowSecond, int* h_result);
-		template void outerProdGPUSH(int* h_first, const int& rowFirst, int* h_second, const int& rowSecond, int* h_result);
+		template void outerProdGPU(int* h_first, int rowFirst, int* h_second, int rowSecond, int* h_result);
+		template void outerProdGPUSH(int* h_first, int rowFirst, int* h_second, int rowSecond, int* h_result);
 
-		template void vectorsDiffGPU(int* h_first, int* h_second, const int& rows, int* h_result);
-		template void vectorsDiffGPUSH(int* h_first, int* h_second, const int& rows, int* h_result);
+		template void vectorsDiffGPU(int* h_first, int* h_second, int rows, int* h_result);
+		template void vectorsDiffGPUSH(int* h_first, int* h_second, int rows, int* h_result);
 
 		//unsigned int
 		template __global__ void MultipMatrices(unsigned int* d_inFirst, unsigned int* d_inSecond, unsigned int* d_out, int rowFirst, int colFirst, int colSecond);
@@ -487,17 +487,17 @@ namespace WhydahGally
 		template __global__ void VecDiff(unsigned int* d_inFirst, unsigned int* d_inSecond, unsigned int* d_out, int rows);
 		template __global__ void VecDiffSH(unsigned int* d_inFirst, unsigned int* d_inSecond, unsigned int* d_out, int rows);
 
-		template void matricesDotProductGPU(unsigned int* h_first, const int& rowFirst, const int& colFirst, unsigned int* h_second, const int& rowSecond, const int& colSecond, unsigned int* h_result);
-		template void matricesDotProductGPUSH(unsigned int* h_first, const int& rowFirst, const int& colFirst, unsigned int* h_second, const int& rowSecond, const int& colSecond, unsigned int* h_result);
+		template void matricesDotProductGPU(unsigned int* h_first, int rowFirst, int colFirst, unsigned int* h_second, int rowSecond, int colSecond, unsigned int* h_result);
+		template void matricesDotProductGPUSH(unsigned int* h_first, int rowFirst, int colFirst, unsigned int* h_second, int rowSecond, int colSecond, unsigned int* h_result);
 
-		template void transposeGPU(unsigned int* h_matrix, const int& rowMatrix, const int& colMatrix, unsigned int* h_result);
-		template void transposeGPUSH(unsigned int* h_matrix, const int& rowMatrix, const int& colMatrix, unsigned int* h_result);
+		template void transposeGPU(unsigned int* h_matrix, int rowMatrix, int colMatrix, unsigned int* h_result);
+		template void transposeGPUSH(unsigned int* h_matrix, int rowMatrix, int colMatrix, unsigned int* h_result);
 
-		template void outerProdGPU(unsigned int* h_first, const int& rowFirst, unsigned int* h_second, const int& rowSecond, unsigned int* h_result);
-		template void outerProdGPUSH(unsigned int* h_first, const int& rowFirst, unsigned int* h_second, const int& rowSecond, unsigned int* h_result);
+		template void outerProdGPU(unsigned int* h_first, int rowFirst, unsigned int* h_second, int rowSecond, unsigned int* h_result);
+		template void outerProdGPUSH(unsigned int* h_first, int rowFirst, unsigned int* h_second, int rowSecond, unsigned int* h_result);
 
-		template void vectorsDiffGPU(unsigned int* h_first, unsigned int* h_second, const int& rows, unsigned int* h_result);
-		template void vectorsDiffGPUSH(unsigned int* h_first, unsigned int* h_second, const int& rows, unsigned int* h_result);
+		template void vectorsDiffGPU(unsigned int* h_first, unsigned int* h_second, int rows, unsigned int* h_result);
+		template void vectorsDiffGPUSH(unsigned int* h_first, unsigned int* h_second, int rows, unsigned int* h_result);
 
 		//long
 		template __global__ void MultipMatrices(long* d_inFirst, long* d_inSecond, long* d_out, int rowFirst, int colFirst, int colSecond);
@@ -512,17 +512,17 @@ namespace WhydahGally
 		template __global__ void VecDiff(long* d_inFirst, long* d_inSecond, long* d_out, int rows);
 		template __global__ void VecDiffSH(long* d_inFirst, long* d_inSecond, long* d_out, int rows);
 
-		template void matricesDotProductGPU(long* h_first, const int& rowFirst, const int& colFirst, long* h_second, const int& rowSecond, const int& colSecond, long* h_result);
-		template void matricesDotProductGPUSH(long* h_first, const int& rowFirst, const int& colFirst, long* h_second, const int& rowSecond, const int& colSecond, long* h_result);
+		template void matricesDotProductGPU(long* h_first, int rowFirst, int colFirst, long* h_second, int rowSecond, int colSecond, long* h_result);
+		template void matricesDotProductGPUSH(long* h_first, int rowFirst, int colFirst, long* h_second, int rowSecond, int colSecond, long* h_result);
 
-		template void transposeGPU(long* h_matrix, const int& rowMatrix, const int& colMatrix, long* h_result);
-		template void transposeGPUSH(long* h_matrix, const int& rowMatrix, const int& colMatrix, long* h_result);
+		template void transposeGPU(long* h_matrix, int rowMatrix, int colMatrix, long* h_result);
+		template void transposeGPUSH(long* h_matrix, int rowMatrix, int colMatrix, long* h_result);
 
-		template void outerProdGPU(long* h_first, const int& rowFirst, long* h_second, const int& rowSecond, long* h_result);
-		template void outerProdGPUSH(long* h_first, const int& rowFirst, long* h_second, const int& rowSecond, long* h_result);
+		template void outerProdGPU(long* h_first, int rowFirst, long* h_second, int rowSecond, long* h_result);
+		template void outerProdGPUSH(long* h_first, int rowFirst, long* h_second, int rowSecond, long* h_result);
 
-		template void vectorsDiffGPU(long* h_first, long* h_second, const int& rows, long* h_result);
-		template void vectorsDiffGPUSH(long* h_first, long* h_second, const int& rows, long* h_result);
+		template void vectorsDiffGPU(long* h_first, long* h_second, int rows, long* h_result);
+		template void vectorsDiffGPUSH(long* h_first, long* h_second, int rows, long* h_result);
 
 		//unsigned long
 		template __global__ void MultipMatrices(unsigned long* d_inFirst, unsigned long* d_inSecond, unsigned long* d_out, int rowFirst, int colFirst, int colSecond);
@@ -537,17 +537,17 @@ namespace WhydahGally
 		template __global__ void VecDiff(unsigned long* d_inFirst, unsigned long* d_inSecond, unsigned long* d_out, int rows);
 		template __global__ void VecDiffSH(unsigned long* d_inFirst, unsigned long* d_inSecond, unsigned long* d_out, int rows);
 
-		template void matricesDotProductGPU(unsigned long* h_first, const int& rowFirst, const int& colFirst, unsigned long* h_second, const int& rowSecond, const int& colSecond, unsigned long* h_result);
-		template void matricesDotProductGPUSH(unsigned long* h_first, const int& rowFirst, const int& colFirst, unsigned long* h_second, const int& rowSecond, const int& colSecond, unsigned long* h_result);
+		template void matricesDotProductGPU(unsigned long* h_first, int rowFirst, int colFirst, unsigned long* h_second, int rowSecond, int colSecond, unsigned long* h_result);
+		template void matricesDotProductGPUSH(unsigned long* h_first, int rowFirst, int colFirst, unsigned long* h_second, int rowSecond, int colSecond, unsigned long* h_result);
 
-		template void transposeGPU(unsigned long* h_matrix, const int& rowMatrix, const int& colMatrix, unsigned long* h_result);
-		template void transposeGPUSH(unsigned long* h_matrix, const int& rowMatrix, const int& colMatrix, unsigned long* h_result);
+		template void transposeGPU(unsigned long* h_matrix, int rowMatrix, int colMatrix, unsigned long* h_result);
+		template void transposeGPUSH(unsigned long* h_matrix, int rowMatrix, int colMatrix, unsigned long* h_result);
 
-		template void outerProdGPU(unsigned long* h_first, const int& rowFirst, unsigned long* h_second, const int& rowSecond, unsigned long* h_result);
-		template void outerProdGPUSH(unsigned long* h_first, const int& rowFirst, unsigned long* h_second, const int& rowSecond, unsigned long* h_result);
+		template void outerProdGPU(unsigned long* h_first, int rowFirst, unsigned long* h_second, int rowSecond, unsigned long* h_result);
+		template void outerProdGPUSH(unsigned long* h_first, int rowFirst, unsigned long* h_second, int rowSecond, unsigned long* h_result);
 
-		template void vectorsDiffGPU(unsigned long* h_first, unsigned long* h_second, const int& rows, unsigned long* h_result);
-		template void vectorsDiffGPUSH(unsigned long* h_first, unsigned long* h_second, const int& rows, unsigned long* h_result);
+		template void vectorsDiffGPU(unsigned long* h_first, unsigned long* h_second, int rows, unsigned long* h_result);
+		template void vectorsDiffGPUSH(unsigned long* h_first, unsigned long* h_second, int rows, unsigned long* h_result);
 	}
 }
 

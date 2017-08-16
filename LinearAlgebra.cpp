@@ -10,7 +10,7 @@ namespace WhydahGally
 			int data = 1;
 			bool out = 1;
 
-			for (int i = 1; i < x.size(); i++)
+			for (int i = 1; i < x.size(); ++i)
 			{
 				if (x[i - 1].size() == x[i].size())
 				{
@@ -121,7 +121,7 @@ namespace WhydahGally
 			std::vector<float> results;
 			results.resize(x.size());
 
-			for (int i = 0; i < x.size(); i++)
+			for (int i = 0; i < x.size(); ++i)
 			{
 				results.at(i) = x[i] - y[i];
 			}
@@ -135,7 +135,7 @@ namespace WhydahGally
 			std::vector<float> results;
 			results.resize(x.size());
 
-			for (int i = 0; i < x.size(); i++)
+			for (int i = 0; i < x.size(); ++i)
 			{
 				results.at(i) = x[i][0] - y[i];
 			}

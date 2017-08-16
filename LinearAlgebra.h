@@ -62,7 +62,7 @@ namespace WhydahGally
 		//Linear algebra operations.
 		std::vector<float> matrixVectorProduct(const std::vector<std::vector<float>>& x, std::vector<float>& y);
 		std::vector<std::vector<float>> matricesDotProduct(const std::vector<std::vector<float>>& x, const std::vector<std::vector<float>>& y);
-		template<typename T> void matricesDotProduct(const Matrix<T>& x, const Matrix<T>& y, Matrix<T>* out, const int& parall, int resize = 1)
+		template<typename T> void matricesDotProduct(const Matrix<T>& x, const Matrix<T>& y, Matrix<T>* out, int parall, int resize = 1)
 		{
 			//Dot product between two matrices, with optional CUDA implementation.
 			if (resize == 1)
@@ -102,7 +102,7 @@ namespace WhydahGally
 		
 		std::vector<float> vectorsDifference(const std::vector<float>& x, const std::vector<float>& y);
 		std::vector<float> matrixVectorDifference(const std::vector<std::vector<float>>& x, const std::vector<float>& y);
-		template<typename T> void matricesDifference(const Matrix<T>& x, const Matrix<T>& y, Matrix<T>* out, const int& parall, int resize = 1)
+		template<typename T> void matricesDifference(const Matrix<T>& x, const Matrix<T>& y, Matrix<T>* out, int parall, int resize = 1)
 		{
 			//Difference between two matrices, with optional CUDA implementation.
 			if (resize == 1)
@@ -113,7 +113,7 @@ namespace WhydahGally
 			if (parall == 0 || parall == 11)
 			{
 #endif
-				for (int i = 0; i < (out->rows_ * out->cols_); i++)
+				for (int i = 0; i < (out->rows_ * out->cols_); ++i)
 				{
 					out->elements_[i] = x.elements_[i] - y.elements_[i];
 				}
@@ -131,7 +131,7 @@ namespace WhydahGally
 		}
 		
 		std::vector<std::vector<float>> outerProduct(const std::vector<float>& x, const std::vector<float>& y);
-		template<typename T> void outerProduct(const Matrix<T>& x, const Matrix<T>& y, Matrix<T>* out, const int& parall, int resize = 1)
+		template<typename T> void outerProduct(const Matrix<T>& x, const Matrix<T>& y, Matrix<T>* out, int parall, int resize = 1)
 		{
 			//Outer product between two matrices, with optional CUDA implementation.
 			if (resize == 1)
@@ -163,7 +163,7 @@ namespace WhydahGally
 		}
 
 		std::vector<std::vector<float>> transposeMatrix(const std::vector<std::vector<float>>& x);
-		template<typename T> void transposeMatrix(const Matrix<T>& x, Matrix<T>* out, const int& parall, int resize = 1)
+		template<typename T> void transposeMatrix(const Matrix<T>& x, Matrix<T>* out, int parall, int resize = 1)
 		{
 			//Transpose a matrix, with optional CUDA implementation.
 			if (resize == 1)

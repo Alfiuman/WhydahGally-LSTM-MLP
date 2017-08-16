@@ -4,7 +4,7 @@ namespace WhydahGally
 {
 	namespace Base
 	{
-		MultiLayerPerceptron::MultiLayerPerceptron(Importer& importer, const float& limMin, const float& limMax, const float& seedNo, const std::vector<int>& numNeurArr)
+		MultiLayerPerceptron::MultiLayerPerceptron(Importer& importer, float limMin, float limMax, float seedNo, const std::vector<int>& numNeurArr)
 			: error_(10000000.1f), errorV_(10000000.1f), bestError_(10000000.1f), bestErrorExpl_(10000000.1f), importFileName_(""), start_(0), importer_(&importer), historyLength_(importer.getHistoryLength())
 		{
 			//Building the MLP.
@@ -34,7 +34,7 @@ namespace WhydahGally
 
 		}
 
-		void MultiLayerPerceptron::buildWeights(const float& limMin, const float& limMax, const float& seedNo)
+		void MultiLayerPerceptron::buildWeights(float limMin, float limMax, float seedNo)
 		{
 			weights_.resize(numNeurArr_.size() + 1);
 			topWeights_.resize(numNeurArr_.size() + 1);
@@ -302,7 +302,7 @@ namespace WhydahGally
 			train(distrParam, ranges, checkPoints, LOSSFUNCTSIMPLE, 0, 1);
 		}
 
-		void MultiLayerPerceptron::train(DistribParamForMLP& distrParam, int ranges[3], int checkPoints[3], const int& lossFunction, const bool& plot, const bool& print)
+		void MultiLayerPerceptron::train(DistribParamForMLP& distrParam, int ranges[3], int checkPoints[3], int lossFunction, bool plot, bool print)
 		{
 			//Training the MLP with user defined parameters.
 			std::vector<std::vector<std::vector<float>>> results;
@@ -492,7 +492,7 @@ namespace WhydahGally
 			test(0);
 		}
 
-		void MultiLayerPerceptron::test(const int& lossFunction)
+		void MultiLayerPerceptron::test(int lossFunction)
 		{
 			//Testing the parameters of the MLP selecting a loss function.
 			buildWeights(-1, 1, 0);
@@ -571,7 +571,7 @@ namespace WhydahGally
 			}
 		}
 
-		void MultiLayerPerceptron::computeErrors(const int& counter, const int& lossFunction, const bool& plot, const bool& backpropagation)
+		void MultiLayerPerceptron::computeErrors(int counter, int lossFunction, bool plot, bool backpropagation)
 		{
 			lastLayerErrorV_ = Maths::matrixVectorDifference(layers_[layers_.size() - 1], importer_->getY());
 

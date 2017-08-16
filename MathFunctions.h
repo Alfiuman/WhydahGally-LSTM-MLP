@@ -40,7 +40,7 @@ namespace WhydahGally
 		{
 			T sum = (T)0.0f;
 
-			for (int i = 0; i < (x.rows_ * x.cols_); i++)
+			for (int i = 0; i < (x.rows_ * x.cols_); ++i)
 			{
 				sum += x.elements_[i];
 			}
@@ -53,7 +53,7 @@ namespace WhydahGally
 		{
 			T sum = (T)0.0f;
 
-			for (int i = 0; i < (x.rows_ * x.cols_); i++)
+			for (int i = 0; i < (x.rows_ * x.cols_); ++i)
 			{
 				sum += x.elements_[i];
 			}
