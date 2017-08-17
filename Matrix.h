@@ -37,7 +37,7 @@ namespace WhydahGally
 
 			elements_ = new T[rows_ * cols_];
 
-			std::fill(elements_, elements_ + (rows_ * cols_), 0.0f);
+			memset(elements_, 0, (rows_ * cols_) * sizeof(T));
 		}
 
 		Matrix<T>(const Matrix& x)
@@ -101,7 +101,7 @@ namespace WhydahGally
 			delete[] elements_;
 			elements_ = new T[rows_ * cols_];
 
-			std::fill(elements_, elements_ + (rows_ * cols_), 0.0f);;
+			memset(elements_, 0, (rows_ * cols_) * sizeof(T));
 		}
 
 		void assign(T x)
