@@ -794,7 +794,7 @@ namespace WhydahGally
 
 					diffH.elements_[0] = 2 * (nodeList_.at(idx)->state_->h_.elements_[0] - listY.elements_[idx]);
 
-					for (int i = 0; i < diffH.rows_; ++i)
+					for (int i = 1; i < diffH.rows_; ++i)
 					{
 						diffH.elements_[i] += nodeList_.at(idx + 1)->state_->bottomDifferH_.elements_[i];
 					}
